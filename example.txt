@@ -1,0 +1,14 @@
+from app.external_exchange.conections import *
+from app.external_exchange.conections import *
+getOrderbook('Bittrex','BTC-ETH')
+getOrderbook('Bittrex','?market=USD-BTC&type=both')
+
+getBalance('Bittrex','BTC')
+getBalance('Bittrex',{'key':'26e5a09c1b904b77a83e8548700647ee','secret':'96964721325d48da9f89a1070ece9a79','currency':'BTC'})
+
+createOrder('Bittrex',{'key':'26e5a09c1b904b77a83e8548700647ee','secret':'96964721325d48da9f89a1070ece9a79','type':'buy','market':'BTC-LTC','quantity':'1.2','rate':'1.3'},'buy')
+
+createOrder('Bittrex',{'key':'26e5a09c1b904b77a83e8548700647ee','secret':'96964721325d48da9f89a1070ece9a79','type':'buy','market':'BTC-LTC','quantity':'1.2','rate':'1.3'},'sell')
+
+getUsersOrders('Bittrex',{'key':'26e5a09c1b904b77a83e8548700647ee','secret':'96964721325d48da9f89a1070ece9a79','market':'BTC-LTC'})
+

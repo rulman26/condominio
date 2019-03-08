@@ -1,0 +1,317 @@
+<datalist id="item_list">
+</datalist>
+<h2>Registrar Ingresos</h2>
+<div class="table-responsive" id="tabla_http_scroll">
+  <table class="table" id="tabla_http">
+    <thead>
+      <tr>
+        <th width="180">Item</th>                  
+        <th width="100">Cantidad</th> 
+        <th width="100">Ubicacion</th>         
+        <th width="140">Ingreso</th>
+        <th width="120">Fabricacion</th>
+        <th width="120">Vencimiento</th>
+        <th width="80"><button class="btn btn-primary btn-sm" onclick="inventarioAddRow()"><i class="fas fa-plus"></i></button></th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+<style>
+  .t_input{
+    padding-left: 2px;
+    width: 100%;
+    border-radius: 2px;
+    border: 1px solid #BDBDBD;
+  }
+</style>
+<script>
+
+function list_items(){
+  $.get(baseUrl+"item/forminventario",function(data){
+  	let response=JSON.parse(data); 
+    console.log(response)	
+  	let fila;
+    let items=response.items;
+  	for (x in items) {	  	  	
+  	  fila+='<option codigo="'+items[x].ITEM_ID+'" value="'+items[x].ITEM_NOMBRE+'"/>';	  	  
+  	}  
+  	$("#item_list").html(fila);
+	});
+}
+list_items();
+
+
+
+function inventarioAddRow(){ 	  
+  let fechayhora=fechaHoraActual();  
+  let fecha=fechaActual();  
+
+  let row='<tr>';
+  row+='<td>';
+  row+='<input type="hidden" name="item_id">';
+  row+='<input class="t_input" list="item_list" onchange="id_item(this)">';
+  row+='</td>';    
+  row+='<td><input type="number" class="t_input" name="cantidad"></td>'; 
+  row+='<td>';
+  row+='<select class="t_input" name="ubicacion">';
+  row+='<option value="TIENDA">TIENDA</option>';
+  row+='<option value="ALAMCEN">ALMACEN</option>';  
+  row+='</td>'; 
+  row+='<td><input type="text" class="t_input fechahora" name="fechaingreso" value="'+fechayhora+'"></td>';	
+  row+='<td><input type="text" class="t_input fecha" name="fechafabricacion" value="'+fecha+'"></td>';	
+  row+='<td><input type="text" class="t_input fecha" name="fechavencimiento" value="'+fecha+'"></td>';	
+  row+='<td><button onclick="tableItemRegistrar(this)" class="btn btn-success btn-sm" data-toggle="tooltip" title="Guardar"><i class="fa fa-plus"></i></button>&nbsp';
+  row+='<button onclick="eliminar(this)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
+  row+='</tr>';
+  $("#tabla_http tbody").append(row);  
+  $(".fecha").mask("99/99/9999");
+  $(".fechahora").mask("99/99/9999 99:99");
+}  
+
+function id_item(input) {        	 
+  list = document.getElementById('item_list').options;
+	for(x in list){      		
+		if (list[x].value==input.value) {			
+			let item_id=list[x].getAttribute('codigo');	
+      let filainputs=$(input).parents("tr").find("input");      
+      filainputs[0].value=item_id;      
+			break;
+		}      		
+	}
+}
+
+function id_item_modal(input) {        	 
+  list = document.getElementById('item_list').options;
+  let m_item_id=document.getElementById('m_item_id');
+	for(x in list){      		
+		if (list[x].value==input.value) {			
+			let item_id=list[x].getAttribute('codigo');	      
+      m_item_id.value=item_id;      
+			break;
+		}      		
+	}
+}
+
+function tableItemRegistrar(boton){
+  
+  let filaInputs=$(boton).parents("tr").find("input");  
+  let item_id=filaInputs[0].value;
+  let item_nombre=filaInputs[1].value;
+  let cantidad=filaInputs[2].value;  
+  let fechaingreso=filaInputs[3].value;
+  let fechafabricacion=filaInputs[4].value;
+  let fechavencimiento=filaInputs[5].value;
+  let filaSelects=$(boton).parents("tr").find("select");
+  let ubicacion=filaSelects[0].value;
+  
+  let estado="ACTIVO";
+  let obj_json={};
+  obj_json['item_id']=item_id;
+  obj_json['item_nombre']=item_nombre;
+  obj_json['codigobarra']="";
+  obj_json['cantidad']=cantidad;
+  obj_json['ubicacion']=ubicacion;
+  obj_json['fechaingreso']=fechaingreso;
+  obj_json['fechafabricacion']=fechafabricacion;
+  obj_json['fechavencimiento']=fechavencimiento;
+  obj_json['estado']=estado;
+  console.log(obj_json)  
+  if(item_id!=""&&item_nombre!=""&&cantidad!=""&&fechaingreso!=""&&fechafabricacion!=""&&fechavencimiento!=""){
+    $.post(baseUrl+"inventario/crear",obj_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        let serverInventarioId=response.intentario_id;
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle'); 
+        let fila='<td>'+item_nombre+'</td>';          
+          fila+='<td>'+cantidad+'</td>';
+          fila+='<td>'+ubicacion+'</td>';
+          fila+='<td>'+fechaingreso+'</td>';
+          fila+='<td>'+fechafabricacion+'</td>';
+          fila+='<td>'+fechavencimiento+'</td>';          
+          fila+='<td>';
+          fila+='<button onclick="tableItemEditar('+serverInventarioId+','+item_id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
+          fila+='<button onclick="tableItemEliminar('+serverInventarioId+')" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
+          fila+='</td>';
+        $(boton).parents("tr").attr("id","f-"+serverInventarioId);
+        $(boton).parents("tr").html(fila);     
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    });
+  }else{
+    alert("Ingresar todos los datos")
+  } 
+}
+
+function modalInventarioEditar(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Editar Ingreso</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_inventario_editar">
+          <div class="form-group">
+            <input type="hidden" name="id" value="`+data.id+`">            
+            <input type="hidden" id="m_item_id" name="item_id" value="`+data.item_id+`">            
+            <label for="item_nombre">Rason Social:</label>
+            <input required type="text" class="form-control" list="item_list" id="item_nombre" 
+              name="item_nombre" value="`+data.item_nombre+`" onchange="id_item_modal(this)">
+          </div>
+          <div class="form-group">
+            <label for="cantidad">Cantidad:</label>
+            <input required type="text" class="form-control" id="cantidad" 
+              name="cantidad" value="`+data.cantidad+`">
+          </div>
+          <div class="form-group">
+            <label for="ubicacion">Ubicacion:</label>
+            <input type="text" class="form-control" id="ubicacion" name="ubicacion" value="`+data.ubicacion+`">
+          </div>
+          <div class="form-group">
+            <label for="fechaingreso">Fecha Ingreso:</label>
+            <input type="text" class="form-control" id="fechaingreso" name="fechaingreso" value="`+data.fechaingreso+`">
+          </div>
+          <div class="form-group">
+            <label for="fechafabricacion">Fecha Fabricacion:</label>
+            <input type="text" class="form-control" id="fechafabricacion" name="fechafabricacion" value="`+data.fechafabricacion+`">
+          </div>
+          <div class="form-group">
+            <label for="fechavencimiento">Fecha Vencimiento:</label>
+            <input type="text" class="form-control" id="fechavencimiento" name="fechavencimiento" value="`+data.fechavencimiento+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="InventarioEditarGuardar()">Editar</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function tableItemEditar(id,item_id){
+  let filaData=$("#f-"+id).find("td");
+  let data={};
+  data["id"]=id;
+  data["item_id"]=item_id;
+  data["item_nombre"]=filaData[0].innerHTML;
+  data["cantidad"]=filaData[1].innerHTML;
+  data["ubicacion"]=filaData[2].innerHTML;
+  data["fechaingreso"]=filaData[3].innerHTML;
+  data["fechafabricacion"]=filaData[4].innerHTML;
+  data["fechavencimiento"]=filaData[5].innerHTML;  
+  let modal=modalInventarioEditar(data);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function InventarioEditarGuardar(){  
+  if (formValido("form_inventario_editar")){
+    let data=$("#form_inventario_editar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    data_json['codigobarra']="";
+    data_json['estado']="ACTIVO";
+    console.log(data_json);
+
+    $.post(baseUrl+"inventario/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        let fila='<td>'+data_json.item_nombre+'</td>';          
+          fila+='<td>'+data_json.cantidad+'</td>';
+          fila+='<td>'+data_json.ubicacion+'</td>';
+          fila+='<td>'+data_json.fechaingreso+'</td>';
+          fila+='<td>'+data_json.fechafabricacion+'</td>';
+          fila+='<td>'+data_json.fechavencimiento+'</td>';          
+          fila+='<td>';
+          fila+='<button onclick="tableItemEditar('+data_json.id+','+data_json.item_id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
+          fila+='<button onclick="tableItemEliminar(this)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
+          fila+='</td>';
+        $("#f-"+data_json.id).html(fila);        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+function modalInventarioEliminar(id){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Eliminar Inventario</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_inventario_eliminar">
+          <input type="hidden" name="id" value="`+id+`">
+        </form>
+        <h6>Estas Seguro de Eliminar Inventario..?"</h6>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="InventarioEliminarGuardar()">Si</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function tableItemEliminar(id){
+  let modal=modalInventarioEliminar(id);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+
+function InventarioEliminarGuardar(){
+  if (formValido("form_inventario_eliminar")){
+    let data=$("#form_inventario_eliminar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    console.log(data_json);
+
+    $.post(baseUrl+"inventario/eliminar",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        $("#f-"+data_json['id']).remove();
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+function eliminar(boton){
+  $(boton).parents("tr").remove();
+}
+</script>

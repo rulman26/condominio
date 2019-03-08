@@ -1,0 +1,312 @@
+
+<div class="row">
+  <div class="col-md-3">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Filtro</span>
+      </div>
+      <select class="form-control" id="filtro">        
+        <option value="PROVEEDOR_RUC">Ruc</option>
+        <option value="PROVEEDOR_NOMBRE">Razon Social</option>
+        <option value="PROVEEDOR_DIRECCION">Direccion</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="input-group">      
+      <input type="text" class="form-control" id="filtro_input">
+    </div>
+  </div>  
+  <div class="col-sm-3">
+    <div class="input-group">
+      <button class="btn btn-primary btn-block" onclick="proveedorListar()">Buscar</button>
+    </div>
+  </div>
+  <div class="col-sm-3" id="div_buscar" style="display: none">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+      </div>
+      <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive" id="tabla_http_scroll">
+    <table class="table table-striped table-hover" id="tabla_http">
+      <thead>
+        <tr>
+          <th width="150">Ruc</th>          
+          <th width="200">Rason Social</th>
+          <th width="220">Direccion</th>          
+          <th width="150">Telefono</th>
+          <th width="150">Email</th>          
+          <th width="100">Accion</th>          
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+</div>
+
+
+<script type="text/javascript">
+screenAltura("tabla_http_scroll",280);
+var proveedores=[];
+function proveedorListar(){
+  
+  document.getElementById("div_buscar").style.display="block";
+  
+  let data={};
+    data['filtro']=document.getElementById("filtro").value;
+    data['input_filtro']=document.getElementById("filtro_input").value;
+    console.log(data);
+  $.post(baseUrl+"proveedor/filtrar/activos",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);    
+    console.log(response);
+    if (response.estado) {
+      for (x in response['data']) {
+        proveedores[response['data'][x].PROVEEDOR_ID]=response['data'][x];         
+        let fila='<tr id="f-'+response['data'][x].PROVEEDOR_ID+'">';      
+        fila+='<td>'+response['data'][x].PROVEEDOR_RUC+'</td>';  
+        fila+='<td>'+response['data'][x].PROVEEDOR_NOMBRE+'</td>';
+        fila+='<td>'+response['data'][x].PROVEEDOR_DIRECCION+'</td>';        
+        fila+='<td>'+response['data'][x].PROVEEDOR_TELEFONO+'</td>';        
+        fila+='<td>'+response['data'][x].PROVEEDOR_EMAIL+'</td>';        
+        fila+='<td style="text-align:center;">';        
+        fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="proveedorLeer(`+response['data'][x].PROVEEDOR_ID+`)">Ver</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="proveedorEditar(`+response['data'][x].PROVEEDOR_ID+`)">Editar</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="proveedorEliminar(`+response['data'][x].PROVEEDOR_ID+`)">Eliminar</a>
+                </div>
+              </div>`;
+        fila+='</td>';      
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+function modalProveedorLeer(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Datos Proveedor</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label>Ruc:</label>
+            <input readonly type="text" class="form-control" id="ruc" value="`+data.PROVEEDOR_RUC+`">
+          </div>
+          <div class="form-group">
+            <label>Razon Social:</label>
+            <input readonly type="text" class="form-control" value="`+data.PROVEEDOR_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label>Direccion:</label>
+            <input readonly type="text" class="form-control" value="`+data.PROVEEDOR_DIRECCION+`">
+          </div>
+          
+          <div class="form-group">
+            <label>Telefono:</label>
+            <input readonly type="text" class="form-control" value="`+data.PROVEEDOR_TELEFONO+`">
+          </div>
+          <div class="form-group">
+            <label>Telefono:</label>
+            <input readonly type="text" class="form-control" value="`+data.PROVEEDOR_EMAIL+`">
+          </div>
+          <div class="form-group">
+            <label>Estado:</label>    
+            <input readonly type="text" class="form-control" value="`+data.PROVEEDOR_ESTADO+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function proveedorLeer(id){
+  console.log(proveedores[id]);
+  let modal=modalProveedorLeer(proveedores[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalProveedorEditar(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Editar Proveedor</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_proveedor_editar">
+          <div class="form-group">
+            <label for="ruc">Ruc:</label>
+            <input type="number" class="form-control" id="ruc" name="ruc" value="`+data.PROVEEDOR_RUC+`">
+          </div>
+          <div class="form-group">
+            <input type="hidden" name="id" value="`+data.PROVEEDOR_ID+`">
+            <input type="hidden" name="estado" value="`+data.PROVEEDOR_ESTADO+`">
+            <label for="nombre">Rason Social:</label>
+            <input required type="text" class="form-control" id="nombre" 
+              name="nombre" value="`+data.PROVEEDOR_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="direccion">Direccion:</label>
+            <input required type="text" class="form-control" id="direccion" 
+              name="direccion" value="`+data.PROVEEDOR_DIRECCION+`">
+          </div>
+          <div class="form-group">
+            <label for="telefono">Telefono:</label>
+            <input type="text" class="form-control" id="telefono" name="telefono" value="`+data.PROVEEDOR_TELEFONO+`">
+          </div>
+          <div class="form-group">
+            <label for="email">Dni:</label>
+            <input type="text" class="form-control" id="email" name="email" value="`+data.PROVEEDOR_EMAIL+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="proveedorEditarGuardar()">Editar</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function proveedorEditar(id){
+  console.log(proveedores[id]);
+  let modal=modalProveedorEditar(proveedores[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function proveedorEditarData(data){
+  /*Actualiza el Array en el Cliente*/
+  console.log("Cabiar");
+  console.log(data);  
+  proveedores[data['id']].PROVEEDOR_RUC=data['ruc'];
+  proveedores[data['id']].PROVEEDOR_NOMBRE=data['nombre'];
+  proveedores[data['id']].PROVEEDOR_DIRECCION=data['direccion'];
+  proveedores[data['id']].PROVEEDOR_TELEFONO=data['telefono'];
+  proveedores[data['id']].PROVEEDOR_EMAIL=data['email'];  
+  proveedores[data['id']].PROVEEDOR_ESTADO=data['estado'];  
+
+  /*Actualizamos la Fila de la Tabla*/
+  let fila=document.getElementById("f-"+data["id"]);       
+  let columna=fila.querySelectorAll("td");
+  columna[0].innerHTML=data['ruc'];
+  columna[1].innerHTML=data['nombre'];
+  columna[2].innerHTML=data['direccion'];
+  columna[3].innerHTML=data['telefono'];
+  columna[4].innerHTML=data['email'];  
+}
+
+function proveedorEditarGuardar(){  
+  if (formValido("form_proveedor_editar")){
+    let data=$("#form_proveedor_editar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    console.log(data_json);
+
+    $.post(baseUrl+"proveedor/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        proveedorEditarData(data_json);        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+function modalProveedorEliminar(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Eliminar Proveedor</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_proveedor_eliminar">
+          <input type="hidden" name="id" value="`+data.PROVEEDOR_ID+`">
+        </form>
+        <h6>Estas Seguro de Eliminar Proveedor..?"</h6>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="clienteProveedorGuardar()">Si</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function proveedorEliminar(id){
+  console.log(proveedores[id]);
+  let modal=modalProveedorEliminar(proveedores[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+
+function clienteProveedorGuardar(){
+  if (formValido("form_proveedor_eliminar")){
+    let data=$("#form_proveedor_eliminar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    console.log(data_json);
+
+    $.post(baseUrl+"proveedor/eliminar",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        $("#f-"+data_json['id']).remove();
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+
+}
+</script>  

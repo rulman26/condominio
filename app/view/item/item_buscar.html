@@ -1,0 +1,412 @@
+
+<div class="row">
+  <div class="col-md-3">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Filtro</span>
+      </div>
+      <select class="form-control" id="filtro" onchange="filtroDependiente(this)">
+        <option value="ITEM_CODIGO">Codigo</option>
+        <option value="ITEM_NOMBRE">Nombre</option>
+        <option value="PROVEEDOR_ID">Proveedor</option>
+        <option value="ITEM_TIPO_ID">Tipo</option>
+        <option value="ITEM_CATEGORIA_ID">Categoria</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="input-group" id="filtro_select">      
+      <input type="text" class="form-control" id="filtro_input">
+    </div>
+  </div>  
+  <div class="col-sm-3">
+    <div class="input-group">
+      <button class="btn btn-primary btn-block" onclick="itemListar()">Buscar</button>
+    </div>
+  </div>
+  <div class="col-sm-3" id="div_buscar" style="display: none">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+      </div>
+      <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive" id="tabla_http_scroll">
+    <table class="table table-hover" id="tabla_http">
+      <thead>
+        <tr>          
+          <th width="150">Codigo</th>
+          <th width="200">Nombre</th>
+          <th width="80">P C</th>
+          <th width="80">P V</th>
+          <th width="150">Tipo</th>          
+          <th width="180">Proveedor</th>          
+          <th width="100">Accion</th>          
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+screenAltura("tabla_http_scroll",280);
+var proveedoresOptions="";
+var itemTipoOptions="";
+var itemCategoriaOptions="";
+$.get(baseUrl+"item/formitemregistrar",function(data){      
+    let response=JSON.parse(data);        
+    
+    let proveedores=response.proveedores;    
+    for(x in proveedores){
+      proveedoresOptions+='<option value="'+proveedores[x].PROVEEDOR_ID+'">'+proveedores[x].PROVEEDOR_NOMBRE+'</option>';
+    }        
+
+    let itemtipos=response.itemtipos;    
+    for(x in itemtipos){
+      itemTipoOptions+='<option value="'+itemtipos[x].ITEM_TIPO_ID+'">'+itemtipos[x].ITEM_TIPO_NOMBRE+'</option>';
+    }    
+  
+    let itemcategorias=response.itemcategorias;    
+    for(x in itemcategorias){
+      itemCategoriaOptions+='<option value="'+itemcategorias[x].ITEM_CATEGORIA_ID+'">'+itemcategorias[x].ITEM_CATEGORIA_NOMBRE+'</option>';
+    }        
+  });
+
+function filtroDependiente(option){
+  let input;    
+  switch(option.value) {
+    case "ITEM_CODIGO":
+      input='<input type="text" class="form-control" id="filtro_input">';
+    break;
+    case "ITEM_NOMBRE":
+      input='<input type="text" class="form-control" id="filtro_input">';
+    break;
+    case "PROVEEDOR_ID":
+      input='<select class="form-control" id="filtro_input">'+proveedoresOptions+'</select>';
+    break;
+    case "ITEM_TIPO_ID":
+      input='<select class="form-control" id="filtro_input">'+itemTipoOptions+'</select>';
+    break;
+    case "ITEM_CATEGORIA_ID":
+      input='<select class="form-control" id="filtro_input">'+itemCategoriaOptions+'</select>';
+    break;
+  }
+  document.getElementById("filtro_select").innerHTML=input;
+}
+
+var items=[];
+function itemListar(){
+  document.getElementById("div_buscar").style.display="block";
+  let data={};
+    data['filtro']=document.getElementById("filtro").value;
+    data['input_filtro']=document.getElementById("filtro_input").value;
+    console.log(data);
+  $.post(baseUrl+"item/filtrar/activos",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);    
+    console.log(response);
+    if (response.estado) {
+      for (x in response['data']) {
+        items[response['data'][x].ITEM_ID]=response['data'][x];         
+        let fila='<tr id="f-'+response['data'][x].ITEM_ID+'">';      
+        fila+='<td>'+response['data'][x].ITEM_CODIGO+'</td>';  
+        fila+='<td>'+response['data'][x].ITEM_NOMBRE+'</td>';
+        fila+='<td>'+response['data'][x].ITEM_PRECIO_COMPRA+'</td>';
+        fila+='<td>'+response['data'][x].ITEM_PRECIO_VENTA+'</td>';
+        fila+='<td>'+response['data'][x].ITEM_TIPO_NOMBRE+'</td>';        
+        fila+='<td>'+response['data'][x].PROVEEDOR_NOMBRE+'</td>';        
+        fila+='<td style="text-align:center;">';        
+        fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="itemLeer(`+response['data'][x].ITEM_ID+`)">Ver</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="itemEditar(`+response['data'][x].ITEM_ID+`)">Editar</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="itemEliminar(`+response['data'][x].ITEM_ID+`)">Eliminar</a>
+                </div>
+              </div>`;
+        fila+='</td>';      
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+function modalItemLeer(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Datos Cliente</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="codigo">Codigo</label>
+            <input readonly type="text" class="form-control" id="codigo" value="`+data.ITEM_CODIGO+`">
+          </div>
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input readonly type="text" class="form-control" id="nombre" value="`+data.ITEM_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="preciocompra">Precio Compra:</label>
+            <input readonly type="number" class="form-control" id="preciocompra" value="`+data.ITEM_PRECIO_COMPRA+`">
+          </div>
+          <div class="form-group">
+            <label for="precioventa">Precio Venta</label>
+            <input readonly type="number" class="form-control" id="precioventa" value="`+data.ITEM_PRECIO_VENTA+`">
+          </div>
+          <div class="form-group">
+            <label for="unidades">Unidades:</label>
+            <input readonly type="number" class="form-control" id="unidades" value="`+data.ITEM_UNIDADES+`">
+          </div>
+          <div class="form-group">
+            <label for="proveedor_id">Proveedor:</label>    
+            <input readonly type="text" class="form-control" id="proveedor_id" value="`+data.PROVEEDOR_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="item_tipo_id">Tipo:</label>
+            <input readonly type="text" class="form-control" id="item_tipo_id" value="`+data.ITEM_TIPO_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="item_categoria_id">Categoria:</label>
+            <input readonly type="texr" class="form-control" id="item_categoria_id" value="`+data.ITEM_CATEGORIA_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="estado">Estado:</label>    
+            <input readonly type="text" class="form-control" id="estado" value="`+data.ITEM_ESTADO+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function itemLeer(id){  
+  let modal=modalItemLeer(items[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalItemEditar(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Editar Cliente</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_item_editar">
+          <div class="form-group">
+            <input type="hidden" name="id" value="`+data.ITEM_ID+`">
+            <input type="hidden" name="estado" value="`+data.ITEM_ESTADO+`">
+            <label for="codigo">Codigo</label>
+            <input required type="text" class="form-control" id="codigo" name="codigo" value="`+data.ITEM_CODIGO+`">
+          </div>
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input required type="text" class="form-control" id="nombre" name="nombre" value="`+data.ITEM_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="preciocompra">Precio Compra:</label>
+            <input required type="number" class="form-control" id="preciocompra" name="preciocompra"  value="`+data.ITEM_PRECIO_COMPRA+`">
+          </div>
+          <div class="form-group">
+            <label for="precioventa">Precio Venta</label>
+            <input required type="number" class="form-control" id="precioventa" name="precioventa" value="`+data.ITEM_PRECIO_VENTA+`">
+          </div>
+          <div class="form-group">
+            <label for="unidades">Unidades:</label>
+            <input required type="number" class="form-control" id="unidades" name="unidades" value="`+data.ITEM_UNIDADES+`">
+          </div>
+          <div class="form-group">
+            <label for="proveedor_id">Proveedor:</label>    
+            <select class="form-control" id="proveedor_id" name="proveedor_id">
+              `+proveedoresOptions+`
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="item_tipo_id">Tipo:</label>
+            <select class="form-control" id="item_tipo_id" name="item_tipo_id">
+              `+itemTipoOptions+`
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="item_categoria_id">Categoria:</label>
+            <select class="form-control" id="item_categoria_id" name="item_categoria_id">
+              `+itemCategoriaOptions+`
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="itemEditarGuardar()">Editar</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function itemEditar(id){  
+  let modal=modalItemEditar(items[id]);
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle');   
+  selectOptionForm("proveedor_id",items[id].PROVEEDOR_ID);
+  selectOptionForm("item_tipo_id",items[id].ITEM_TIPO_ID);
+  selectOptionForm("item_categoria_id",items[id].ITEM_CATEGORIA_ID);
+}
+
+function selectOptionForm(idSelect,valor){
+  let selectIndex=0;
+  let formSelect=document.getElementById(idSelect);
+  let formSelectOptions=formSelect.options;
+  for(x in formSelectOptions){    
+    if(formSelectOptions[x].value==valor)
+    {
+      selectIndex=x;
+       break;      
+    }
+  }
+  formSelect.selectedIndex=selectIndex;
+}
+
+function itemsEditarData(data){
+  /*Actualiza el Array en el Cliente*/
+  items[data['id']].ITEM_CATEGORIA_ID=data['item_categoria_id'];
+  items[data['id']].ITEM_CATEGORIA_NOMBRE=data['item_tipo_categoria'];
+  items[data['id']].ITEM_CODIGO=data['codigo'];
+  items[data['id']].ITEM_ESTADO=data['estado'];  
+  items[data['id']].ITEM_NOMBRE=data['nombre'];  
+  items[data['id']].ITEM_PRECIO_COMPRA=data['preciocompra'];  
+  items[data['id']].ITEM_PRECIO_VENTA=data['precioventa'];  
+  items[data['id']].ITEM_TIPO_ID=data['item_tipo_id'];  
+  items[data['id']].ITEM_TIPO_NOMBRE=data['item_tipo_nombre'];  
+  items[data['id']].ITEM_UNIDADES=data['unidades'];  
+  items[data['id']].PROVEEDOR_ID=data['proveedor_id'];  
+  items[data['id']].PROVEEDOR_NOMBRE=data['proveedor_nombre'];  
+
+  /*Actualizamos la Fila de la Tabla*/
+  let fila=document.getElementById("f-"+data["id"]);       
+  let columna=fila.querySelectorAll("td");
+  columna[0].innerHTML=data['codigo'];
+  columna[1].innerHTML=data['nombre'];
+  columna[2].innerHTML=data['preciocompra'];
+  columna[3].innerHTML=data['precioventa'];
+  columna[4].innerHTML=data['item_tipo_nombre'];  
+  columna[5].innerHTML=data['proveedor_nombre'];
+}
+
+function selectOptionTextForm(idSelect){
+  let selectProveedor=document.getElementById(idSelect);
+  let itemSelectProveedor=selectProveedor.selectedIndex;
+  let nombreProveedor=selectProveedor.options[itemSelectProveedor].innerHTML; 
+  return nombreProveedor;
+}
+
+function itemEditarGuardar(){  
+  if (formValido("form_item_editar")){
+    let data=$("#form_item_editar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }    
+    console.log(data_json);
+    $.post(baseUrl+"item/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        /*Los datos de los Text de Select para Actualziar en el Array*/
+        data_json['proveedor_nombre']=selectOptionTextForm("proveedor_id");
+        data_json['item_tipo_nombre']=selectOptionTextForm("item_tipo_id");
+        data_json['item_tipo_categoria']=selectOptionTextForm("item_categoria_id");
+        /*Son los nombres que se tienen que actualzar en el array*/
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        itemsEditarData(data_json);        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+function modalItemEliminar(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Eliminar Item</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_item_eliminar">
+          <input type="hidden" name="id" value="`+data.ITEM_ID+`">
+        </form>
+        <h6>Estas Seguro de Eliminar Item..?"</h6>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="itemEliminarGuardar()">Si</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function itemEliminar(id){  
+  let modal=modalItemEliminar(items[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function itemEliminarGuardar(){
+  if (formValido("form_item_eliminar")){
+    let data=$("#form_item_eliminar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    console.log(data_json);
+
+    $.post(baseUrl+"item/eliminar",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        $("#f-"+data_json['id']).remove();
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+</script>  

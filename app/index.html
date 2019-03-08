@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <title>Santa Rosa</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="lib/css/menu.css"> 
+  <script src="lib/js/mask.js"> </script>
+  <!-- Font Awesome JS -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div class="wrapper">
+    <!-- Sidebar Holder -->
+    <nav id="sidebar">
+      <div class="sidebar-header">
+        <h2>Rulo Soft</h2>
+      </div>
+      <ul class="list-unstyled components">   
+        <li >
+          <a href="#menuUsuario" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Usuario</a>
+          <ul class="collapse list-unstyled" id="menuUsuario">
+            <li>
+              <a onclick="cargar_vista('view/usuario/usuario_registrar.html')">Registrar Usuario</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('view/usuario/usuario_lista.html')">Lista de Usuarios</a>
+            </li> 
+          </ul>
+        </li>             
+        <li >
+          <a href="#menuCliente" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Cliente</a>
+          <ul class="collapse list-unstyled" id="menuCliente">
+            <li>
+              <a onclick="cargar_vista('view/cliente/cliente_registrar.html')">Registrar Cliente</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('view/cliente/cliente_lista.html')">Lista de Cliente</a>
+            </li> 
+            <li>
+              <a onclick="cargar_vista('view/cliente/cliente_administrar.html')">Adminstrar Clientes</a>
+            </li>                        
+          </ul>
+        </li>
+        <li >
+          <a href="#menuProveedor" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Proveedor</a>
+          <ul class="collapse list-unstyled" id="menuProveedor">
+            <li>
+              <a onclick="cargar_vista('view/proveedor/proveedor_registrar.html')">Registrar Proveedor</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('view/proveedor/proveedor_lista.html')">Lista de Proveedores</a>
+            </li>                        
+            <li>
+              <a onclick="cargar_vista('view/proveedor/proveedor_administrar.html')">Administrar Proveedores</a>
+            </li>
+          </ul>
+        </li>
+        <li >
+          <a href="#homeItem" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Items</a>
+          <ul class="collapse list-unstyled" id="homeItem">
+            <li>
+              <a onclick="cargar_vista('view/item/item_registrar.html')">Registrar Item</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('view/item/item_buscar.html')">Buscar Item</a>
+            </li> 
+            <li>
+              <a onclick="cargar_vista('view/item/item_administrar.html')">Administrar Item</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('view/item/item_tipo_administrar.html')">Administrar Item Tipo</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('view/item/item_categoria_administrar.html')">Administrar Item Categoria</a>
+            </li>                         
+          </ul>
+        </li>
+        <li>
+          <a href="#homeInventario" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Inventario</a>
+          <ul class="collapse list-unstyled" id="homeInventario">
+            <li>
+              <a onclick="cargar_vista('view/inventario/inventario_ingreso.html')">Registrar Ingreso</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('view/inventario/inventario_salida.html')">Registrar Salida</a>
+            </li> 
+            <li>
+              <a onclick="cargar_vista('view/inventario/inventario_salida.html')">Administrar Item</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('view/item/item_tipo_administrar.html')">Administrar Item Tipo</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('view/item/item_categoria_administrar.html')">Administrar Item Categoria</a>
+            </li>                         
+          </ul>
+        </li>
+          
+      </ul>
+    </nav>
+    <!-- Menu Superior -->
+    <div id="content" >
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <button type="button" id="sidebarCollapse" class="navbar-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="fas fa-align-justify"></i>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="nav navbar-nav ml-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="#"> rferro <i class="fas fa-user"></i></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Salir <i class="fas fa-sign-out-alt"></i></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <!-- Menu Superior -->  
+      <div class="container-fluid" id="contenido">
+        <h1>My First Bootstrap Page</h1>
+        <p>This part is inside a .container class.</p> 
+        <p>The .container class provides a responsive fixed width container.</p>           
+      </div>  
+      <!-- Menu Superior -->
+    </div>
+  
+  </div>
+  <!-- The Modal -->
+  
+    <!-- Modal para Acciones 
+    <div class="modal" id="modal_formulario" role="dialog"   data-backdrop="false" >
+    </div> -->
+    <div class="modal" id="modal_formulario">
+    </div>   
+    <!-- Modal para Mensajes -->
+    <div class="modal fade" id="modal_mensaje">
+    </div> 
+</body>
+
+</html>
+
+<script type="text/javascript">
+  var baseUrl="http://192.168.1.120/farmacia/ws/";
+  $(document).ready(function () {
+    $('#sidebarCollapse').on('click', function () {
+      $('#sidebar').toggleClass('active');
+      $(this).toggleClass('active');
+    });
+  });
+
+  function cargar_vista(pagina)
+  {
+    document.getElementById("modal_formulario").innerHTML="";
+    document.getElementById("modal_mensaje").innerHTML="";
+    if ($('#modal_formulario').hasClass('in')) {
+      $('#modal_formulario').modal('toggle');   
+    }
+    if ($('#modal_mensaje').hasClass('in')) {
+      $('#modal_mensaje').modal('toggle');   
+    }
+   //document.getElementById("contenido").innerHTML="<center><img src='../img/cargando.gif'></center>";
+   $.get(pagina, function(htmlexterno){ $("#contenido").html(htmlexterno); });
+  }
+
+  function formValido(formId){
+    let valido=true;
+    let form=document.getElementById(formId);
+    for(let i=0; i < form.elements.length; i++){
+      form.elements[i].style.borderColor=''; 
+      form.elements[i].title='';        
+      if(form.elements[i].value === '' && form.elements[i].hasAttribute('required')){
+        form.elements[i].style.borderColor='red';   
+        let msj=form.elements[i].placeholder;     
+        form.elements[i].title='*COMPLETAR : '+msj;
+        form.elements[i].placeholder='*COMPLETAR : '+msj;        
+        valido=false; 
+      }
+    }
+    return valido;
+  }
+
+  function modalRespuestaOk(header,content,long){
+    modal=`<div class="modal-dialog `+long+`">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">`+header+`</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">`+content+`
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+      </div>
+      </div>
+      </div>
+    </div>`;
+    return modal;
+  }
+
+  function modalRespuestaError(header,content,long){
+    modal=`<div class="modal-dialog `+long+`">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">`+header+`</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">`+content+`
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+      </div>
+      </div>
+      </div>
+    </div>`;
+    return modal;
+  }
+
+  function screenAltura(id,reducir)
+  {
+    var altura=window.screen.height-reducir;
+    document.getElementById(id).style.height =altura+"px";
+  }
+
+  function BuscarFilaTabla(tablaId,inputId){
+  var tableReg = document.getElementById(tablaId);
+  var searchText = document.getElementById(inputId).value.toLowerCase();
+  var cellsOfRow="";
+  var found=false;
+  var compareWith="";
+  // Recorremos todas las filas con contenido de la tabla
+  for (var i = 1; i < tableReg.rows.length; i++)
+  {
+    cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
+    found = false;
+    // Recorremos todas las celdas
+    for (var j = 0; j < cellsOfRow.length && !found; j++)
+    {
+      compareWith = cellsOfRow[j].innerHTML.toLowerCase();
+      // Buscamos el texto en el contenido de la celda
+      if (searchText.length == 0 || (compareWith.indexOf(searchText) > -1))
+      {
+        found = true;
+      }
+    }
+    if(found)
+    {
+      tableReg.rows[i].style.display = '';
+    } else {
+      // si no ha encontrado ninguna coincidencia, esconde la
+      // fila de la tabla
+      tableReg.rows[i].style.display = 'none';
+    }
+  }
+}
+
+function fechaActual(){
+	let d = new Date();    
+  let dia=(d.getDate()<10?'0':'') + d.getDate();   
+  let mes=(d.getMonth()<9?'0':'') + (d.getMonth()+1);   
+  let anio=d.getFullYear();       
+  let fecha=dia+'/'+mes+'/'+anio;    
+  return fecha;
+} 
+
+function fechaHoraActual(){
+	let d = new Date();    
+    let dia=(d.getDate()<10?'0':'') + d.getDate();   
+    let mes=(d.getMonth()<9?'0':'') + (d.getMonth()+1);   
+    let anio=d.getFullYear();   
+    let hora=(d.getHours()<10?'0':'') + d.getHours();   
+    let minuto=(d.getMinutes()<10?'0':'') + d.getMinutes();   
+    let fechaHora=dia+'/'+mes+'/'+anio+' '+hora+":"+minuto;    
+    return fechaHora;
+}
+</script>

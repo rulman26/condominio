@@ -1,0 +1,363 @@
+<div class="row">
+  <div class="col-md-3">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Filtro</span>
+      </div>
+      <select class="form-control" id="filtro">
+        <option value="USUARIO">Usuario</option>
+        <option value="NOMBRES">Nombres</option>
+        <option value="USUARIO">Perfil</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="input-group">      
+      <input type="text" class="form-control" id="filtro_input">
+    </div>
+  </div>  
+  <div class="col-sm-3">
+    <div class="input-group">
+      <button class="btn btn-primary btn-block" onclick="clienteListar()">Buscar</button>
+    </div>
+  </div>
+  <div class="col-sm-3" id="div_buscar" style="display: none">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+      </div>
+      <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+      <div class="input-group-prepend">        
+        <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarUsuariosCsv()">Exportar CVS</a>
+          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarUsuariosPdf()">Exportar PDF</a>          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive" id="tabla_http_scroll">
+    <table class="table table-hover" id="tabla_http">
+      <thead>
+        <tr>          
+          <th width="200">Perfil</th>
+          <th width="120">Usuario</th>
+          <th>Nombres</th>
+          <th width="120">Estado</th>
+          <th width="120">Accion</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+</div>
+
+
+<script type="text/javascript">
+screenAltura("tabla_http_scroll",280);
+var usuarios=[];
+function clienteListar(){
+  
+  document.getElementById("div_buscar").style.display="block";
+  
+  let data={};
+    data['filtro']=document.getElementById("filtro").value;
+    data['input_filtro']=document.getElementById("filtro_input").value;
+    console.log(data);
+  $.post(baseUrl+"usuario/filtrar/todos",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);    
+    console.log(response);
+    if (response.estado) {
+      for (x in response['data']) {
+        usuarios[response['data'][x].ID]=response['data'][x];         
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].PERFIL+'</td>';  
+        fila+='<td>'+response['data'][x].USUARIO+'</td>';
+        fila+='<td>'+response['data'][x].NOMBRES+'</td>';
+        fila+='<td>'+response['data'][x].ESTADO+'</td>';        
+        fila+='<td style="text-align:center;">';        
+        fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="usuarioLeer(`+response['data'][x].ID+`)">Ver</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="usuarioEditar(`+response['data'][x].ID+`)">Editar</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="usuarioResetearClave(`+response['data'][x].ID+`)">Editar</a>  
+                </div>
+              </div>`;
+        fila+='</td>';      
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+function modalUsuarioLeer(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Datos Cliente</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label>Perfil:</label>
+            <input readonly type="text" class="form-control" value="`+data.PERFIL+`">
+          </div>
+          <div class="form-group">
+            <label>Usuario:</label>
+            <input readonly type="text" class="form-control" value="`+data.USUARIO+`">
+          </div>
+          <div class="form-group">
+            <label>Nombres:</label>
+            <input readonly type="text" class="form-control" value="`+data.NOMBRES+`">
+          </div>
+          <div class="form-group">
+            <label>Estado:</label>    
+            <input readonly type="text" class="form-control" value="`+data.ESTADO+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function usuarioLeer(id){  
+  let modal=modalUsuarioLeer(usuarios[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalUsuarioEditar(data){
+  let estado;
+  if(data.ESTADO=="ACTIVO"){
+    estado='<option value="ACTIVO">ACTIVO</option><option value="INACTIVO">INACTIVO</option>';
+  }else{
+    estado='<option value="INACTIVO">INACTIVO</option><option value="ACTIVO">ACTIVO</option>';
+  }
+  let perfil='<option value="'+data.PERFIL+'">'+data.PERFIL+'</option>';
+  perfil+='<option value="ADMINISTRADOR">ADMINISTRADOR</option><option value="CAJERO">CAJERO</option>'; 
+  perfil+='<option value="VENDEDOR">VENDEDOR</option><option value="SECRETARIO">SECRETARIO</option>'; 
+  
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Editar Usuario</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_cliente_editar">
+          <div class="form-group">
+            <input type="hidden" name="id" value="`+data.ID+`">
+            <label for="perfil">Perfil:</label>
+            <select class="form-control" id="perfil" name="perfil">
+              `+perfil+`
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="usuario">Usuario:</label>
+            <input required type="text" class="form-control" id="usuario" 
+              name="usuario" value="`+data.USUARIO+`">
+          </div>
+          <div class="form-group">            
+            <label for="nombres">Nombres:</label>
+            <input required type="text" class="form-control" id="nombres" 
+              name="nombres" value="`+data.NOMBRES+`">
+          </div>
+          <div class="form-group">
+            <label for="estado">Estado:</label>    
+            <select class="form-control" id="estado" name="estado">
+              `+estado+`
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="usuarioEditarGuardar()">Editar</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function usuarioEditar(id){  
+  let modal=modalUsuarioEditar(usuarios[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function usuariosEditarData(data){
+  /*Actualiza el Array en el Cliente*/
+  usuarios[data['id']].PERFIL=data['perfil'];
+  usuarios[data['id']].USUARIO=data['usuario'];  
+  usuarios[data['id']].NOMBRES=data['nombres'];
+  usuarios[data['id']].ESTADO=data['estado'];  
+
+  /*Actualizamos la Fila de la Tabla*/
+  let fila=document.getElementById("f-"+data["id"]);       
+  let columna=fila.querySelectorAll("td");
+  columna[0].innerHTML=data['perfil'];
+  columna[1].innerHTML=data['usuario'];
+  columna[2].innerHTML=data['nombres'];
+  columna[3].innerHTML=data['estado'];   
+}
+
+function usuarioEditarGuardar(){  
+  if (formValido("form_cliente_editar")){
+    let data=$("#form_cliente_editar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    console.log(data_json);
+
+    $.post(baseUrl+"usuario/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        usuariosEditarData(data_json);        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+function modalUsuarioResetearClave(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Resetear Clave</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_cliente_eliminar">
+          <input type="hidden" name="id" value="`+data.ID+`">
+          <input type="hidden" name="usuario" value="`+data.USUARIO+`">
+        </form>
+        <h6>Resetear Clave para `+data.USUARIO+` ..?</h6>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="usuarioResetearClaveGuardar()">Si</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function usuarioResetearClave(id){  
+  let modal=modalUsuarioResetearClave(usuarios[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+
+function usuarioResetearClaveGuardar(){
+  if (formValido("form_cliente_eliminar")){
+    let data=$("#form_cliente_eliminar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    console.log(data_json);
+
+    $.post(baseUrl+"usuario/resetear",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+
+}
+
+exportarUsuariosCsv = function() {
+  var exportCvs="PERFIL,USUARIO,NOMBRES,ESTADO\r\n";
+  for(x in usuarios){
+    exportCvs+=usuarios[x].PERFIL+",";
+    exportCvs+=usuarios[x].USUARIO+",";
+    exportCvs+=usuarios[x].NOMBRES+",";
+    exportCvs+=usuarios[x].ESTADO+",";    
+    exportCvs+= "\r\n";
+  }
+
+  csvString = "data:application/csv," + encodeURIComponent(exportCvs);
+  var x = document.createElement("A");
+  x.setAttribute("href", csvString );
+  x.setAttribute("download","usuarios.csv");
+  document.body.appendChild(x);
+  x.click();
+}
+
+exportarUsuariosPdf=function(){
+   // CREATE A WINDOW OBJECT.
+        let win = window.open('', '', 'height=700,width=900');
+        let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+          <thead>
+            <tr>          
+              <th>Perfil</th>
+              <th>Usuario</th>
+              <th>Nombres</th>              
+              <th>Estado</th>              
+            </tr>
+          </thead>
+          <tbody>`;
+        for(x in usuarios){
+          tabla+="<tr>";
+          tabla+="<td>"+usuarios[x].PERFIL+"</td>";
+          tabla+="<td>"+usuarios[x].USUARIO+"</td>";
+          tabla+="<td>"+usuarios[x].NOMBRES+"</td>";
+          tabla+="<td>"+usuarios[x].ESTADO+"</td>";          
+          tabla+="</tr>";
+        }
+        tabla+="</tbody></table>";
+        let style = "<style>";                        
+        style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+        style = style + "</style>";
+        win.document.write('<html><head>');
+        win.document.write('<title>Usuarios</title>');   // <title> FOR PDF HEADER.
+        win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+        win.document.write('</head>');
+        win.document.write('<body>');
+        win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+        win.document.write('</body></html>');
+        win.document.close();   // CLOSE THE CURRENT WINDOW.
+        win.print();    // PRINT THE CONTENTS.
+}
+
+</script>  

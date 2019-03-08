@@ -1,0 +1,331 @@
+<div class="row">
+  <div class="col-md-3">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Filtro</span>
+      </div>
+      <select class="form-control" id="filtro">
+        <option value="CLIENTE_NOMBRE">Nombre</option>
+        <option value="CLIENTE_DNI">Dni</option>
+        <option value="CLIENTE_RUC">Ruc</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="input-group">      
+      <input type="text" class="form-control" id="filtro_input">
+    </div>
+  </div>  
+  <div class="col-sm-3">
+    <div class="input-group">
+      <button class="btn btn-primary btn-block" onclick="clienteBuscar()">Buscar</button>
+    </div>
+  </div>
+  <div class="col-sm-3" id="div_buscar" style="display: none">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+      </div>
+      <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+      
+      <div class="input-group-prepend">        
+        <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarClientesCsv()">Exportar CVS</a>
+          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarClientesPdf()">Exportar PDF</a>          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive" id="tabla_http_scroll">
+    <table class="table table-hover" id="tabla_http">
+      <thead>
+        <tr>          
+          <th width="200">Nombre</th>
+          <th>Direccion</th>
+          <th width="120">Dni</th>
+          <th width="150">Ruc</th>
+          <th width="150">Telefono</th>
+          <th width="150">Estado</th>
+          <th width="100">Accion</th>          
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+</div>
+
+
+<script type="text/javascript">
+screenAltura("tabla_http_scroll",280);
+var clientes=[];
+function clienteBuscar(){
+  
+  document.getElementById("div_buscar").style.display="block";
+  
+  let data={};
+    data['filtro']=document.getElementById("filtro").value;
+    data['input_filtro']=document.getElementById("filtro_input").value;
+    console.log(data);
+  $.post(baseUrl+"cliente/filtrar/todos",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);    
+    console.log(response);
+    if (response.estado) {
+      for (x in response['data']) {
+        clientes[response['data'][x].CLIENTE_ID]=response['data'][x];         
+        let fila='<tr id="f-'+response['data'][x].CLIENTE_ID+'">';      
+        fila+='<td>'+response['data'][x].CLIENTE_NOMBRE+'</td>';  
+        fila+='<td>'+response['data'][x].CLIENTE_DIRECCION+'</td>';
+        fila+='<td>'+response['data'][x].CLIENTE_DNI+'</td>';
+        fila+='<td>'+response['data'][x].CLIENTE_RUC+'</td>';
+        fila+='<td>'+response['data'][x].CLIENTE_TELEFONO+'</td>';
+        fila+='<td>'+response['data'][x].CLIENTE_ESTADO+'</td>';      
+        fila+='<td style="text-align:center;">';        
+        fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="clienteLeer(`+response['data'][x].CLIENTE_ID+`)">Ver</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="clienteEditar(`+response['data'][x].CLIENTE_ID+`)">Editar</a>                  
+                </div>
+              </div>`;
+        fila+='</td>';      
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+function modalClienteLeer(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Datos Cliente</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="nombre">Nombres y Apellidos:</label>
+            <input readonly type="text" class="form-control" value="`+data.CLIENTE_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="direccion">Direccion:</label>
+            <input readonly type="text" class="form-control" value="`+data.CLIENTE_DIRECCION+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Dni:</label>
+            <input readonly type="text" class="form-control" id="dni" value="`+data.CLIENTE_DNI+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Ruc:</label>
+            <input readonly type="text" class="form-control" id="ruc" value="`+data.CLIENTE_RUC+`">
+          </div>
+          <div class="form-group">
+            <label for="telefono">Telefono:</label>
+            <input readonly type="text" class="form-control" id="telefono" value="`+data.CLIENTE_RUC+`">
+          </div>
+          <div class="form-group">
+            <label for="estado">Estado:</label>    
+            <input readonly type="text" class="form-control" id="estado" value="`+data.CLIENTE_ESTADO+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function clienteLeer(id){
+  console.log(clientes[id]);
+  let modal=modalClienteLeer(clientes[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalClienteEditar(data){
+  let estado;
+  if(data.CLIENTE_ESTADO=="ACTIVO"){
+    estado='<option value="ACTIVO">ACTIVO</option><option value="INACTIVO">INACTIVO</option>';
+  }else{
+    estado='<option value="INACTIVO">INACTIVO</option><option value="ACTIVO">ACTIVO</option>';
+  } 
+  
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Editar Cliente</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_cliente_editar">
+          <div class="form-group">
+            <input type="hidden" name="id" value="`+data.CLIENTE_ID+`">
+            <label for="nombre">Razon Social:</label>
+            <input required type="text" class="form-control" id="nombre" 
+              name="nombre" value="`+data.CLIENTE_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="direccion">Direccion:</label>
+            <input required type="text" class="form-control" id="direccion" 
+              name="direccion" value="`+data.CLIENTE_DIRECCION+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Dni:</label>
+            <input type="number" class="form-control" id="dni" name="dni" value="`+data.CLIENTE_DNI+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Ruc:</label>
+            <input type="number" class="form-control" id="ruc" name="ruc" value="`+data.CLIENTE_RUC+`">
+          </div>
+          <div class="form-group">
+            <label for="telefono">Telefono:</label>
+            <input type="text" class="form-control" id="telefono" name="telefono" value="`+data.CLIENTE_TELEFONO+`">
+          </div>
+          <div class="form-group">
+            <label for="estado">Estado:</label>    
+            <select class="form-control" id="estado" name="estado">
+              `+estado+`
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="clienteEditarGuardar()">Editar</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function clienteEditar(id){
+  console.log(clientes[id]);
+  let modal=modalClienteEditar(clientes[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function clientesEditarData(data){
+  /*Actualiza el Array en el Cliente*/
+  clientes[data['id']].CLIENTE_NOMBRE=data['nombre'];
+  clientes[data['id']].CLIENTE_DIRECCION=data['direccion'];
+  clientes[data['id']].CLIENTE_DNI=data['dni'];
+  clientes[data['id']].CLIENTE_RUC=data['ruc'];
+  clientes[data['id']].CLIENTE_TELEFONO=data['telefono'];
+  clientes[data['id']].CLIENTE_ESTADO=data['estado'];
+
+  /*Actualizamos la Fila de la Tabla*/
+  let fila=document.getElementById("f-"+data["id"]);       
+  let columna=fila.querySelectorAll("td");
+  columna[0].innerHTML=data['nombre'];
+  columna[1].innerHTML=data['direccion'];
+  columna[2].innerHTML=data['dni'];
+  columna[3].innerHTML=data['ruc'];
+  columna[4].innerHTML=data['telefono'];
+  columna[5].innerHTML=data['estado'];
+}
+
+function clienteEditarGuardar(){  
+  if (formValido("form_cliente_editar")){
+    let data=$("#form_cliente_editar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    console.log(data_json);
+
+    $.post(baseUrl+"cliente/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        clientesEditarData(data_json);        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+} 
+
+exportarClientesCsv = function() {
+  var exportCvs="NOMBRES,DIRECCION,DNI,RUC,TELEFONO,ESTADO\r\n";
+  for(x in clientes){
+    exportCvs+=clientes[x].CLIENTE_NOMBRE+",";
+    exportCvs+=clientes[x].CLIENTE_DIRECCION+",";
+    exportCvs+=clientes[x].CLIENTE_DNI+",";
+    exportCvs+=clientes[x].CLIENTE_RUC+",";
+    exportCvs+=clientes[x].CLIENTE_TELEFONO+",";
+    exportCvs+=clientes[x].CLIENTE_ESTADO;
+    exportCvs+= "\r\n";
+  }
+
+  csvString = "data:application/csv," + encodeURIComponent(exportCvs);
+  var x = document.createElement("A");
+  x.setAttribute("href", csvString );
+  x.setAttribute("download","clientes.csv");
+  document.body.appendChild(x);
+  x.click();
+}
+
+exportarClientesPdf=function(){
+   // CREATE A WINDOW OBJECT.
+        let win = window.open('', '', 'height=700,width=900');
+        let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+          <thead>
+            <tr>          
+              <th>Nombre</th>
+              <th>Direccion</th>
+              <th>Dni</th>
+              <th>Ruc</th>
+              <th>Telefono</th>
+              <th>Estado</th>              
+            </tr>
+          </thead>
+          <tbody>`;
+        for(x in clientes){
+          tabla+="<tr>";
+          tabla+="<td>"+clientes[x].CLIENTE_NOMBRE+"</td>";
+          tabla+="<td>"+clientes[x].CLIENTE_DIRECCION+"</td>";
+          tabla+="<td>"+clientes[x].CLIENTE_DNI+"</td>";
+          tabla+="<td>"+clientes[x].CLIENTE_RUC+"</td>";
+          tabla+="<td>"+clientes[x].CLIENTE_TELEFONO+"</td>";
+          tabla+="<td>"+clientes[x].CLIENTE_ESTADO+"</td>";
+          tabla+="</tr>";
+        }
+        tabla+="</tbody></table>";
+        let style = "<style>";                        
+        style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+        style = style + "</style>";
+        win.document.write('<html><head>');
+        win.document.write('<title>Clientes</title>');   // <title> FOR PDF HEADER.
+        win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+        win.document.write('</head>');
+        win.document.write('<body>');
+        win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+        win.document.write('</body></html>');
+        win.document.close();   // CLOSE THE CURRENT WINDOW.
+        win.print();    // PRINT THE CONTENTS.
+}
+
+</script>  

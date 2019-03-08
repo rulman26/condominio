@@ -1,0 +1,60 @@
+<form id="form_cliente_registrar">
+  <div class="form-group">
+    <label for="nombre">Nombres y Apellidos:</label>
+    <input required type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresar Nombres y Apellidos">
+  </div>
+  <div class="form-group">
+    <label for="direccion">Direccion:</label>
+    <input required type="text" class="form-control" id="direccion" name="direccion" placeholder="Ingresar Direccion">
+  </div>
+  <div class="form-group">
+    <label for="dni">Dni:</label>
+    <input type="number" class="form-control" id="dni" name="dni" placeholder="Ingresar Dni">
+  </div>
+  <div class="form-group">
+    <label for="ruc">Ruc:</label>
+    <input type="number" class="form-control" id="ruc" name="ruc" placeholder="Ingresar Ruc">
+  </div>
+  <div class="form-group">
+    <label for="telefono">Telefono:</label>
+    <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Ingresar Telefono">
+  </div>
+  <div class="form-group">
+    <label for="estado">Estado:</label>    
+    <select class="form-control" id="estado" name="estado">
+      <option value="ACTIVO">ACTIVO</option>
+      <option value="INACTIVO">INACTIVO</option>
+    </select>
+  </div>
+</form>
+<button  class="btn btn-primary" onclick="formClienteRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
+
+<script type="text/javascript">
+
+function formClienteRegistrar(){
+  if (formValido("form_cliente_registrar")){
+    let data=$("#form_cliente_registrar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    console.log(data_json);
+
+    $.post(baseUrl+"cliente/crear",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+  
+}
+
+</script>

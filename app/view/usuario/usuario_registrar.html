@@ -1,0 +1,57 @@
+<form id="form_usuario_registrar">
+  <div class="form-group">
+    <label for="perfil">Perfil:</label>
+    <select class="form-control" id="perfil" name="perfil">
+      <option value="ADMINISTRADOR">ADMINISTRADO</option>
+      <option value="CAJERO">CAJERO</option>
+      <option value="VENDEDOR">VENDEDOR</option>      
+      <option value="SECRETARIO">SECRETARIO</option>      
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="usuario">Usuario:</label>
+    <input required type="text" class="form-control" id="usuario" name="usuario" placeholder="Ingresar Usuario">
+  </div>
+  <div class="form-group">
+    <label for="nombres">Nombres:</label>
+    <input type="text" class="form-control" id="nombres" name="nombres" placeholder="Ingresar Nombres y Apellidos">
+  </div>
+  <div class="form-group">
+    <label for="estado">Estado:</label>    
+    <select class="form-control" id="estado" name="estado">
+      <option value="ACTIVO">ACTIVO</option>
+      <option value="INACTIVO">INACTIVO</option>
+    </select>
+  </div>
+</form>
+<button  class="btn btn-primary" onclick="formUsuarioRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
+
+<script type="text/javascript">
+
+function formUsuarioRegistrar(){
+  if (formValido("form_usuario_registrar")){
+    let data=$("#form_usuario_registrar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    console.log(data_json);
+
+    $.post(baseUrl+"usuario/crear",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response)
+      if (response.estado){
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+  
+}
+
+</script>
