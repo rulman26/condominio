@@ -6,8 +6,7 @@ $header=getallheaders();
 switch ($_GET['solicitud']){
 
   case 'crear':   
-    if ($_SERVER['REQUEST_METHOD']=="POST") {
-      var_dump($_POST);
+    if ($_SERVER['REQUEST_METHOD']=="POST") {      
       if (empty($_POST)) {
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
         $cliente->nombre=$request['nombre'];
