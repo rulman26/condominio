@@ -19,7 +19,7 @@ class baseDatos
        {      
 	        try 
 	        {
-	  			self::$cont = new PDO("mysql:dbname=remotemysql.com:3306;dbname=tjxvlIbVwA;charset=utf8mb4","tjxvlIbVwA","ISfpzOW3V3");
+	  			self::$cont = new PDO("mysql:dbname=tjxvlIbVwA;host=remotemysql.com;port=3306;charset=utf8mb4","tjxvlIbVwA","ISfpz0W3V3");
 	        }
 	        catch(PDOException $e) 
 	        {
