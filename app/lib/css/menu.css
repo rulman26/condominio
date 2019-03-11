@@ -149,8 +149,7 @@ a.article, a.article:hover {
     CONTENT STYLE
 ----------------------------------------------------- */
 #content {
-    width: 100%;
-    padding: 20px;
+    width: 100%;    
     min-height: 100vh;
     transition: all 0.3s;
 }
@@ -253,8 +252,22 @@ text-overflow: ellipsis;
  
 ::-webkit-scrollbar-thumb {
     background:#666;
-  border-radius: 5px;
+    border-radius: 5px;
 }
-
+.form-cliente{
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    padding:10px;border-radius: 5px;
+    overflow-y:auto;
+}
+.form-cabecera{
+    text-align: center;
+    color:#FF4081;
+}
+.table-loader{
+    width:150px;
+}
+.table-loader-td{
+    text-align:center;
+}
 /*Scroll estilo*/
 /*RULMAN*/

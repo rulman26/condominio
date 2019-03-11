@@ -160,14 +160,13 @@ class item
   function listaItems($filtro,$columna,$valor){
     $filtrosAceptados=['activos','inactivos','todos'];    
     if (in_array($filtro, $filtrosAceptados)) {
-      
       if(empty($valor)){
         $cadena="";
       }else{
         if($columna=="ITEM_CODIGO" or $columna=="ITEM_NOMBRE"){          
-          $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%'";
+          $cadena="WHERE UPPER(IT.".$columna.") like '%".strtoupper($valor)."%'";
         }else{
-          $cadena="WHERE ".$columna."=".$valor;
+          $cadena="WHERE IT.".$columna."=".$valor;
         }
       }
       if ($filtro=="activos") {        

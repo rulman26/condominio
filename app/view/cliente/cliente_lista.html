@@ -14,7 +14,7 @@
   </div>
   <div class="col-md-3">
     <div class="input-group">      
-      <input type="text" class="form-control" id="filtro_input">
+      <input type="text" class="form-control" id="filtro_input" placeholder="Dato a Buscar">
     </div>
   </div>  
   <div class="col-sm-3">
@@ -37,7 +37,7 @@
       <thead>
         <tr>          
           <th width="200">Nombre</th>
-          <th>Direccion</th>
+          <th width="220">Direccion</th>
           <th width="120">Dni</th>
           <th width="150">Ruc</th>
           <th width="150">Telefono</th>          
@@ -54,17 +54,14 @@
 screenAltura("tabla_http_scroll",280);
 var clientes=[];
 function clienteListar(){
-  
   document.getElementById("div_buscar").style.display="block";
-  
   let data={};
-    data['filtro']=document.getElementById("filtro").value;
-    data['input_filtro']=document.getElementById("filtro_input").value;
-    console.log(data);
+  data['filtro']=document.getElementById("filtro").value;
+  data['input_filtro']=document.getElementById("filtro_input").value;
+  $("#tabla_http tbody").html('<td colspan="5" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');
   $.post(baseUrl+"cliente/filtrar/activos",data,function(data){
     $("#tabla_http tbody").html("");
-    let response=JSON.parse(data);    
-    console.log(response);
+    let response=JSON.parse(data);        
     if (response.estado) {
       for (x in response['data']) {
         clientes[response['data'][x].CLIENTE_ID]=response['data'][x];         
@@ -143,8 +140,7 @@ function modalClienteLeer(data){
   return modal;
 }
 
-function clienteLeer(id){
-  console.log(clientes[id]);
+function clienteLeer(id){  
   let modal=modalClienteLeer(clientes[id]);  
   $('#modal_mensaje').html(modal);
   $('#modal_mensaje').modal('toggle'); 
@@ -194,8 +190,7 @@ function modalClienteEditar(data){
   return modal;
 }
 
-function clienteEditar(id){
-  console.log(clientes[id]);
+function clienteEditar(id){  
   let modal=modalClienteEditar(clientes[id]);  
   $('#modal_formulario').html(modal);
   $('#modal_formulario').modal('toggle'); 
@@ -226,12 +221,11 @@ function clienteEditarGuardar(){
     for (x in data){    
       data_json[data[x].name]=data[x].value
     }
-    console.log(data_json);
-
+    modalCargando();
     $.post(baseUrl+"cliente/editar",data_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
-      if (response.estado){
+      $('#modal_cargando').modal('toggle'); 
+      if (response.estado){        
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
@@ -269,13 +263,11 @@ function modalClienteEliminar(data){
   return modal;
 }
 
-function clienteEliminar(id){
-  console.log(clientes[id]);
+function clienteEliminar(id){  
   let modal=modalClienteEliminar(clientes[id]);  
   $('#modal_formulario').html(modal);
   $('#modal_formulario').modal('toggle'); 
 }
-
 
 function clienteEliminarGuardar(){
   if (formValido("form_cliente_eliminar")){
@@ -284,11 +276,10 @@ function clienteEliminarGuardar(){
     for (x in data){    
       data_json[data[x].name]=data[x].value
     }
-    console.log(data_json);
-
+    modalCargando();
     $.post(baseUrl+"cliente/eliminar",data_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle'); 
       if (response.estado){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      

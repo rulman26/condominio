@@ -13,7 +13,7 @@ switch ($_GET['solicitud']){
         $item->nombre=$request['nombre'];
         $item->preciocompra=$request['preciocompra'];
         $item->precioventa=$request['precioventa'];        
-        $item->unidades=$request['unidades'];  
+        $item->unidades=1;  
         $item->proveedor_id=$request['proveedor_id'];  
         $item->item_tipo_id=$request['item_tipo_id'];  
         $item->item_categoria_id=$request['item_categoria_id'];  
@@ -23,7 +23,7 @@ switch ($_GET['solicitud']){
         $item->nombre=$_POST['nombre'];        
         $item->preciocompra=$_POST['preciocompra'];  
         $item->precioventa=$_POST['precioventa']; 
-        $item->unidades=$_POST['unidades']; 
+        $item->unidades=1; 
         $item->proveedor_id=$_POST['proveedor_id']; 
         $item->item_tipo_id=$_POST['item_tipo_id'];  
         $item->item_categoria_id=$_POST['item_categoria_id'];  
@@ -46,7 +46,7 @@ switch ($_GET['solicitud']){
         $item->nombre=$request['nombre'];
         $item->preciocompra=$request['preciocompra'];
         $item->precioventa=$request['precioventa'];        
-        $item->unidades=$request['unidades'];  
+        $item->unidades=1;  
         $item->proveedor_id=$request['proveedor_id'];  
         $item->item_tipo_id=$request['item_tipo_id'];  
         $item->item_categoria_id=$request['item_categoria_id'];  
@@ -57,7 +57,7 @@ switch ($_GET['solicitud']){
         $item->nombre=$_POST['nombre'];        
         $item->preciocompra=$_POST['preciocompra'];  
         $item->precioventa=$_POST['precioventa']; 
-        $item->unidades=$_POST['unidades']; 
+        $item->unidades=1; 
         $item->proveedor_id=$_POST['proveedor_id']; 
         $item->item_tipo_id=$_POST['item_tipo_id'];  
         $item->item_categoria_id=$_POST['item_categoria_id'];  

@@ -1,61 +1,52 @@
-<div class="container">
-  <div class="row justify-content-center align-items-center">
-    <h3>Registrar Item</h3>  
-  </div>  
+<div class="form-cliente" id="form-cliente"> 
+  <div class="form-cabecera">
+    <h4>Nuevo Item</h4>
+  </div> 
+  <hr> 
+  <form id="form_item_registrar">
+    <div class="form-group">
+      <label for="codigo">Codigo *</label>
+      <input required type="text" class="form-control" id="codigo" name="codigo" placeholder="Ingresar Codigo">
+    </div>
+    <div class="form-group">
+      <label for="nombre">Nombre *</label>
+      <input required type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresar Nombre">
+    </div>
+    <div class="form-group">
+      <label for="preciocompra">Precio Compra *</label>
+      <input required type="number" class="form-control" id="preciocompra" name="preciocompra" 
+        placeholder="Ingresar Precio Compra">
+    </div>
+    <div class="form-group">
+      <label for="precioventa">Precio Venta *</label>
+      <input required type="number" class="form-control" id="precioventa" name="precioventa" 
+        placeholder="Ingresar Precio Venta">
+    </div>    
+    <div class="form-group">
+      <label for="proveedor_id">Proveedor:</label>    
+      <select class="form-control" id="proveedor_id" name="proveedor_id">
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="item_tipo_id">Tipo:</label>
+      <select class="form-control" id="item_tipo_id" name="item_tipo_id">
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="item_categoria_id">Categoria:</label>
+      <select class="form-control" id="item_categoria_id" name="item_categoria_id">
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="estado">Estado:</label>    
+      <select class="form-control" id="estado" name="estado">
+        <option value="ACTIVO">ACTIVO</option>
+        <option value="INACTIVO">INACTIVO</option>
+      </select>
+    </div>
+  </form>
+  <button class="btn btn-primary btn-block" onclick="formItemRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
 </div>
-<form id="form_item_registrar">
-  <div class="form-group">
-    <label for="codigo">Codigo</label>
-    <input required type="text" class="form-control" id="codigo" name="codigo" placeholder="Ingresar Codigo">
-  </div>
-  <div class="form-group">
-    <label for="nombre">Nombre</label>
-    <input required type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresar Nombre">
-  </div>
-  <div class="form-group">
-    <label for="preciocompra">Precio Compra:</label>
-    <input required type="number" class="form-control" id="preciocompra" name="preciocompra" 
-      placeholder="Ingresar Precio Compra">
-  </div>
-  <div class="form-group">
-    <label for="precioventa">Precio Venta</label>
-    <input required type="number" class="form-control" id="precioventa" name="precioventa" 
-      placeholder="Ingresar Precio Venta">
-  </div>
-  <div class="form-group">
-    <label for="unidades">Unidades:</label>
-    <input required type="number" class="form-control" id="unidades" name="unidades" 
-      placeholder="Ingresar Unidades Contiene">
-  </div>
-  <div class="form-group">
-    <label for="proveedor_id">Proveedor:</label>    
-    <select class="form-control" id="proveedor_id" name="proveedor_id">
-    </select>
-  </div>
-  <div class="form-group">
-    <label for="item_tipo_id">Tipo:</label>
-    <select class="form-control" id="item_tipo_id" name="item_tipo_id">
-    </select>
-  </div>
-  <div class="form-group">
-    <label for="item_categoria_id">Categoria:</label>
-    <select class="form-control" id="item_categoria_id" name="item_categoria_id">
-    </select>
-  </div>
-  <div class="form-group">
-    <label for="estado">Estado:</label>    
-    <select class="form-control" id="estado" name="estado">
-      <option value="ACTIVO">ACTIVO</option>
-      <option value="INACTIVO">INACTIVO</option>
-    </select>
-  </div>
-</form>
-<div class="container">
-  <div class="row justify-content-center align-items-center">
-    <button class="btn btn-primary" onclick="formClienteRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
-  </div>  
-</div>
-
 
 <script type="text/javascript">  
 function datosFormItemRegistrar(){  
@@ -88,23 +79,27 @@ function datosFormItemRegistrar(){
   });     
 }  
 datosFormItemRegistrar();
-
-function formClienteRegistrar(){
+screenAltura("form-cliente",200);
+function formItemRegistrar(){
   if (formValido("form_item_registrar")){
     let data=$("#form_item_registrar").serializeArray();
     let data_json={}
     for (x in data){    
       data_json[data[x].name]=data[x].value
     }
-    console.log(data_json);
-
+    modalCargando();   
     $.post(baseUrl+"item/crear",data_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle');
       if (response.estado){
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
-        $('#modal_mensaje').modal('toggle');      
+        $('#modal_mensaje').modal('toggle'); 
+        inputs=$("#form_item_registrar input");
+        for (x in inputs)
+          {
+            inputs[x].value="";
+          }     
       }else{
         let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);

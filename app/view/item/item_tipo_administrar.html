@@ -51,7 +51,7 @@ screenAltura("tabla_http_scroll",280);
 var itemTipos=[];
 function itemTiposBuscar(){    
   document.getElementById("div_buscar").style.display="block";
-        
+  $("#tabla_http tbody").html('<td colspan="2" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');      
   $.get(baseUrl+"item/tipofiltrar/todos",function(data){
     $("#tabla_http tbody").html("");
     let response=JSON.parse(data);    
@@ -96,7 +96,7 @@ function modalItemTipoRegistrar(){
       <div class="modal-body">
         <form id="form_item_tipo_registrar">
           <div class="form-group">            
-            <label for="nombre">Nombre:</label>
+            <label for="nombre">Nombre *</label>
             <input required type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresar Nombre">
           </div>
           <div class="form-group">
@@ -130,10 +130,10 @@ function itemTipoRegistrarGuardar(){
     for (x in data){    
       data_json[data[x].name]=data[x].value
     }
-    console.log(data_json);
+    modalCargando();
     $.post(baseUrl+"item/tipocrear",data_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle'); 
       if (response.estado){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
@@ -245,10 +245,10 @@ function itemTipoEditarGuardar(){
     for (x in data){    
       data_json[data[x].name]=data[x].value
     }
-    console.log(data_json);
+    modalCargando();
     $.post(baseUrl+"item/tipoeditar",data_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle');      
       if (response.estado){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      

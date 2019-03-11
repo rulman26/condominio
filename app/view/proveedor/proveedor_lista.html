@@ -54,17 +54,14 @@
 screenAltura("tabla_http_scroll",280);
 var proveedores=[];
 function proveedorListar(){
-  
   document.getElementById("div_buscar").style.display="block";
-  
   let data={};
-    data['filtro']=document.getElementById("filtro").value;
-    data['input_filtro']=document.getElementById("filtro_input").value;
-    console.log(data);
+  data['filtro']=document.getElementById("filtro").value;
+  data['input_filtro']=document.getElementById("filtro_input").value;
+  $("#tabla_http tbody").html('<td colspan="6" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');
   $.post(baseUrl+"proveedor/filtrar/activos",data,function(data){
     $("#tabla_http tbody").html("");
-    let response=JSON.parse(data);    
-    console.log(response);
+    let response=JSON.parse(data);        
     if (response.estado) {
       for (x in response['data']) {
         proveedores[response['data'][x].PROVEEDOR_ID]=response['data'][x];         
@@ -144,8 +141,7 @@ function modalProveedorLeer(data){
   return modal;
 }
 
-function proveedorLeer(id){
-  console.log(proveedores[id]);
+function proveedorLeer(id){  
   let modal=modalProveedorLeer(proveedores[id]);  
   $('#modal_mensaje').html(modal);
   $('#modal_mensaje').modal('toggle'); 
@@ -230,11 +226,10 @@ function proveedorEditarGuardar(){
     for (x in data){    
       data_json[data[x].name]=data[x].value
     }
-    console.log(data_json);
-
+    modalCargando();
     $.post(baseUrl+"proveedor/editar",data_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle'); 
       if (response.estado){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
@@ -288,11 +283,10 @@ function clienteProveedorGuardar(){
     for (x in data){    
       data_json[data[x].name]=data[x].value
     }
-    console.log(data_json);
-
+    modalCargando();
     $.post(baseUrl+"proveedor/eliminar",data_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle'); 
       if (response.estado){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      

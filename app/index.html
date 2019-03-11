@@ -30,7 +30,8 @@
           <a href="#menuUsuario" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Usuario</a>
           <ul class="collapse list-unstyled" id="menuUsuario">
             <li>
-              <a onclick="cargar_vista('view/usuario/usuario_registrar.html')">Registrar Usuario</a>
+              <a onclick="cargar_vista('view/usuario/usuario_registrar.html')">Nuevo
+                 Usuario</a>
             </li>
             <li>
               <a onclick="cargar_vista('view/usuario/usuario_lista.html')">Lista de Usuarios</a>
@@ -41,7 +42,7 @@
           <a href="#menuCliente" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Cliente</a>
           <ul class="collapse list-unstyled" id="menuCliente">
             <li>
-              <a onclick="cargar_vista('view/cliente/cliente_registrar.html')">Registrar Cliente</a>
+              <a onclick="cargar_vista('view/cliente/cliente_registrar.html')">Nuevo Cliente</a>
             </li>
             <li>
               <a onclick="cargar_vista('view/cliente/cliente_lista.html')">Lista de Cliente</a>
@@ -55,7 +56,7 @@
           <a href="#menuProveedor" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Proveedor</a>
           <ul class="collapse list-unstyled" id="menuProveedor">
             <li>
-              <a onclick="cargar_vista('view/proveedor/proveedor_registrar.html')">Registrar Proveedor</a>
+              <a onclick="cargar_vista('view/proveedor/proveedor_registrar.html')">Nuevo Proveedor</a>
             </li>
             <li>
               <a onclick="cargar_vista('view/proveedor/proveedor_lista.html')">Lista de Proveedores</a>
@@ -69,7 +70,7 @@
           <a href="#homeItem" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Items</a>
           <ul class="collapse list-unstyled" id="homeItem">
             <li>
-              <a onclick="cargar_vista('view/item/item_registrar.html')">Registrar Item</a>
+              <a onclick="cargar_vista('view/item/item_registrar.html')">Nuevo Item</a>
             </li>
             <li>
               <a onclick="cargar_vista('view/item/item_buscar.html')">Buscar Item</a>
@@ -142,15 +143,18 @@
   
   </div>
   <!-- The Modal -->
-  
     <!-- Modal para Acciones 
     <div class="modal" id="modal_formulario" role="dialog"   data-backdrop="false" >
     </div> -->
     <div class="modal" id="modal_formulario">
     </div>   
     <!-- Modal para Mensajes -->
-    <div class="modal fade" id="modal_mensaje">
+    <div class="modal fade" id="modal_mensaje">      
     </div> 
+    <!-- Modal para Cargando -->
+    <div class="modal" id="modal_cargando" role="dialog" data-backdrop="false" style="background: #343a4052;">
+    </div>
+    
 </body>
 
 </html>
@@ -211,6 +215,19 @@
       </div>
     </div>`;
     return modal;
+  }
+
+  function modalCargando(){  
+    console.log("Carga");          
+    modal=`
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div style="text-align: center;color: blue;">  
+        <img src="img/ajax-loader.gif">  
+        <h5>Cargando..!</h5>              
+      </div>
+    </div>`;
+    $('#modal_cargando').html(modal);
+    $('#modal_cargando').modal('toggle');  
   }
 
   function modalRespuestaError(header,content,long){
