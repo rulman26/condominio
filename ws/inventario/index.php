@@ -12,8 +12,7 @@ switch ($_GET['solicitud']){
         $inventario->item_id=$request['item_id'];
         $inventario->codigobarra=$request['codigobarra'];
         $inventario->ubicacion=$request['ubicacion'];
-        $inventario->cantidad=$request['cantidad'];
-        $inventario->saldo=$request['cantidad'];  
+        $inventario->cantidad=$request['cantidad'];        
         $inventario->fechaingreso=$request['fechaingreso'];  
         $inventario->fechafabricacion=$request['fechafabricacion'];  
         $inventario->fechavencimiento=$request['fechavencimiento'];          
@@ -22,8 +21,7 @@ switch ($_GET['solicitud']){
         $inventario->item_id=$_POST['item_id'];  
         $inventario->codigobarra=$_POST['codigobarra'];  
         $inventario->ubicacion=$_POST['ubicacion'];  
-        $inventario->cantidad=$_POST['cantidad'];        
-        $inventario->saldo=$_POST['cantidad'];  
+        $inventario->cantidad=$_POST['cantidad'];
         $inventario->fechaingreso=$_POST['fechaingreso']; 
         $inventario->fechafabricacion=$_POST['fechafabricacion']; 
         $inventario->fechavencimiento=$_POST['fechavencimiento'];  
@@ -108,13 +106,15 @@ switch ($_GET['solicitud']){
         $fecha=$request['fecha'];
         $inicio=$request['inicio'];
         $final=$request['final'];
+        $item_id=$request['item_id'];
       }else{
         $fecha=$_POST['fecha'];
         $inicio=$_POST['inicio'];
-        $final=$_POST['fecha'];
+        $final=$_POST['final'];
+        $item_id=$_POST['item_id'];
       }           
       $filtro=$_GET['id'];      
-      $data=$inventario->listaInventarios($filtro,$fecha,$inicio,$final);
+      $data=$inventario->listaInventarios($filtro,$fecha,$inicio,$final,$item_id);
     }else{      
       $data['estado']="ERROR";
       $data['mensaje']="NO EXISTEN DATOS POST";                    

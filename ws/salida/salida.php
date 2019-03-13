@@ -8,8 +8,7 @@ require '../conn.php';
 class salida 
 {
   var $id;  	
-  var $inventario_id;	
-  var $saldo;      
+  var $inventario_id;	      
   var $precio;
   var $cantidad;
   var $fecha;
@@ -23,17 +22,12 @@ class salida
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO SALIDA VALUES(default,?,?,?,?,STR_TO_DATE(?,'%d/%m/%Y %H:%i'),?,?,?,now())";
+      $sql = "INSERT INTO SALIDA VALUES(default,?,?,?,STR_TO_DATE(?,'%d/%m/%Y %H:%i'),?,?,?,now())";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->inventario_id,$this->saldo,$this->precio,$this->cantidad,$this->fecha,$this->tipo,$this->usuario_id,$this->estado));
+      $q->execute(array($this->inventario_id,$this->precio,$this->cantidad,$this->fecha,$this->tipo,$this->usuario_id,$this->estado));
       $mensaje['estado']=true;
       $mensaje['salida_id']=$pdo->lastInsertId(); 
-      $mensaje['mensaje']='SALIDA REGISTRADA CON EXITO'; 
-      $sql = "UPDATE INVENTARIO 
-        SET INVANTARIO_SALDO=INVANTARIO_SALDO-?
-        WHERE INVENTARIO_ID=?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($this->cantidad,$this->inventario_id));
+      $mensaje['mensaje']='SALIDA REGISTRADA CON EXITO';       
       $pdo->commit();  
     }catch(PDOException $e) { 
       $mensaje['estado']=false;
@@ -44,60 +38,36 @@ class salida
     return $mensaje;  
   }
 
-  function editarSalida(){    
+  function EditarSalida(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      //Obtener los datos del Anterior iD INVENTARIO ANTERIOR
-      $sql = "SELECT *FROM SALIDA WHERE SALIDA_ID=?";
+      $sql = "SELECT IFNULL(SUM(SALIDA_CANTIDAD),0) SALIO FROM SALIDA WHERE INVENTARIO_ID=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->id)); 
-      $data = $q->fetch(PDO::FETCH_ASSOC);
-      $inventario_id_ant=$data['INVENTARIO_ID'];
-      $salida_cantidad_ant=$data['SALIDA_CANTIDAD'];
-      //Obtener los datos del Anterior iD SALDO ACTUAL DEL INVENTARIO
-      $sql = "SELECT *FROM INVENTARIO WHERE INVENTARIO_ID=?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($inventario_id_ant)); 
-      $data = $q->fetch(PDO::FETCH_ASSOC);
-      $inventario_saldo_actual=$data['INVENTARIO_SALDO'];
-      //Actualizamos su Saldo sumando el actual y la vez que salio
-      $sql = "UPDATE INVENTARIO 
-        SET INVANTARIO_SALDO=?
-        WHERE INVENTARIO_ID=?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array(($salida_cantidad_ant+$inventario_saldo_actual),data['INVENTARIO_ID']));
-      //Actualizamos todos los saldos de la salida
-      $sql = "UPDATE SALIDA 
-        SET SALIDA_SALDO=SALIDA_SALDO+?
-        WHERE INVENTARIO_ID=? AND SALIDA_ID>?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($salida_cantidad_ant,$inventario_id_ant,$this->id));  
+      $q->execute(array($this->inventario_id));
+      $data = $q->fetch(PDO::FETCH_ASSOC); 
+      if($this->cantidad>=$data['SALIO']){
+        $sql = "UPDATE INVENTARIO 
+        SET ITEM_ID=?,
+          INVENTARIO_CODIGO_BARRA=?,
+          INVENTARIO_UBICACION=?,
+          INVENTARIO_CANTIDAD=?,        
+          INVENTARIO_FECHA_INGRESO=STR_TO_DATE(?,'%d/%m/%Y %H:%i'),
+          INVENTARIO_FECHA_FABRICACION=STR_TO_DATE(?,'%d/%m/%Y'),
+          INVENTARIO_FECHA_VENCIMIENTO=STR_TO_DATE(?,'%d/%m/%Y'),
+          INVENTARIO_ESTADO=?
+          WHERE INVENTARIO_ID=?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado,$this->id));            
+        $mensaje['estado']=true;
+        $mensaje['mensaje']='INVENTARIO EDITADO CON EXITO';       
+      }else{
+        $mensaje['estado']=false;
+        $mensaje['mensaje']='ERROR LA CANTIDAD NO PUEDE SER MENOR';       
+      }
+      //Retornamoe el dato actualizado                        
       
-      $sql = "UPDATE SALIDA 
-        SET INVENTARIO_ID=?,
-        SALIDA_SALDO=?,
-        SALIDA_PRECIO=?,
-        SALIDA_CANTIDAD=?,
-        SALIDA_FECHA=?,
-        SALIDA_TIPO=?,
-        USUARIO_ID=?,
-        SALIDA_ESTADO=?
-        WHERE SALIDA_ID=?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($this->inventario_id,$this->saldo,$this->precio,$this->cantidad,$this->fecha,$this->tipo,$this->usuario_id,$this->estado,$this->id));
-
-      $sql = "UPDATE INVENTARIO 
-        SET INVANTARIO_SALDO=INVANTARIO_SALDO-?
-        WHERE INVENTARIO_ID=?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($this->cantidad,$this->inventario_id));
-      //Retornamoe el dato actualizado                  
-      $data=$this->leerProveedor();
-      $mensaje['estado']=true;
-      $mensaje['mensaje']='PROVEEDOR EDITADO CON EXITO'; 
-      $mensaje['proveedor']=$data; 
       $pdo->commit();  
     }catch(PDOException $e) { 
       $mensaje['estado']=false;

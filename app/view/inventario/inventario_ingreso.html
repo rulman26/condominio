@@ -1,23 +1,28 @@
-<datalist id="item_list">
-</datalist>
-<h2>Registrar Ingresos</h2>
-<div class="table-responsive" id="tabla_http_scroll">
-  <table class="table" id="tabla_http">
-    <thead>
-      <tr>
-        <th width="180">Item</th>                  
-        <th width="100">Cantidad</th> 
-        <th width="100">Ubicacion</th>         
-        <th width="140">Ingreso</th>
-        <th width="120">Fabricacion</th>
-        <th width="120">Vencimiento</th>
-        <th width="80"><button class="btn btn-primary btn-sm" onclick="inventarioAddRow()"><i class="fas fa-plus"></i></button></th>
-      </tr>
-    </thead>
-    <tbody>
-    </tbody>
-  </table>
+<div class="form-cliente" id="form-cliente"> 
+  <div class="form-cabecera">
+    <h4>Registrar Ingresos </h4>
+  </div>   
+  <datalist id="item_list">
+  </datalist>
+  <div class="table-responsive" id="tabla_http_scroll">
+    <table class="table" id="tabla_http">
+      <thead>
+        <tr>
+          <th width="180">Item</th>                  
+          <th width="100">Cantidad</th> 
+          <th width="100">Ubicacion</th>         
+          <th width="140">Ingreso</th>
+          <th width="120">Fabricacion</th>
+          <th width="120">Vencimiento</th>
+          <th width="80"><button class="btn btn-primary btn-sm" onclick="inventarioAddRow()"><i class="fas fa-plus"></i></button></th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
 </div>
+
 <style>
   .t_input{
     padding-left: 2px;
@@ -26,8 +31,9 @@
     border: 1px solid #BDBDBD;
   }
 </style>
-<script>
 
+<script>
+screenAltura("form-cliente",200);
 function list_items(){
   $.get(baseUrl+"item/forminventario",function(data){
   	let response=JSON.parse(data); 
@@ -42,12 +48,9 @@ function list_items(){
 }
 list_items();
 
-
-
 function inventarioAddRow(){ 	  
   let fechayhora=fechaHoraActual();  
-  let fecha=fechaActual();  
-
+  let fecha=fechaActual(); 
   let row='<tr>';
   row+='<td>';
   row+='<input type="hidden" name="item_id">';
@@ -119,9 +122,10 @@ function tableItemRegistrar(boton){
   obj_json['estado']=estado;
   console.log(obj_json)  
   if(item_id!=""&&item_nombre!=""&&cantidad!=""&&fechaingreso!=""&&fechafabricacion!=""&&fechavencimiento!=""){
+    modalCargando();
     $.post(baseUrl+"inventario/crear",obj_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle');
       if (response.estado){
         let serverInventarioId=response.intentario_id;
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
@@ -134,7 +138,8 @@ function tableItemRegistrar(boton){
           fila+='<td>'+fechafabricacion+'</td>';
           fila+='<td>'+fechavencimiento+'</td>';          
           fila+='<td>';
-          fila+='<button onclick="tableItemEditar('+serverInventarioId+','+item_id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
+          fila+='<button onclick="tableItemEditar('+serverInventarioId+','+item_id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pencil-alt"></i></button>';
+          fila+='&nbsp';
           fila+='<button onclick="tableItemEliminar('+serverInventarioId+')" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
           fila+='</td>';
         $(boton).parents("tr").attr("id","f-"+serverInventarioId);
@@ -223,11 +228,9 @@ function InventarioEditarGuardar(){
     }
     data_json['codigobarra']="";
     data_json['estado']="ACTIVO";
-    console.log(data_json);
-
-    $.post(baseUrl+"inventario/editar",data_json,function(data){      
-      let response=JSON.parse(data);
-      console.log(response)
+    modalCargando();
+    $.post(baseUrl+"inventario/editar",data_json,function(data){            
+      $('#modal_cargando').modal('toggle');      
       if (response.estado){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
@@ -290,14 +293,13 @@ function InventarioEliminarGuardar(){
     for (x in data){    
       data_json[data[x].name]=data[x].value
     }
-    console.log(data_json);
-
+    modalCargando();
     $.post(baseUrl+"inventario/eliminar",data_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle');
       if (response.estado){
         $('#modal_formulario').html("");
-        $('#modal_formulario').modal('toggle');      
+        $('#modal_formulario').modal('toggle');
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle');

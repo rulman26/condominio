@@ -69,12 +69,11 @@ function inventarioAddRow(){
 function calcularVuelto(input){
   let filainputs=$(input).parents("tr").find("input");   
   console.log(filainputs)   
-  let saldo=filainputs[2].value;
-  console.log(saldo)   
-  let precio=filainputs[3].value;
-  console.log(precio)   
-  let cantidad=filainputs[4].value;
-  console.log(cantidad)
+  let saldo=parseInt(filainputs[2].value);   
+  let precio=filainputs[3].value;  
+  let cantidad=parseInt(filainputs[4].value);
+  console.log("SALDO"+ saldo)  
+  console.log("CANTIDAD"+ cantidad)  
   if (cantidad>saldo){
     alert("Saldo Insuficiente");
     filainputs[4].value=0;
@@ -132,12 +131,19 @@ function tableSalidaRegistrar(boton){
   obj_json['tipo']=tipo;
   obj_json['usuario_id']=usuario_id;  
   obj_json['estado']=estado;
-  console.log(obj_json)  
+  modalCargando();
   if(inventario_id!=""&&saldo!=0&&precio!=0&&fecha!=""&&tipo!=""&&usuario_id!=""&&cantidad!=0){
     $.post(baseUrl+"salida/crear",obj_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle'); 
       if (response.estado){
+        //Recorrer par actualziar        
+        for (x in data_inventario){
+          if(parseInt(data_inventario[x].INVENTARIO_ID)==parseInt(inventario_id)){
+            data_inventario[x].INVENTARIO_SALDO=parseInt(data_inventario[x].INVENTARIO_SALDO)-parseInt(cantidad);
+            break;
+          }
+        }
         let serverSalidaId=response.salida_id;
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
@@ -248,14 +254,13 @@ function salidaEditarGuardar(){
     }
     data_json['codigobarra']="";
     data_json['estado']="ACTIVO";
-    console.log(data_json);
-
+    modalCargando();
     $.post(baseUrl+"inventario/editar",data_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle');
       if (response.estado){
         $('#modal_formulario').html("");
-        $('#modal_formulario').modal('toggle');      
+        $('#modal_formulario').modal('toggle');
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle');
@@ -369,8 +374,7 @@ function activarFilaItem(){
   });
 }
 
-function InventarioId(fila){
-  console.log(fila);
+function InventarioId(fila){  
   let datahtml="";
   for (x in data_inventario){
     datahtml+='<tr ondblclick="modalSeleccionarFila()">';
