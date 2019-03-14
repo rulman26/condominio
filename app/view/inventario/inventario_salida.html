@@ -1,23 +1,26 @@
-<datalist id="inventario_list">
-</datalist>
-<center><h3>Registrar Salidas</h3></center>
-<div class="table-responsive" id="tabla_http_scroll">
-  <table class="table" id="tabla_http">
-    <thead>
-      <tr>        
-        <th width="80">Id</th> 
-        <th width="180">Item</th>                  
-        <th width="100">Saldo</th> 
-        <th width="100">Precio</th>
-        <th width="100">Cantidad</th>                 
-        <th width="100">Total</th>
-        <th width="140">Fecha</th>
-        <th width="80"><button class="btn btn-primary btn-sm" onclick="inventarioAddRow()"><i class="fas fa-plus"></i></button></th>
-      </tr>
-    </thead>
-    <tbody>
-    </tbody>
-  </table>
+<div class="form-cliente" id="form-cliente"> 
+  <div class="form-cabecera">
+    <h4>Registrar Ingresos </h4>
+  </div>  
+  <datalist id="inventario_list">
+  </datalist>
+  <div class="table-responsive" id="tabla_http_scroll">
+    <table class="table" id="tabla_http">
+      <thead>
+        <tr>        
+          <th width="100">Ingreso</th> 
+          <th width="180">Item</th>                            
+          <th width="100">Precio</th>
+          <th width="100">Cantidad</th>                 
+          <th width="100">Total</th>
+          <th width="140">Fecha</th>
+          <th width="80"><button class="btn btn-primary btn-sm" onclick="inventarioAddRow()"><i class="fas fa-plus"></i></button></th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
 </div>
 <style>
   .t_input{
@@ -32,12 +35,11 @@
 var data_inventario;
 function list_inventario(){
   $.get(baseUrl+"inventario/forminventariosalida",function(data){
-  	let response=JSON.parse(data); 
-    console.log(response)	
+  	let response=JSON.parse(data);     
     data_inventario=response.inventario;
     let fila="";    
   	for (x in data_inventario) {	  	  	
-  	  fila+='<option codigo="'+data_inventario[x].INVENTARIO_ID+'" value="'+data_inventario[x].ITEM_NOMBRE+'">Saldo : '+data_inventario[x].INVENTARIO_SALDO+' - Precio : '+data_inventario[x].ITEM_PRECIO_VENTA+' - FV : '+data_inventario[x].FECHA_VENCIMIENTO+'</option>';	  	  
+  	  fila+='<option codigo="'+data_inventario[x].INVENTARIO_ID+'" precio="'+data_inventario[x].ITEM_PRECIO_VENTA+'" value="'+data_inventario[x].ITEM_NOMBRE+'"> Precio : '+data_inventario[x].ITEM_PRECIO_VENTA+' - FV : '+data_inventario[x].FECHA_VENCIMIENTO+'</option>';	  	  
   	}  
   	$("#inventario_list").html(fila);
 	});
@@ -50,8 +52,7 @@ function inventarioAddRow(){
 
   let row='<tr>';
     row+='<td><input class="t_input" readonly value="Sin Id"></td>';  
-    row+='<td><input class="t_input" readonly onclick="InventarioId(this)" placeholder="Seleccionar Item"></td>';
-    row+='<td><input type="text" readonly class="t_input" name="saldo" value="0"></td>'; 
+    row+='<td><input class="t_input" readonly onclick="InventarioId(this)" placeholder="Seleccionar Item"></td>';    
     row+='<td><input type="number" class="t_input" name="precio" value="0"></td>';   
     row+='<td><input type="number" class="t_input" onchange="calcularVuelto(this)" name="cantidad" min="0" value="0"></td>';   
     row+='<td><input type="number" readonly class="t_input" name="total" value="0"></td>';     
@@ -69,17 +70,17 @@ function inventarioAddRow(){
 function calcularVuelto(input){
   let filainputs=$(input).parents("tr").find("input");   
   console.log(filainputs)   
-  let saldo=parseInt(filainputs[2].value);   
-  let precio=filainputs[3].value;  
-  let cantidad=parseInt(filainputs[4].value);
+  let saldo=parseInt(modal_item_saldo);  
+  let precio=filainputs[2].value;  
+  let cantidad=parseInt(filainputs[3].value);
   console.log("SALDO"+ saldo)  
   console.log("CANTIDAD"+ cantidad)  
   if (cantidad>saldo){
     alert("Saldo Insuficiente");
+    filainputs[3].value=0;
     filainputs[4].value=0;
-    filainputs[5].value=0;
   }else{
-    filainputs[5].value=precio*cantidad;
+    filainputs[4].value=precio*cantidad;
   }
 }
 
@@ -111,11 +112,10 @@ function tableSalidaRegistrar(boton){
 
   let filaInputs=$(boton).parents("tr").find("input");  
   let inventario_id=filaInputs[0].value;
-  let item_name=filaInputs[1].value;
-  let saldo=filaInputs[2].value;
-  let precio=filaInputs[3].value;
-  let cantidad=filaInputs[4].value;
-  let fecha=filaInputs[6].value;
+  let item_name=filaInputs[1].value;  
+  let precio=filaInputs[2].value;
+  let cantidad=filaInputs[3].value;
+  let fecha=filaInputs[5].value;
   let tipo="VENTA";
   let usuario_id=1;
   let estado="ACTIVO";
@@ -123,8 +123,7 @@ function tableSalidaRegistrar(boton){
   let filaSelects=$(boton).parents("tr").find("select");  
   
   let obj_json={};
-  obj_json['inventario_id']=inventario_id;
-  obj_json['saldo']=saldo;
+  obj_json['inventario_id']=inventario_id;  
   obj_json['precio']=precio;
   obj_json['cantidad']=cantidad;
   obj_json['fecha']=fecha;
@@ -132,7 +131,7 @@ function tableSalidaRegistrar(boton){
   obj_json['usuario_id']=usuario_id;  
   obj_json['estado']=estado;
   modalCargando();
-  if(inventario_id!=""&&saldo!=0&&precio!=0&&fecha!=""&&tipo!=""&&usuario_id!=""&&cantidad!=0){
+  if(inventario_id!="" || precio!=0 || fecha!="" || tipo!="" || usuario_id!="" || cantidad!=0){
     $.post(baseUrl+"salida/crear",obj_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle'); 
@@ -149,15 +148,14 @@ function tableSalidaRegistrar(boton){
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle'); 
         let fila='<td>'+inventario_id+'</td>';          
-          fila+='<td>'+item_name+'</td>';
-          fila+='<td>'+saldo+'</td>';
+          fila+='<td>'+item_name+'</td>';          
           fila+='<td>'+precio+'</td>';
           fila+='<td>'+cantidad+'</td>';
           fila+='<td>'+(precio*cantidad)+'</td>';
           fila+='<td>'+fecha+'</td>';          
           fila+='<td>';
-          fila+='<button onclick="tableItemEditar('+serverSalidaId+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
-          fila+='<button onclick="tableItemEliminar('+serverSalidaId+')" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
+          fila+='<button onclick="tableSalidaEditar('+serverSalidaId+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
+          fila+='<button onclick="tableSalidaEliminar('+serverSalidaId+')" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
           fila+='</td>';
         $(boton).parents("tr").attr("id","f-"+serverSalidaId);
         $(boton).parents("tr").html(fila);     
@@ -173,6 +171,7 @@ function tableSalidaRegistrar(boton){
 }
 
 function modalSalidaEditar(data){
+  console.log(data)
   let modal=`<div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -182,33 +181,24 @@ function modalSalidaEditar(data){
       <div class="modal-body">
         <form id="form_salida_editar">
           <input type="hidden" name="id" value="`+data.id+`">
+          <input type="hidden" id="m_inventario_id" name="inventario_id" value="`+data.inventario_id+`">        
           <div class="form-group">
-            <label for="inventario_id">Inventario Id:</label>
-            <input required readonly type="number" class="form-control" id="inventario_id" 
-              name="inventario_id" value="`+data.inventario_id+`">
-          </div>      
-          <div class="form-group">
-            <label for="inventario_nombre">Inventario :</label>
-            <input required type="text" class="form-control" list="inventario_list" id="inventario_nombre" 
+          <label for="inventario_nombre">Item</label>
+          <input required type="text" class="form-control" list="inventario_list" id="inventario_nombre" 
               name="inventario_nombre" value="`+data.item_nombre+`" onchange="id_inventario_modal(this)">
           </div>
           <div class="form-group">
-            <label for="cantidad">Saldo:</label>
-            <input required readonly type="number" class="form-control" id="cantidad" 
-              name="cantidad" value="`+data.saldo+`">
-          </div>
-          <div class="form-group">
-            <label for="precio">Precio:</label>
-            <input required readonly type="number"  class="form-control" id="precio" 
+            <label for="m_precio">Precio</label>
+            <input required readonly type="number"  class="form-control" id="m_precio" 
             name="precio" value="`+data.precio+`">
           </div>
           <div class="form-group">
-            <label for="cantidad">Cantidad:</label>
+            <label for="cantidad">Cantidad</label>
             <input type="number" class="form-control" id="cantidad" 
-            name="cantidad" value="`+data.cantidad+`">
+            name="cantidad" value="`+data.cantidad+`" onchange="montoTotal(this)">
           </div>
           <div class="form-group">
-            <label for="total">Total:</label>
+            <label for="total">Total</label>
             <input type="number" readonly class="form-control" id="total" 
             name="total" value="`+data.total+`">
           </div>
@@ -228,17 +218,16 @@ function modalSalidaEditar(data){
   return modal;
 }
 
-function tableItemEditar(id){
+function tableSalidaEditar(id){
   let filaData=$("#f-"+id).find("td");
   let data={};
   data["id"]=id;
   data["inventario_id"]=filaData[0].innerHTML;
-  data["item_nombre"]=filaData[1].innerHTML;
-  data["saldo"]=filaData[2].innerHTML;
-  data["precio"]=filaData[3].innerHTML;
-  data["cantidad"]=filaData[4].innerHTML;
-  data["total"]=filaData[5].innerHTML;
-  data["fecha"]=filaData[6].innerHTML;    
+  data["item_nombre"]=filaData[1].innerHTML;  
+  data["precio"]=filaData[2].innerHTML;
+  data["cantidad"]=filaData[3].innerHTML;
+  data["total"]=filaData[4].innerHTML;
+  data["fecha"]=filaData[5].innerHTML;    
   let modal=modalSalidaEditar(data);  
   $('#modal_formulario').html(modal);
   $('#modal_formulario').modal('toggle');
@@ -251,25 +240,29 @@ function salidaEditarGuardar(){
     let data_json={}
     for (x in data){    
       data_json[data[x].name]=data[x].value
-    }
-    data_json['codigobarra']="";
+    }        
+    data_json['usuario_id']=1;
+    data_json['tipo']="VENTA";
     data_json['estado']="ACTIVO";
+    console.log(data_json)
     modalCargando();
-    $.post(baseUrl+"inventario/editar",data_json,function(data){      
+    $.post(baseUrl+"salida/editar",data_json,function(data){      
       let response=JSON.parse(data);
+      console.log(response)
       $('#modal_cargando').modal('toggle');
       if (response.estado){
+        list_inventario();
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle');
-        let fila='<td>'+data_json.item_nombre+'</td>';          
+        let fila='<td>'+data_json.inventario_id+'</td>';          
+          fila+='<td>'+data_json.inventario_nombre+'</td>';          
+          fila+='<td>'+data_json.precio+'</td>';
           fila+='<td>'+data_json.cantidad+'</td>';
-          fila+='<td>'+data_json.ubicacion+'</td>';
-          fila+='<td>'+data_json.fechaingreso+'</td>';
-          fila+='<td>'+data_json.fechafabricacion+'</td>';
-          fila+='<td>'+data_json.fechavencimiento+'</td>';          
+          fila+='<td>'+data_json.total+'</td>';
+          fila+='<td>'+data_json.fecha+'</td>';          
           fila+='<td>';
           fila+='<button onclick="tableSalidaEditar('+data_json.id+','+data_json.item_id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
           fila+='<button onclick="tableSalidaEliminar(this)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
@@ -307,7 +300,7 @@ function modalInventarioEliminar(id){
         <form id="form_inventario_eliminar">
           <input type="hidden" name="id" value="`+id+`">
         </form>
-        <h6>Estas Seguro de Eliminar Inventario..?"</h6>
+        <h6>Estas Seguro de Eliminar Salida..?"</h6>
       </div>
       <div class="modal-footer"> 
         <button type="button" class="btn btn-success" onclick="InventarioEliminarGuardar()">Si</button>       
@@ -318,7 +311,7 @@ function modalInventarioEliminar(id){
   return modal;
 }
 
-function tableItemEliminar(id){
+function tableSalidaEliminar(id){
   let modal=modalInventarioEliminar(id);  
   $('#modal_formulario').html(modal);
   $('#modal_formulario').modal('toggle'); 
@@ -403,8 +396,7 @@ function modalSeleccionarFila(){
     let filatabla=$(fila_seleccionada).parents("tr").find("input");      
     filatabla[0].value=modal_item_id;
     filatabla[1].value=modal_item_name; 
-    filatabla[2].value=modal_item_saldo; 
-    filatabla[3].value=modal_item_precio; 
+    filatabla[2].value=modal_item_precio;     
     $('#modal_formulario').html("");
     $('#modal_formulario').modal('toggle');    
   }else{
@@ -418,12 +410,12 @@ function InventarioEliminarGuardar(){
     for (x in data){    
       data_json[data[x].name]=data[x].value
     }
-    console.log(data_json);
-
-    $.post(baseUrl+"inventario/eliminar",data_json,function(data){      
+    modalCargando();
+    $.post(baseUrl+"salida/eliminar",data_json,function(data){      
       let response=JSON.parse(data);
-      console.log(response)
+      $('#modal_cargando').modal('toggle');      
       if (response.estado){
+        list_inventario();
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
@@ -439,7 +431,28 @@ function InventarioEliminarGuardar(){
   } 
 }
 
+function montoTotal(input){
+  let precio=document.getElementById("m_precio").value;
+  let cantidad=input.value;  
+  let total=precio*cantidad;
+  document.getElementById("total").value=total;
+}
+
 function eliminar(boton){
   $(boton).parents("tr").remove();
+}
+
+function id_inventario_modal(input) {        	 
+  list = document.getElementById('inventario_list').options;
+  let m_inventario_id=document.getElementById('m_inventario_id');
+  let precio=document.getElementById('m_precio');
+	for(x in list){      		
+		if (list[x].value==input.value) {			
+			let item_id=list[x].getAttribute('codigo');	      
+      m_inventario_id.value=item_id;      
+      precio.value=list[x].getAttribute('precio');	
+			break;
+		}      		
+	}
 }
 </script>

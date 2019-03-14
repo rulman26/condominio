@@ -241,13 +241,13 @@ text-overflow: ellipsis;
 /*Scroll estilo*/
 ::-webkit-scrollbar {    
     width: 5px;
+    height: 5px;
     margin-top: 15px;
 }
  
 ::-webkit-scrollbar-track {
     background: #ddd;
     border-radius: 5px;
-    
 }
  
 ::-webkit-scrollbar-thumb {

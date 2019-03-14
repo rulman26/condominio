@@ -1,5 +1,5 @@
 <div class="form-cabecera">
-    <h4>Listar Ingresos </h4>
+    <h4>Buscar Ingresos </h4>
 </div> 
 <datalist id="item_list">
 </datalist>
@@ -42,8 +42,8 @@
       <div class="input-group-prepend">        
         <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
         <div class="dropdown-menu">
-          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarClientesCsv()">Exportar CVS</a>
-          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarClientesPdf()">Exportar PDF</a>          
+          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarIngresosCsv()">Exportar CVS</a>
+          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarIngresosPdf()">Exportar PDF</a>          
         </div>
       </div>
     </div>
@@ -86,7 +86,7 @@
   document.getElementById("inicio").value=fechaActual()
   document.getElementById("final").value=fechaActual()
   screenAltura("tabla_http_scroll",280);
-  var inventarios=[];
+  var ingresos=[];
   function inventarioListar(){
     document.getElementById("div_buscar").style.display="block";
     let data={};
@@ -101,7 +101,7 @@
       let response=JSON.parse(data);        
       if (response.estado) {
         for (x in response['data']) {
-          inventarios[response['data'][x].INVENTARIO_ID]=response['data'][x];         
+          ingresos[response['data'][x].INVENTARIO_ID]=response['data'][x];         
           let fila='<tr id="f-'+response['data'][x].INVENTARIO_ID+'">';      
           fila+='<td>'+response['data'][x].INVENTARIO_ID+'</td>';  
           fila+='<td>'+response['data'][x].ITEM_NOMBRE+'</td>';
@@ -183,7 +183,7 @@
   }
   
   function inventarioLeer(id){  
-    let modal=modalInventarioLeer(inventarios[id]);  
+    let modal=modalInventarioLeer(ingresos[id]);  
     $('#modal_mensaje').html(modal);
     $('#modal_mensaje').modal('toggle'); 
   }
@@ -249,7 +249,7 @@
 }
   
   function inventarioEditar(id){  
-    let modal=modalInventarioEditar(inventarios[id]);  
+    let modal=modalInventarioEditar(ingresos[id]);  
     $('#modal_formulario').html(modal);
     $('#modal_formulario').modal('toggle');
     $(".fecha").mask("99/99/9999");  
@@ -258,14 +258,14 @@
   
   function clientesEditarData(data){
     /*Actualiza el Array en el Cliente*/
-    inventarios[data['id']].ITEM_ID=data['item_id'];
-    inventarios[data['id']].ITEM_NOMBRE=data['item_nombre'];
-    inventarios[data['id']].INVENTARIO_CANTIDAD=data['cantidad'];
-    inventarios[data['id']].INVENTARIO_FECHA_INGRESO=data['fechaingreso'];
-    inventarios[data['id']].INVENTARIO_FECHA_FABRICACION=data['fechafabricacion'];
-    inventarios[data['id']].INVENTARIO_FECHA_VENCIMIENTO=data['fechavencimiento'];   
-    inventarios[data['id']].INVENTARIO_UBICACION=data['ubicacion']; 
-    inventarios[data['id']].INVENTARIO_ESTADO=data['estado']; 
+    ingresos[data['id']].ITEM_ID=data['item_id'];
+    ingresos[data['id']].ITEM_NOMBRE=data['item_nombre'];
+    ingresos[data['id']].INVENTARIO_CANTIDAD=data['cantidad'];
+    ingresos[data['id']].INVENTARIO_FECHA_INGRESO=data['fechaingreso'];
+    ingresos[data['id']].INVENTARIO_FECHA_FABRICACION=data['fechafabricacion'];
+    ingresos[data['id']].INVENTARIO_FECHA_VENCIMIENTO=data['fechavencimiento'];   
+    ingresos[data['id']].INVENTARIO_UBICACION=data['ubicacion']; 
+    ingresos[data['id']].INVENTARIO_ESTADO=data['estado']; 
   
     /*Actualizamos la Fila de la Tabla*/
     let fila=document.getElementById("f-"+data["id"]);       
@@ -332,59 +332,71 @@ function id_item(input) {
 	}
 }
 
-  function modalInventarioEliminar(data){
-    let modal=`<div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">Eliminar Ingreso</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form id="form_inventario_eliminar">
-            <input type="hidden" name="id" value="`+data.INVENTARIO_ID+`">
-          </form>
-          <h6>Estas Seguro de Eliminar Ingreso..?"</h6>
-        </div>
-        <div class="modal-footer"> 
-          <button type="button" class="btn btn-success" onclick="inventarioEliminarGuardar()">Si</button>       
-          <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
-        </div>
-      </div>
-      </div>`;
-    return modal;
+exportarIngresosCsv = function() {
+  var exportCvs="ID,ITEM,CANTIDAD,UBICACION,FECHA INGRESO,FECHA FABRICACION,FECHA VENCIMIENTO,ESTADO\r\n";
+  for(x in ingresos){
+    exportCvs+=ingresos[x].INVENTARIO_ID+",";
+    exportCvs+=ingresos[x].ITEM_NOMBRE+",";
+    exportCvs+=ingresos[x].INVENTARIO_CANTIDAD+",";
+    exportCvs+=ingresos[x].INVENTARIO_UBICACION+",";
+    exportCvs+=ingresos[x].INVENTARIO_FECHA_INGRESO+",";
+    exportCvs+=ingresos[x].INVENTARIO_FECHA_FABRICACION;
+    exportCvs+=ingresos[x].INVENTARIO_FECHA_VENCIMIENTO;
+    exportCvs+=ingresos[x].INVENTARIO_ESTADO;
+    exportCvs+= "\r\n";
   }
-  
-  function inventarioEliminar(id){  
-    let modal=modalInventarioEliminar(inventarios[id]);  
-    $('#modal_formulario').html(modal);
-    $('#modal_formulario').modal('toggle'); 
+
+  csvString = "data:application/csv," + encodeURIComponent(exportCvs);
+  var x = document.createElement("A");
+  x.setAttribute("href", csvString );
+  x.setAttribute("download","ingresos.csv");
+  document.body.appendChild(x);
+  x.click();
+}
+
+exportarIngresosPdf=function(){
+  // CREATE A WINDOW OBJECT.
+  let win = window.open('', '', 'height=700,width=900');
+  let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+    <thead>
+      <tr>          
+        <th>Id</th>
+        <th>Item</th>
+        <th>Cantidad</th>
+        <th>Ubicacion</th>
+        <th>F Ingreso</th>
+        <th>F Fabricacion</th>
+        <th>F Vencimiento</th>        
+        <th>Estado</th>              
+      </tr>
+    </thead>
+    <tbody>`;
+      
+  for(x in ingresos){
+    tabla+="<tr>";
+    tabla+="<td>"+ingresos[x].INVENTARIO_ID+"</td>";
+    tabla+="<td>"+ingresos[x].ITEM_NOMBRE+"</td>";
+    tabla+="<td>"+ingresos[x].INVENTARIO_CANTIDAD+"</td>";
+    tabla+="<td>"+ingresos[x].INVENTARIO_UBICACION+"</td>";
+    tabla+="<td>"+ingresos[x].INVENTARIO_FECHA_INGRESO+"</td>";
+    tabla+="<td>"+ingresos[x].INVENTARIO_FECHA_FABRICACION+"</td>";
+    tabla+="<td>"+ingresos[x].INVENTARIO_FECHA_VENCIMIENTO+"</td>";
+    tabla+="<td>"+ingresos[x].INVENTARIO_ESTADO+"</td>";
+    tabla+="</tr>";
   }
-  
-  function inventarioEliminarGuardar(){
-    if (formValido("form_cliente_eliminar")){
-      let data=$("#form_cliente_eliminar").serializeArray();
-      let data_json={}
-      for (x in data){    
-        data_json[data[x].name]=data[x].value
-      }
-      modalCargando();
-      $.post(baseUrl+"cliente/eliminar",data_json,function(data){      
-        let response=JSON.parse(data);
-        $('#modal_cargando').modal('toggle'); 
-        if (response.estado){
-          $('#modal_formulario').html("");
-          $('#modal_formulario').modal('toggle');      
-          let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
-          $('#modal_mensaje').html(modal_conten_loader);
-          $('#modal_mensaje').modal('toggle');
-          $("#f-"+data_json['id']).remove();
-        }else{
-          let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
-          $('#modal_mensaje').html(modal_conten_loader);
-          $('#modal_mensaje').modal('toggle');      
-        }
-      }); 
-    } 
-  
-  }
-  </script>  
+  tabla+="</tbody></table>";
+  let style = "<style>";                        
+  style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+  style = style + "</style>";
+  win.document.write('<html><head>');
+  win.document.write('<title>Ingresos</title>');   // <title> FOR PDF HEADER.
+  win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+  win.document.write('</head>');
+  win.document.write('<body>');
+  win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+  win.document.write('</body></html>');
+  win.document.close();   // CLOSE THE CURRENT WINDOW.
+  win.print();    // PRINT THE CONTENTS.
+}
+
+</script>  

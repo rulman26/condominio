@@ -9,8 +9,7 @@ switch ($_GET['solicitud']){
     if ($_SERVER['REQUEST_METHOD']=="POST") {
       if (empty($_POST)) {
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
-        $salida->inventario_id=$request['inventario_id'];
-        $salida->saldo=$request['saldo'];
+        $salida->inventario_id=$request['inventario_id'];        
         $salida->precio=$request['precio'];
         $salida->cantidad=$request['cantidad'];
         $salida->fecha=$request['fecha'];
@@ -18,8 +17,7 @@ switch ($_GET['solicitud']){
         $salida->usuario_id=$request['usuario_id'];
         $salida->estado=$request['estado'];
       }else{
-        $salida->inventario_id=$_POST['inventario_id'];
-        $salida->saldo=$_POST['saldo'];
+        $salida->inventario_id=$_POST['inventario_id'];        
         $salida->precio=$_POST['precio'];
         $salida->cantidad=$_POST['cantidad'];
         $salida->fecha=$_POST['fecha'];
@@ -40,8 +38,7 @@ switch ($_GET['solicitud']){
       if (empty($_POST)) {
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
         $salida->id=$request['id'];
-        $salida->inventario_id=$request['inventario_id'];
-        $salida->saldo=$request['saldo'];
+        $salida->inventario_id=$request['inventario_id'];        
         $salida->precio=$request['precio'];
         $salida->cantidad=$request['cantidad'];
         $salida->fecha=$request['fecha'];
@@ -50,8 +47,7 @@ switch ($_GET['solicitud']){
         $salida->estado=$request['estado'];
       }else{
         $salida->id=$_POST['id'];
-        $salida->inventario_id=$_POST['inventario_id'];
-        $salida->saldo=$_POST['saldo'];
+        $salida->inventario_id=$_POST['inventario_id'];        
         $salida->precio=$_POST['precio'];
         $salida->cantidad=$_POST['cantidad'];
         $salida->fecha=$_POST['fecha'];
@@ -59,7 +55,7 @@ switch ($_GET['solicitud']){
         $salida->usuario_id=$_POST['usuario_id'];
         $salida->estado=$_POST['estado'];
       }     
-      $data=$salida->editarProveedor();     
+      $data=$salida->editarSalida();     
     }else{      
       $data['estado']="ERROR";
       $data['mensaje']="NO EXISTEN DATOS POST";                    
@@ -87,11 +83,11 @@ switch ($_GET['solicitud']){
     if ($_SERVER['REQUEST_METHOD']=="POST") {
       if (empty($_POST)) {
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
-        $proveedor->id=$request['id'];
+        $salida->id=$request['id'];
       }else{
-        $proveedor->id=$_POST['id'];
+        $salida->id=$_POST['id'];
       }     
-      $data=$proveedor->eliminarProveedor();     
+      $data=$salida->eliminarSalida();     
     }else{      
       $data['estado']="ERROR";
       $data['mensaje']="NO EXISTEN DATOS POST";                    

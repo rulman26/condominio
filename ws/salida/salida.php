@@ -38,33 +38,47 @@ class salida
     return $mensaje;  
   }
 
-  function EditarSalida(){    
+  function editarSalida(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "SELECT IFNULL(SUM(SALIDA_CANTIDAD),0) SALIO FROM SALIDA WHERE INVENTARIO_ID=?";
+      $sql = "SELECT INV.INVENTARIO_CANTIDAD CANTIDAD,IFNULL(SUM(SAL.SALIDA_CANTIDAD),0) SALIO 
+      FROM INVENTARIO INV 
+      LEFT JOIN SALIDA SAL ON INV.INVENTARIO_ID=SAL.INVENTARIO_ID AND INV.INVENTARIO_ESTADO='ACTIVO' AND  SAL.SALIDA_ID!=? 
+      WHERE INV.INVENTARIO_ID=? 
+      GROUP BY INV.INVENTARIO_CANTIDAD";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->inventario_id));
-      $data = $q->fetch(PDO::FETCH_ASSOC); 
-      if($this->cantidad>=$data['SALIO']){
-        $sql = "UPDATE INVENTARIO 
-        SET ITEM_ID=?,
-          INVENTARIO_CODIGO_BARRA=?,
-          INVENTARIO_UBICACION=?,
-          INVENTARIO_CANTIDAD=?,        
-          INVENTARIO_FECHA_INGRESO=STR_TO_DATE(?,'%d/%m/%Y %H:%i'),
-          INVENTARIO_FECHA_FABRICACION=STR_TO_DATE(?,'%d/%m/%Y'),
-          INVENTARIO_FECHA_VENCIMIENTO=STR_TO_DATE(?,'%d/%m/%Y'),
-          INVENTARIO_ESTADO=?
-          WHERE INVENTARIO_ID=?";
+      $q->execute(array($this->id,$this->inventario_id));
+      $data = $q->fetch(PDO::FETCH_ASSOC);       
+      $mensaje['data']=$data;
+      $total=intval($data['SALIO'])+intval($this->cantidad);
+      if($total<=intval($data['CANTIDAD'])){
+        $sql = "UPDATE SALIDA 
+        SET INVENTARIO_ID=?,
+          SALIDA_PRECIO=?,
+          SALIDA_CANTIDAD=?,          
+          SALIDA_FECHA=STR_TO_DATE(?,'%d/%m/%Y %H:%i'),
+          SALIDA_TIPO=?,          
+          USUARIO_ID=?, 
+          SALIDA_ESTADO=?
+          WHERE SALIDA_ID=?";          
         $q = $pdo->prepare($sql);
-        $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado,$this->id));            
+        $q->execute(array($this->inventario_id,$this->precio,$this->cantidad,$this->fecha,$this->tipo,$this->usuario_id,$this->estado,$this->id));            
+
+        $sql = "SELECT INV.INVENTARIO_CANTIDAD-IFNULL(SUM(SAL.SALIDA_CANTIDAD),0) SALDO 
+        FROM INVENTARIO INV 
+        LEFT JOIN SALIDA SAL ON SAL.INVENTARIO_ID=INV.INVENTARIO_ID AND SAL.SALIDA_ESTADO='ACTIVO'
+        WHERE INV.INVENTARIO_ID=?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($this->inventario_id));
+        $data = $q->fetch(PDO::FETCH_ASSOC); 
+        $mensaje['saldo']=$data['SALDO'];
         $mensaje['estado']=true;
-        $mensaje['mensaje']='INVENTARIO EDITADO CON EXITO';       
+        $mensaje['mensaje']='SALIDA EDITADO CON EXITO';       
       }else{
         $mensaje['estado']=false;
-        $mensaje['mensaje']='ERROR LA CANTIDAD NO PUEDE SER MENOR';       
+        $mensaje['mensaje']='ERROR LA CANTIDAD NO PUEDE SER MAYOR QUE EL SALDO';       
       }
       //Retornamoe el dato actualizado                        
       
@@ -91,14 +105,14 @@ class salida
     return $mensaje;  
   }
 
-  function eliminarProveedor(){    
+  function eliminarSalida(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "UPDATE PROVEEDOR SET PROVEEDOR_ESTADO='INACTIVO' WHERE  PROVEEDOR_ID=?";
+    $sql = "UPDATE SALIDA SET SALIDA_ESTADO='INACTIVO' WHERE  SALIDA_ID=?";
     $q = $pdo->prepare($sql);
     $q->execute(array($this->id));     
     $mensaje['estado']=true;
-    $mensaje['mensaje']='PROVEEDOR ELIMINADO CON EXITO';     
+    $mensaje['mensaje']='SALIDA ELIMINADO CON EXITO';     
     $pdo = baseDatos::desconectar();
     return $mensaje;  
   }
