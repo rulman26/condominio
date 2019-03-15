@@ -97,22 +97,26 @@ switch ($_GET['solicitud']){
   
 
   case 'filtrar':
-    $filtro=$_GET['id'];
     if ($_SERVER['REQUEST_METHOD']=="POST") {
       if (empty($_POST)) {
-        $request  = json_decode(trim(file_get_contents('php://input')), true);                        
-        $columna=$request['filtro'];
-        $valor=$request['input_filtro'];
+        $request  = json_decode(trim(file_get_contents('php://input')), true);                
+        $fecha=$request['fecha'];
+        $inicio=$request['inicio'];
+        $final=$request['final'];
+        $item_id=$request['item_id'];
       }else{
-        $columna=$_POST['filtro'];
-        $valor=$_POST['input_filtro'];
-      }     
-      $data=$proveedor->listaProveedores($filtro,$columna,$valor);
+        $fecha=$_POST['fecha'];
+        $inicio=$_POST['inicio'];
+        $final=$_POST['final'];
+        $item_id=$_POST['item_id'];
+      }           
+      $filtro=$_GET['id'];      
+      $data=$salida->listaSalidas($filtro,$fecha,$inicio,$final,$item_id);
     }else{      
-      $data['estado']=false;
+      $data['estado']="ERROR";
       $data['mensaje']="NO EXISTEN DATOS POST";                    
-    }       
-    echo json_encode($data,JSON_PRETTY_PRINT);
+    }
+	  echo json_encode($data,JSON_PRETTY_PRINT);
   break;  
 
   default:

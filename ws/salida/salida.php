@@ -92,19 +92,6 @@ class salida
     return $mensaje;  
   }
 
-  function leerProveedor(){    
-    $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "SELECT *FROM PROVEEDOR WHERE PROVEEDOR_ID=?";
-    $q = $pdo->prepare($sql);
-    $q->execute(array($this->id)); 
-    $data = $q->fetch(PDO::FETCH_ASSOC);                     
-    $mensaje['estado']=true;
-    $mensaje['data']=$data;     
-    $pdo = baseDatos::desconectar();
-    return $mensaje;  
-  }
-
   function eliminarSalida(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
@@ -117,19 +104,33 @@ class salida
     return $mensaje;  
   }
  
-  function listaProveedores($filtro,$columna,$valor){
-    $filtrosAceptados=['activos','inactivos','todos'];
+  function listaSalidas($filtro,$fecha,$inicio,$final,$item_id){
+    $filtrosAceptados=['activos','anulados','todos'];
     if (in_array($filtro, $filtrosAceptados)) {
       if ($filtro=="activos") {
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND PROVEEDOR_ESTADO='ACTIVO'";
-      }elseif($filtro=="inactivos"){
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND PROVEEDOR_ESTADO='INACTIVO'";
+        $cadena="WHERE SAL.".$fecha." BETWEEN STR_TO_DATE('".$inicio." 00:00:00','%d/%m/%Y %H:%i:%s') "; 
+        $cadena.="AND STR_TO_DATE('".$final." 23:59:59','%d/%m/%Y %H:%i:%s') ";
+        $cadena.="AND SAL.SALIDA_ESTADO='ACTIVO'";
+      }elseif($filtro=="anulados"){
+        $cadena="WHERE SAL.".$fecha." BETWEEN STR_TO_DATE('".$inicio." 00:00:00','%d/%m/%Y %H:%i:%s') "; 
+        $cadena.="AND STR_TO_DATE('".$final." 23:59:59','%d/%m/%Y %H:%i:%s') ";
+        $cadena="WHERE SAL.SALIDA_ESTADO='ANULADO'";
       }else{
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' ";
+        $cadena="WHERE SAL.".$fecha." BETWEEN STR_TO_DATE('".$inicio." 00:00:00','%d/%m/%Y %H:%i:%s') "; 
+        $cadena.="AND STR_TO_DATE('".$final." 23:59:59','%d/%m/%Y %H:%i:%s') ";
+      }
+      if(!empty($item_id)){
+        $cadena.="AND INV.ITEM_ID=".$item_id;
       }
       $pdo = baseDatos::conectar();
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT * FROM PROVEEDOR ".$cadena;
+      $sql = "SELECT SAL.SALIDA_ID,SAL.SALIDA_FECHA,INV.INVENTARIO_ID,
+        ITM.ITEM_NOMBRE,SAL.SALIDA_PRECIO,SAL.SALIDA_CANTIDAD,SAL.SALIDA_TIPO,
+        ROUND(SAL.SALIDA_PRECIO*SAL.SALIDA_CANTIDAD,2) TOTAL,
+        DATE_FORMAT(SAL.SALIDA_FECHA,'%d/%m/%Y %H:%i') FECHA,SAL.SALIDA_ESTADO
+        FROM SALIDA SAL
+        JOIN INVENTARIO INV ON INV.INVENTARIO_ID=SAL.INVENTARIO_ID       
+        JOIN ITEM ITM ON ITM.ITEM_ID=INV.ITEM_ID ".$cadena." ORDER BY 2";
       $q = $pdo->prepare($sql);
       $q->execute();
       $data = $q->fetchAll(PDO::FETCH_ASSOC);      
@@ -137,10 +138,10 @@ class salida
       $mensaje['data']=$data ;  
     }else{
       $mensaje['estado']=false;
-      $mensaje['mensaje']="SOLO ACEPTA (activos,inactivos y todos)";
+      $mensaje['mensaje']="SOLO ACEPTA (activos,anulados y todos)";
     }
     baseDatos::desconectar();
     return $mensaje; 
-  } 
+  }
 }
 ?>

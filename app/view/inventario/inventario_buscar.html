@@ -53,7 +53,7 @@
 <div class="table-responsive" id="tabla_http_scroll">
   <table class="table table-hover" id="tabla_http">
       <thead>
-      <tr><th width="50">Id</th>          
+      <th width="50">Id</th>          
       <th width="200">Nombre</th>
       <th width="100">Ubicacion</th>
       <th width="100">Cantidad</th>
@@ -86,6 +86,7 @@
   document.getElementById("inicio").value=fechaActual()
   document.getElementById("final").value=fechaActual()
   screenAltura("tabla_http_scroll",280);
+
   var ingresos=[];
   function inventarioListar(){
     document.getElementById("div_buscar").style.display="block";
@@ -94,8 +95,7 @@
     data['inicio']=document.getElementById("inicio").value;
     data['final']=document.getElementById("final").value;
     data['item_id']=document.getElementById("item_id").value;
-    $("#tabla_http tbody").html('<td colspan="5" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');
-    console.log(data)
+    $("#tabla_http tbody").html('<td colspan="5" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');    
     $.post(baseUrl+"inventario/filtrar/todos",data,function(data){
       $("#tabla_http tbody").html("");      
       let response=JSON.parse(data);        
@@ -120,6 +120,8 @@
                       onclick="inventarioLeer(`+response['data'][x].INVENTARIO_ID+`)">Ver</a>
                     <a class="dropdown-item" href="javascript:void(0)" 
                       onclick="inventarioEditar(`+response['data'][x].INVENTARIO_ID+`)">Editar</a>
+                    <a class="dropdown-item" href="javascript:void(0)" 
+                      onclick="inventarioSalidas(`+response['data'][x].INVENTARIO_ID+`)">Salidas</a>  
                   </div>
                 </div>`;
           fila+='</td>';      
@@ -134,8 +136,7 @@
     });
   }
   
-  function modalInventarioLeer(data){
-    console.log(data)
+  function modalInventarioLeer(data){    
     let modal=`<div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -186,6 +187,75 @@
     let modal=modalInventarioLeer(ingresos[id]);  
     $('#modal_mensaje').html(modal);
     $('#modal_mensaje').modal('toggle'); 
+  }
+
+  function modalInventarioSalidas(data){      
+    let datos="";
+    let total=0;
+    let salio=0;
+    for(x in data){
+      datos+="<tr>";
+      datos+="<td>"+data[x].SALIDA_ID+"</td>";
+      datos+="<td>"+data[x].FECHA+"</td>";
+      datos+="<td>"+data[x].SALIDA_PRECIO+"</td>";
+      datos+="<td>"+data[x].SALIDA_CANTIDAD+"</td>";
+      datos+="<td>"+data[x].TOTAL+"</td>";
+      datos+="</tr>";
+      salio+=parseFloat(data[x].SALIDA_CANTIDAD);
+      total+=parseFloat(data[x].TOTAL);
+    }    
+    let pie='<tr><td colspan="3">Total</td><td>'+salio+'</td><td>'+total+'</td></tr>'
+    let modal=`<div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Salidas Registradas</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <table class="table hover">
+            <thead>
+              <tr>
+                <th>Salida Id</th>
+                <th>Fecha</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+              </tr>
+            </thead>
+            <tbody>`+
+              datos
+            +`</tbody>
+            <tfoot>`+
+              pie
+            +`</tfoot>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+      </div>`;
+    return modal;
+  }
+
+  function inventarioSalidas(id){
+    modalCargando();
+    data_json={};
+    data_json['id']=id;
+    $.post(baseUrl+"inventario/salidas",data_json,function(data){           
+      let response=JSON.parse(data);      
+      console.log(response);
+      $('#modal_cargando').modal('toggle');       
+      if (response.estado){
+        let modal=modalInventarioSalidas(response.data);        
+        $('#modal_formulario').html(modal);
+        $('#modal_formulario').modal('toggle');                      
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    });
   }
   
   function modalInventarioEditar(data){
@@ -256,7 +326,7 @@
     $(".fechahora").mask("99/99/9999 99:99");   
   }
   
-  function clientesEditarData(data){
+  function ingresosEditarData(data){
     /*Actualiza el Array en el Cliente*/
     ingresos[data['id']].ITEM_ID=data['item_id'];
     ingresos[data['id']].ITEM_NOMBRE=data['item_nombre'];
@@ -297,7 +367,7 @@
           let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
           $('#modal_mensaje').html(modal_conten_loader);
           $('#modal_mensaje').modal('toggle');
-          clientesEditarData(data_json);        
+          ingresosEditarData(data_json);        
         }else{
           let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
           $('#modal_mensaje').html(modal_conten_loader);

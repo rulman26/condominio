@@ -170,8 +170,7 @@ function tableSalidaRegistrar(boton){
   } 
 }
 
-function modalSalidaEditar(data){
-  console.log(data)
+function modalSalidaEditar(data){  
   let modal=`<div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -195,7 +194,7 @@ function modalSalidaEditar(data){
           <div class="form-group">
             <label for="cantidad">Cantidad</label>
             <input type="number" class="form-control" id="cantidad" 
-            name="cantidad" value="`+data.cantidad+`" onchange="montoTotal(this)">
+            name="cantidad" value="`+data.cantidad+`" onchange="montoTotal(this.value)">
           </div>
           <div class="form-group">
             <label for="total">Total</label>
@@ -433,7 +432,7 @@ function InventarioEliminarGuardar(){
 
 function montoTotal(input){
   let precio=document.getElementById("m_precio").value;
-  let cantidad=input.value;  
+  let cantidad=input;  
   let total=precio*cantidad;
   document.getElementById("total").value=total;
 }
@@ -446,11 +445,13 @@ function id_inventario_modal(input) {
   list = document.getElementById('inventario_list').options;
   let m_inventario_id=document.getElementById('m_inventario_id');
   let precio=document.getElementById('m_precio');
+  let cantidad=document.getElementById('cantidad').value;
 	for(x in list){      		
 		if (list[x].value==input.value) {			
 			let item_id=list[x].getAttribute('codigo');	      
       m_inventario_id.value=item_id;      
       precio.value=list[x].getAttribute('precio');	
+      montoTotal(cantidad);
 			break;
 		}      		
 	}

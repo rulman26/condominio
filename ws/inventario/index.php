@@ -120,10 +120,37 @@ switch ($_GET['solicitud']){
       $data['mensaje']="NO EXISTEN DATOS POST";                    
     }
 	  echo json_encode($data,JSON_PRETTY_PRINT);
-  break;  
+  break; 
+  
+  case 'salidas':
+    if (empty($_POST)) {
+      $request  = json_decode(trim(file_get_contents('php://input')), true);                
+      $inventario->id=$request['id'];   
+    }else{
+      $inventario->id=$_POST['id'];
+    }               
+    $data=$inventario->inventarioSalida();
+    echo json_encode($data,JSON_PRETTY_PRINT);
+  break;
 
   case 'forminventariosalida':              
     $data=$inventario->formItemInventarioSalida();
+    echo json_encode($data,JSON_PRETTY_PRINT);
+  break;  
+  case 'stock': 
+    if (empty($_POST)) {
+      $request  = json_decode(trim(file_get_contents('php://input')), true);                
+      $item_id=$request['item_id'];   
+      $proveedor_id=$request['proveedor_id']; 
+      $item_tipo_id=$request['item_tipo_id']; 
+      $item_categoria_id=$request['item_categoria_id']; 
+    }else{
+      $item_id=$_POST['item_id'];
+      $proveedor_id=$_POST['proveedor_id']; 
+      $item_tipo_id=$_POST['item_tipo_id']; 
+      $item_categoria_id=$_POST['item_categoria_id']; 
+    }              
+    $data=$inventario->inventarioStock($item_id,$proveedor_id,$item_tipo_id,$item_categoria_id);
     echo json_encode($data,JSON_PRETTY_PRINT);
   break;
 
