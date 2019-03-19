@@ -13,6 +13,7 @@ class item
 	var $preciocompra;
   var $precioventa;
   var $unidades;
+  var $laboratorio_id;
   var $proveedor_id;    
   var $item_tipo_id;
   var $item_categoria_id;
@@ -39,9 +40,9 @@ class item
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO ITEM VALUES(default,?,?,?,?,?,?,?,?,?)";
+      $sql = "INSERT INTO ITEM VALUES(default,?,?,?,?,?,?,?,?,?,?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->codigo,$this->nombre,$this->preciocompra,$this->precioventa,$this->unidades,$this->proveedor_id,$this->item_tipo_id,$this->item_categoria_id,$this->estado));                  
+      $q->execute(array($this->codigo,$this->nombre,$this->preciocompra,$this->precioventa,$this->unidades,$this->laboratorio_id,$this->proveedor_id,$this->item_tipo_id,$this->item_categoria_id,$this->estado));                  
       $mensaje['estado']=true;
       $mensaje['mensaje']='ITEM REGISTRADO CON EXITO'; 
       $pdo->commit();  
@@ -65,13 +66,14 @@ class item
         ITEM_PRECIO_COMPRA=?,
         ITEM_PRECIO_VENTA=?,
         ITEM_UNIDADES=?,
+        LABORATORIO_ID=?,
         PROVEEDOR_ID=?,
         ITEM_TIPO_ID=?,
         ITEM_CATEGORIA_ID=?,
         ITEM_ESTADO=?
         WHERE ITEM_ID=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->codigo,$this->nombre,$this->preciocompra,$this->precioventa,$this->unidades,$this->proveedor_id,$this->item_tipo_id,$this->item_categoria_id,$this->estado,$this->id)); 
+      $q->execute(array($this->codigo,$this->nombre,$this->preciocompra,$this->precioventa,$this->unidades,$this->laboratorio_id,$this->proveedor_id,$this->item_tipo_id,$this->item_categoria_id,$this->estado,$this->id)); 
       //Retornamoe el dato actualizado                  
       $mensaje['estado']=true;
       $mensaje['mensaje']='ITEM EDITADO CON EXITO'; 
@@ -108,7 +110,13 @@ class item
 
   function formItemRegistrar(){    
     $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  
+    $sql = "SELECT LABORATORIO_ID,LABORATORIO_NOMBRE FROM LABORATORIO WHERE LABORATORIO_ESTADO='ACTIVO'";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['laboratorios']=$data;
+
     $sql = "SELECT PROVEEDOR_ID,PROVEEDOR_RUC,PROVEEDOR_NOMBRE FROM PROVEEDOR WHERE PROVEEDOR_ESTADO='ACTIVO'";
     $q = $pdo->prepare($sql);
     $q->execute(); 
@@ -135,7 +143,10 @@ class item
   function formItemInventario(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "SELECT ITEM_ID,ITEM_NOMBRE FROM ITEM WHERE ITEM_ESTADO='ACTIVO'";
+    $sql = "SELECT ITM.ITEM_ID,ITM.ITEM_NOMBRE,LAB.LABORATORIO_NOMBRE
+      FROM ITEM  ITM
+      JOIN LABORATORIO LAB ON LAB.LABORATORIO_ID=ITM.LABORATORIO_ID
+      WHERE ITEM_ESTADO='ACTIVO'";
     $q = $pdo->prepare($sql);
     $q->execute(); 
     $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
@@ -179,10 +190,12 @@ class item
       $pdo = baseDatos::conectar();
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $sql = "SELECT IT.ITEM_ID,IT.ITEM_CODIGO,IT.ITEM_NOMBRE,IT.ITEM_PRECIO_COMPRA,IT.ITEM_PRECIO_VENTA,
-        IT.ITEM_UNIDADES,IT.PROVEEDOR_ID,PRO.PROVEEDOR_NOMBRE,
+        IT.ITEM_UNIDADES,IT.LABORATORIO_ID,LAB.LABORATORIO_NOMBRE,
+        IT.PROVEEDOR_ID,PRO.PROVEEDOR_NOMBRE,
         IT.ITEM_TIPO_ID,ITP.ITEM_TIPO_NOMBRE,IT.ITEM_CATEGORIA_ID,
         ITC.ITEM_CATEGORIA_NOMBRE,IT.ITEM_ESTADO
         FROM ITEM IT 
+        JOIN LABORATORIO LAB ON LAB.LABORATORIO_ID=IT.LABORATORIO_ID
         JOIN PROVEEDOR PRO ON PRO.PROVEEDOR_ID=IT.PROVEEDOR_ID
         JOIN ITEM_TIPO ITP ON ITP.ITEM_TIPO_ID=IT.ITEM_TIPO_ID
         JOIN ITEM_CATEGORIA ITC ON ITC.ITEM_CATEGORIA_ID=IT.ITEM_CATEGORIA_ID ".$cadena;        

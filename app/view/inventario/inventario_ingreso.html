@@ -41,7 +41,7 @@ function list_items(){
   	let fila;
     let items=response.items;
   	for (x in items) {	  	  	
-  	  fila+='<option codigo="'+items[x].ITEM_ID+'" value="'+items[x].ITEM_NOMBRE+'"/>';	  	  
+  	  fila+='<option codigo="'+items[x].ITEM_ID+'" value="'+items[x].ITEM_NOMBRE+'">LAB : '+items[x].LABORATORIO_NOMBRE+'</option>';	  	  
   	}  
   	$("#item_list").html(fila);
 	});

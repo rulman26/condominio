@@ -1,0 +1,251 @@
+
+<div class="row">
+    <div class="col-md-3">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Filtro</span>
+        </div>
+        <select class="form-control" id="filtro">                  
+          <option value="LABORATORIO_NOMBRE">Labotarorio</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="input-group">      
+        <input type="text" class="form-control" id="filtro_input">
+      </div>
+    </div>  
+    <div class="col-sm-3">
+      <div class="input-group">
+        <button class="btn btn-primary btn-block" onclick="labotarorioListar()">Buscar</button>
+      </div>
+    </div>
+    <div class="col-sm-3" id="div_buscar" style="display: none">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+        </div>
+        <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+      </div>
+    </div>
+  </div>
+  
+  <div class="table-responsive" id="tabla_http_scroll">
+      <table class="table table-striped table-hover" id="tabla_http">
+        <thead>
+          <tr>
+            <th width="150">Id</th>          
+            <th width="200">Laboratorio</th>            
+            <th width="100">Accion</th>          
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+  </div>
+  
+  
+  <script type="text/javascript">
+  screenAltura("tabla_http_scroll",280);
+  var laboratorios=[];
+  function labotarorioListar(){
+    document.getElementById("div_buscar").style.display="block";
+    let data={};
+    data['filtro']=document.getElementById("filtro").value;
+    data['input_filtro']=document.getElementById("filtro_input").value;
+    $("#tabla_http tbody").html('<td colspan="6" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');
+    $.post(baseUrl+"laboratorio/filtrar/activos",data,function(data){
+      $("#tabla_http tbody").html("");
+      let response=JSON.parse(data);        
+      if (response.estado) {
+        for (x in response['data']) {
+          laboratorios[response['data'][x].LABORATORIO_ID]=response['data'][x];         
+          let fila='<tr id="f-'+response['data'][x].LABORATORIO_ID+'">';      
+          fila+='<td>'+response['data'][x].LABORATORIO_ID+'</td>';  
+          fila+='<td>'+response['data'][x].LABORATORIO_NOMBRE+'</td>';       
+          fila+='<td style="text-align:center;">';        
+          fila+=`<div class="dropdown">
+                  <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
+                    <i class="fas fa-cog"></i>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="javascript:void(0)" 
+                      onclick="laboratorioLeer(`+response['data'][x].LABORATORIO_ID+`)">Ver</a>
+                    <a class="dropdown-item" href="javascript:void(0)" 
+                      onclick="laboratorioEditar(`+response['data'][x].LABORATORIO_ID+`)">Editar</a>
+                    <a class="dropdown-item" href="javascript:void(0)" 
+                      onclick="laboratorioEliminar(`+response['data'][x].LABORATORIO_ID+`)">Eliminar</a>
+                  </div>
+                </div>`;
+          fila+='</td>';      
+          fila+='</tr>';
+          $("#tabla_http tbody").append(fila);
+        }
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle'); 
+      }    
+    });
+  }
+  
+  function modalProveedorLeer(data){
+    let modal=`<div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Datos Laboratorio</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label>Razon Social:</label>
+              <input readonly type="text" class="form-control" value="`+data.LABORATORIO_NOMBRE+`">
+            </div>
+            <div class="form-group">
+              <label>Estado:</label>    
+              <input readonly type="text" class="form-control" value="`+data.LABORATORIO_ESTADO+`">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+      </div>`;
+    return modal;
+  }
+  
+  function laboratorioLeer(id){  
+    let modal=modalProveedorLeer(laboratorios[id]);  
+    $('#modal_mensaje').html(modal);
+    $('#modal_mensaje').modal('toggle'); 
+  }
+  
+  function modalLaboratorioEditar(data){
+    let modal=`<div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Editar Laboratorio</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="form_laboratorio_editar">
+            <div class="form-group">
+              <input type="hidden" name="id" value="`+data.LABORATORIO_ID+`">
+              <input type="hidden" name="estado" value="`+data.LABORATORIO_ESTADO+`">
+              <label for="nombre">Rason Social:</label>
+              <input required type="text" class="form-control" id="nombre" 
+                name="nombre" value="`+data.LABORATORIO_NOMBRE+`">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer"> 
+          <button type="button" class="btn btn-success" onclick="laboratorioEditarGuardar()">Editar</button>       
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+        </div>
+      </div>
+      </div>`;
+    return modal;
+  }
+  
+  function laboratorioEditar(id){    
+    let modal=modalLaboratorioEditar(laboratorios[id]);  
+    $('#modal_formulario').html(modal);
+    $('#modal_formulario').modal('toggle'); 
+  }
+  
+  function laboratorioEditarData(data){    
+    laboratorios[data['id']].LABORATORIO_NOMBRE=data['nombre'];        
+  
+    /*Actualizamos la Fila de la Tabla*/
+    let fila=document.getElementById("f-"+data["id"]);       
+    let columna=fila.querySelectorAll("td");
+    columna[0].innerHTML=data['id'];
+    columna[1].innerHTML=data['nombre'];      
+  }
+  
+  function laboratorioEditarGuardar(){  
+    if (formValido("form_laboratorio_editar")){
+      let data=$("#form_laboratorio_editar").serializeArray();
+      let data_json={}
+      for (x in data){    
+        data_json[data[x].name]=data[x].value
+      }
+      modalCargando();
+      $.post(baseUrl+"laboratorio/editar",data_json,function(data){      
+        let response=JSON.parse(data);
+        $('#modal_cargando').modal('toggle'); 
+        if (response.estado){
+          $('#modal_formulario').html("");
+          $('#modal_formulario').modal('toggle');      
+          let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle');
+          laboratorioEditarData(data_json);        
+        }else{
+          let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle');      
+        }
+      }); 
+    } 
+  }
+  
+  function modalLaboratorioEliminar(data){
+    let modal=`<div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Eliminar Laboratorio</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="form_laboratorio_eliminar">
+            <input type="hidden" name="id" value="`+data.LABORATORIO_ID+`">
+          </form>
+          <h6>Estas Seguro de Eliminar Laboratorio..?"</h6>
+        </div>
+        <div class="modal-footer"> 
+          <button type="button" class="btn btn-success" onclick="laboratorioEliminarGuardar()">Si</button>       
+          <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
+        </div>
+      </div>
+      </div>`;
+    return modal;
+  }
+  
+  function laboratorioEliminar(id){    
+    let modal=modalLaboratorioEliminar(laboratorios[id]);  
+    $('#modal_formulario').html(modal);
+    $('#modal_formulario').modal('toggle'); 
+  }
+  
+  
+  function laboratorioEliminarGuardar(){
+    if (formValido("form_laboratorio_eliminar")){
+      let data=$("#form_laboratorio_eliminar").serializeArray();
+      let data_json={}
+      for (x in data){    
+        data_json[data[x].name]=data[x].value
+      }
+      modalCargando();
+      $.post(baseUrl+"laboratorio/eliminar",data_json,function(data){      
+        let response=JSON.parse(data);
+        $('#modal_cargando').modal('toggle'); 
+        if (response.estado){
+          $('#modal_formulario').html("");
+          $('#modal_formulario').modal('toggle');      
+          let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle');
+          $("#f-"+data_json['id']).remove();
+        }else{
+          let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle');      
+        }
+      }); 
+    } 
+  
+  }
+  </script>  

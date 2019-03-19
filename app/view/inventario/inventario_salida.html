@@ -336,6 +336,7 @@ function modalInventarioId(datahtml){
                 <th width="120">Precio</th>     
                 <th width="150">F Vencimiento</th>                  
                 <th width="250">Categoria</th>         
+                <th width="180">Laboratorio</th>  
                 <th width="180">Proveedor</th>          
                 </tr>
             </thead>
@@ -377,6 +378,7 @@ function InventarioId(fila){
     datahtml+='<td>'+data_inventario[x].ITEM_PRECIO_VENTA+'</td>';
     datahtml+='<td>'+data_inventario[x].FECHA_VENCIMIENTO+'</td>';
     datahtml+='<td>'+data_inventario[x].ITEM_CATEGORIA_NOMBRE+'</td>';
+    datahtml+='<td>'+data_inventario[x].LABORATORIO_NOMBRE+'</td>';
     datahtml+='<td>'+data_inventario[x].PROVEEDOR_NOMBRE+'</td>';
     datahtml+='<tr>';
   }

@@ -3,11 +3,7 @@
     <h4>Nuevo Item</h4>
   </div> 
   <hr> 
-  <form id="form_item_registrar">
-    <div class="form-group">
-      <label for="codigo">Codigo *</label>
-      <input required type="text" class="form-control" id="codigo" name="codigo" placeholder="Ingresar Codigo">
-    </div>
+  <form id="form_item_registrar">    
     <div class="form-group">
       <label for="nombre">Nombre *</label>
       <input required type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresar Nombre">
@@ -21,24 +17,29 @@
       <label for="precioventa">Precio Venta *</label>
       <input required type="number" class="form-control" id="precioventa" name="precioventa" 
         placeholder="Ingresar Precio Venta">
-    </div>    
+    </div> 
     <div class="form-group">
-      <label for="proveedor_id">Proveedor:</label>    
+      <label for="laboratorio_id">Laboratorio *</label>    
+      <select class="form-control" id="laboratorio_id" name="laboratorio_id">
+      </select>
+    </div>   
+    <div class="form-group">
+      <label for="proveedor_id">Proveedor *:</label>    
       <select class="form-control" id="proveedor_id" name="proveedor_id">
       </select>
     </div>
     <div class="form-group">
-      <label for="item_tipo_id">Tipo:</label>
+      <label for="item_tipo_id">Tipo *:</label>
       <select class="form-control" id="item_tipo_id" name="item_tipo_id">
       </select>
     </div>
     <div class="form-group">
-      <label for="item_categoria_id">Categoria:</label>
+      <label for="item_categoria_id">Categoria *</label>
       <select class="form-control" id="item_categoria_id" name="item_categoria_id">
       </select>
     </div>
     <div class="form-group">
-      <label for="estado">Estado:</label>    
+      <label for="estado">Estado *</label>    
       <select class="form-control" id="estado" name="estado">
         <option value="ACTIVO">ACTIVO</option>
         <option value="INACTIVO">INACTIVO</option>
@@ -53,6 +54,14 @@ function datosFormItemRegistrar(){
   $.get(baseUrl+"item/formitemregistrar",function(data){      
     let response=JSON.parse(data);    
     console.log(response);
+    let selectLaboratorio=document.getElementById("laboratorio_id");
+    let laboratoriosOptions="";
+    let laboratorios=response.laboratorios;    
+    for(x in laboratorios){
+      laboratoriosOptions+='<option value="'+laboratorios[x].LABORATORIO_ID+'">'+laboratorios[x].LABORATORIO_NOMBRE+'</option>';
+    }    
+    selectLaboratorio.innerHTML=laboratoriosOptions;
+
     let selectProveedor=document.getElementById("proveedor_id");
     let proveedoresOptions="";
     let proveedores=response.proveedores;    

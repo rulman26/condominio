@@ -9,21 +9,23 @@ switch ($_GET['solicitud']){
     if ($_SERVER['REQUEST_METHOD']=="POST") {
       if (empty($_POST)) {
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
-        $item->codigo=$request['codigo'];
+        $item->codigo="";
         $item->nombre=$request['nombre'];
         $item->preciocompra=$request['preciocompra'];
         $item->precioventa=$request['precioventa'];        
         $item->unidades=1;  
+        $item->laboratorio_id=$request['laboratorio_id'];  
         $item->proveedor_id=$request['proveedor_id'];  
         $item->item_tipo_id=$request['item_tipo_id'];  
         $item->item_categoria_id=$request['item_categoria_id'];  
         $item->estado=$request['estado'];  
       }else{
-        $item->codigo=$_POST['codigo']; 
+        $item->codigo=""; 
         $item->nombre=$_POST['nombre'];        
         $item->preciocompra=$_POST['preciocompra'];  
         $item->precioventa=$_POST['precioventa']; 
         $item->unidades=1; 
+        $item->laboratorio_id=$_POST['laboratorio_id']; 
         $item->proveedor_id=$_POST['proveedor_id']; 
         $item->item_tipo_id=$_POST['item_tipo_id'];  
         $item->item_categoria_id=$_POST['item_categoria_id'];  
@@ -41,23 +43,25 @@ switch ($_GET['solicitud']){
     if ($_SERVER['REQUEST_METHOD']=="POST") {
       if (empty($_POST)) {
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
-        $item->id=$request['id'];
-        $item->codigo=$request['codigo'];
+        $item->id=$request['id'];        
+        $item->codigo="";
         $item->nombre=$request['nombre'];
         $item->preciocompra=$request['preciocompra'];
         $item->precioventa=$request['precioventa'];        
         $item->unidades=1;  
+        $item->laboratorio_id=$request['laboratorio_id']; 
         $item->proveedor_id=$request['proveedor_id'];  
         $item->item_tipo_id=$request['item_tipo_id'];  
         $item->item_categoria_id=$request['item_categoria_id'];  
         $item->estado=$request['estado']; 
       }else{
-        $item->id=$_POST['id']; 
-        $item->codigo=$_POST['codigo']; 
+        $item->id=$_POST['id'];
+        $item->codigo="";         
         $item->nombre=$_POST['nombre'];        
         $item->preciocompra=$_POST['preciocompra'];  
         $item->precioventa=$_POST['precioventa']; 
         $item->unidades=1; 
+        $item->laboratorio_id=$_POST['laboratorio_id']; 
         $item->proveedor_id=$_POST['proveedor_id']; 
         $item->item_tipo_id=$_POST['item_tipo_id'];  
         $item->item_categoria_id=$_POST['item_categoria_id'];  

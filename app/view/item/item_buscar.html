@@ -8,6 +8,7 @@
       <select class="form-control" id="filtro" onchange="filtroDependiente(this)">
         <option value="ITEM_CODIGO">Codigo</option>
         <option value="ITEM_NOMBRE">Nombre</option>
+        <option value="LABORATORIO_ID">Laboratorio</option>
         <option value="PROVEEDOR_ID">Proveedor</option>
         <option value="ITEM_TIPO_ID">Tipo</option>
         <option value="ITEM_CATEGORIA_ID">Categoria</option>
@@ -37,12 +38,12 @@
 <div class="table-responsive" id="tabla_http_scroll">
     <table class="table table-hover" id="tabla_http">
       <thead>
-        <tr>          
-          <th width="150">Codigo</th>
+        <tr>                    
           <th width="200">Nombre</th>
           <th width="80">P C</th>
           <th width="80">P V</th>
           <th width="150">Tipo</th>          
+          <th width="180">Laboratorio</th>          
           <th width="180">Proveedor</th>          
           <th width="100">Accion</th>          
         </tr>
@@ -54,11 +55,17 @@
 
 <script type="text/javascript">
 screenAltura("tabla_http_scroll",280);
+var laboratorioOptions="";
 var proveedoresOptions="";
 var itemTipoOptions="";
 var itemCategoriaOptions="";
 $.get(baseUrl+"item/formitemregistrar",function(data){      
-    let response=JSON.parse(data);        
+    let response=JSON.parse(data);    
+
+    let laboratorios=response.laboratorios;    
+    for(x in laboratorios){
+      laboratorioOptions+='<option value="'+laboratorios[x].LABORATORIO_ID+'">'+laboratorios[x].LABORATORIO_NOMBRE+'</option>';
+    }    
     
     let proveedores=response.proveedores;    
     for(x in proveedores){
@@ -84,6 +91,9 @@ function filtroDependiente(option){
     break;
     case "ITEM_NOMBRE":
       input='<input type="text" class="form-control" id="filtro_input">';
+    break;
+    case "LABORATORIO_ID":
+      input='<select class="form-control" id="filtro_input">'+laboratorioOptions+'</select>';
     break;
     case "PROVEEDOR_ID":
       input='<select class="form-control" id="filtro_input">'+proveedoresOptions+'</select>';
@@ -111,12 +121,12 @@ function itemListar(){
     if (response.estado) {
       for (x in response['data']) {
         items[response['data'][x].ITEM_ID]=response['data'][x];         
-        let fila='<tr id="f-'+response['data'][x].ITEM_ID+'">';      
-        fila+='<td>'+response['data'][x].ITEM_CODIGO+'</td>';  
+        let fila='<tr id="f-'+response['data'][x].ITEM_ID+'">';               
         fila+='<td>'+response['data'][x].ITEM_NOMBRE+'</td>';
         fila+='<td>'+response['data'][x].ITEM_PRECIO_COMPRA+'</td>';
         fila+='<td>'+response['data'][x].ITEM_PRECIO_VENTA+'</td>';
         fila+='<td>'+response['data'][x].ITEM_TIPO_NOMBRE+'</td>';        
+        fila+='<td>'+response['data'][x].LABORATORIO_NOMBRE+'</td>';   
         fila+='<td>'+response['data'][x].PROVEEDOR_NOMBRE+'</td>';        
         fila+='<td style="text-align:center;">';        
         fila+=`<div class="dropdown">
@@ -152,11 +162,7 @@ function modalItemLeer(data){
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
-        <form>
-          <div class="form-group">
-            <label for="codigo">Codigo</label>
-            <input readonly type="text" class="form-control" id="codigo" value="`+data.ITEM_CODIGO+`">
-          </div>
+        <form>          
           <div class="form-group">
             <label for="nombre">Nombre</label>
             <input readonly type="text" class="form-control" id="nombre" value="`+data.ITEM_NOMBRE+`">
@@ -170,19 +176,23 @@ function modalItemLeer(data){
             <input readonly type="number" class="form-control" id="precioventa" value="`+data.ITEM_PRECIO_VENTA+`">
           </div>
           <div class="form-group">
-            <label for="proveedor_id">Proveedor:</label>    
+            <label for="proveedor_id">Laboratorio</label>    
+            <input readonly type="text" class="form-control" id="proveedor_id" value="`+data.LABORATORIO_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="proveedor_id">Proveedor</label>    
             <input readonly type="text" class="form-control" id="proveedor_id" value="`+data.PROVEEDOR_NOMBRE+`">
           </div>
           <div class="form-group">
-            <label for="item_tipo_id">Tipo:</label>
+            <label for="item_tipo_id">Tipo</label>
             <input readonly type="text" class="form-control" id="item_tipo_id" value="`+data.ITEM_TIPO_NOMBRE+`">
           </div>
           <div class="form-group">
-            <label for="item_categoria_id">Categoria:</label>
+            <label for="item_categoria_id">Categoria</label>
             <input readonly type="texr" class="form-control" id="item_categoria_id" value="`+data.ITEM_CATEGORIA_NOMBRE+`">
           </div>
           <div class="form-group">
-            <label for="estado">Estado:</label>    
+            <label for="estado">Estado</label>    
             <input readonly type="text" class="form-control" id="estado" value="`+data.ITEM_ESTADO+`">
           </div>
         </form>
@@ -210,12 +220,8 @@ function modalItemEditar(data){
       </div>
       <div class="modal-body">
         <form id="form_item_editar">
-          <div class="form-group">
-            <input type="hidden" name="id" value="`+data.ITEM_ID+`">
-            <input type="hidden" name="estado" value="`+data.ITEM_ESTADO+`">
-            <label for="codigo">Codigo *</label>
-            <input required type="text" class="form-control" id="codigo" name="codigo" value="`+data.ITEM_CODIGO+`">
-          </div>
+          <input type="hidden" name="id" value="`+data.ITEM_ID+`">
+          <input type="hidden" name="estado" value="`+data.ITEM_ESTADO+`">
           <div class="form-group">
             <label for="nombre">Nombre *</label>
             <input required type="text" class="form-control" id="nombre" name="nombre" value="`+data.ITEM_NOMBRE+`">
@@ -227,21 +233,27 @@ function modalItemEditar(data){
           <div class="form-group">
             <label for="precioventa">Precio Venta *</label>
             <input required type="number" class="form-control" id="precioventa" name="precioventa" value="`+data.ITEM_PRECIO_VENTA+`">
-          </div>         
+          </div> 
           <div class="form-group">
-            <label for="proveedor_id">Proveedor:</label>    
+            <label for="laboratorio_id">Laboratorio *</label>    
+            <select class="form-control" id="laboratorio_id" name="laboratorio_id">
+              `+laboratorioOptions+`
+            </select>
+          </div>        
+          <div class="form-group">
+            <label for="proveedor_id">Proveedor *</label>    
             <select class="form-control" id="proveedor_id" name="proveedor_id">
               `+proveedoresOptions+`
             </select>
           </div>
           <div class="form-group">
-            <label for="item_tipo_id">Tipo:</label>
+            <label for="item_tipo_id">Tipo *</label>
             <select class="form-control" id="item_tipo_id" name="item_tipo_id">
               `+itemTipoOptions+`
             </select>
           </div>
           <div class="form-group">
-            <label for="item_categoria_id">Categoria:</label>
+            <label for="item_categoria_id">Categoria *</label>
             <select class="form-control" id="item_categoria_id" name="item_categoria_id">
               `+itemCategoriaOptions+`
             </select>
@@ -261,6 +273,7 @@ function itemEditar(id){
   let modal=modalItemEditar(items[id]);
   $('#modal_formulario').html(modal);
   $('#modal_formulario').modal('toggle');   
+  selectOptionForm("laboratorio_id",items[id].LABORATORIO_ID);
   selectOptionForm("proveedor_id",items[id].PROVEEDOR_ID);
   selectOptionForm("item_tipo_id",items[id].ITEM_TIPO_ID);
   selectOptionForm("item_categoria_id",items[id].ITEM_CATEGORIA_ID);
@@ -291,17 +304,19 @@ function itemsEditarData(data){
   items[data['id']].ITEM_PRECIO_VENTA=data['precioventa'];  
   items[data['id']].ITEM_TIPO_ID=data['item_tipo_id'];  
   items[data['id']].ITEM_TIPO_NOMBRE=data['item_tipo_nombre'];    
+  items[data['id']].LABORATORIO_ID=data['laboratorio_id'];  
+  items[data['id']].LABORATORIO_NOMBRE=data['laboratorio_nombre'];
   items[data['id']].PROVEEDOR_ID=data['proveedor_id'];  
   items[data['id']].PROVEEDOR_NOMBRE=data['proveedor_nombre'];  
 
   /*Actualizamos la Fila de la Tabla*/
   let fila=document.getElementById("f-"+data["id"]);       
-  let columna=fila.querySelectorAll("td");
-  columna[0].innerHTML=data['codigo'];
-  columna[1].innerHTML=data['nombre'];
-  columna[2].innerHTML=data['preciocompra'];
-  columna[3].innerHTML=data['precioventa'];
-  columna[4].innerHTML=data['item_tipo_nombre'];  
+  let columna=fila.querySelectorAll("td");  
+  columna[0].innerHTML=data['nombre'];
+  columna[1].innerHTML=data['preciocompra'];
+  columna[2].innerHTML=data['precioventa'];
+  columna[3].innerHTML=data['item_tipo_nombre'];  
+  columna[4].innerHTML=data['laboratorio_nombre'];
   columna[5].innerHTML=data['proveedor_nombre'];
 }
 
@@ -325,6 +340,7 @@ function itemEditarGuardar(){
       $('#modal_cargando').modal('toggle'); 
       if (response.estado){
         /*Los datos de los Text de Select para Actualziar en el Array*/
+        data_json['laboratorio_nombre']=selectOptionTextForm("laboratorio_id");
         data_json['proveedor_nombre']=selectOptionTextForm("proveedor_id");
         data_json['item_tipo_nombre']=selectOptionTextForm("item_tipo_id");
         data_json['item_tipo_categoria']=selectOptionTextForm("item_categoria_id");

@@ -52,7 +52,21 @@
             </li>                        
           </ul>
         </li>
-        <li >
+        <li>
+          <a href="#menuLaboratorio" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Laboratorio</a>
+          <ul class="collapse list-unstyled" id="menuLaboratorio">            
+            <li>
+              <a onclick="cargar_vista('view/laboratorio/laboratorio_registrar.html')">Nuevo Laboratorio</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('view/laboratorio/laboratorio_lista.html')">Lista de Laboratorio</a>
+            </li>                        
+            <li>
+              <a onclick="cargar_vista('view/laboratorio/laboratorio_administrar.html')">Administrar Laboratorio</a>
+            </li>                                   
+          </ul>
+        </li>
+        <li>
           <a href="#menuProveedor" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Proveedor</a>
           <ul class="collapse list-unstyled" id="menuProveedor">
             <li>
@@ -160,7 +174,8 @@
 </html>
 
 <script type="text/javascript">
-  var baseUrl="http://rulo-farmacia.herokuapp.com/ws/";
+  //var baseUrl="http://rulo-farmacia.herokuapp.com/ws/";
+  var baseUrl="http://localhost/rulo-farmacia/ws/";
   $(document).ready(function () {
     $('#sidebarCollapse').on('click', function () {
       $('#sidebar').toggleClass('active');
