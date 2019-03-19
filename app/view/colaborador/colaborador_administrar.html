@@ -1,0 +1,331 @@
+<div class="row">
+  <div class="col-md-3">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Filtro</span>
+      </div>
+      <select class="form-control" id="filtro">
+          <option value="EMPLEADO_DNI">Dni</option>
+        <option value="EMPLEADO_NOMBRES">Nombre</option>
+        <option value="EMPLEADO_APATERNO">A Paterno</option>
+        <option value="EMPLEADO_AMATERNO">A Materno</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="input-group">      
+      <input type="text" class="form-control" id="filtro_input" placeholder="Dato Buscar">
+    </div>
+  </div>  
+  <div class="col-sm-3">
+    <div class="input-group">
+      <button class="btn btn-primary btn-block" onclick="colaboradorBuscar()">Buscar</button>
+    </div>
+  </div>
+  <div class="col-sm-3" id="div_buscar" style="display: none">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+      </div>
+      <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+      
+      <div class="input-group-prepend">        
+        <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarColaboradoresCsv()">Exportar CVS</a>
+          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarColaboradoresPdf()">Exportar PDF</a>          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive" id="tabla_http_scroll">
+    <table class="table table-hover" id="tabla_http">
+      <thead>
+        <tr>          
+          <th width="120">Dni</th>
+          <th width="280">Colaborador</th>
+          <th width="200">Correo</th>
+          <th width="120">Telefono</th>
+          <th width="120">Estado</th>
+          <th width="100">Accion</th>          
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+</div>
+  
+<script type="text/javascript">
+screenAltura("tabla_http_scroll",280);
+var empleados=[];
+function colaboradorBuscar(){
+  document.getElementById("div_buscar").style.display="block";
+  let data={};
+  data['filtro']=document.getElementById("filtro").value;
+  data['input_filtro']=document.getElementById("filtro_input").value;  
+  $("#tabla_http tbody").html('<td colspan="5" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');
+  $.post(baseUrl+"empleado/filtrar/todos",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);        
+    if (response.estado) {
+      for (x in response['data']) {
+        empleados[response['data'][x].EMPLEADO_ID]=response['data'][x];         
+        let fila='<tr id="f-'+response['data'][x].EMPLEADO_ID+'">';      
+        fila+='<td>'+response['data'][x].EMPLEADO_DNI+'</td>';            
+        fila+='<td>'+response['data'][x].EMPLEADO_NOMBRES+' '+response['data'][x].EMPLEADO_APATERNO+' '+response['data'][x].EMPLEADO_AMATERNO+'</td>';
+        fila+='<td>'+response['data'][x].EMPLEADO_CORREO+'</td>';
+        fila+='<td>'+response['data'][x].EMPLEADO_TELEFONO+'</td>';
+        fila+='<td>'+response['data'][x].EMPLEADO_ESTADO+'</td>';      
+        fila+='<td style="text-align:center;">';        
+        fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="colaboradorLeer(`+response['data'][x].EMPLEADO_ID+`)">Ver</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="colaboradorEditar(`+response['data'][x].EMPLEADO_ID+`)">Editar</a>                  
+                </div>
+              </div>`;
+        fila+='</td>';      
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+  
+function modalColaboradorLeer(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Datos Colaborador</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="nombre">Dni</label>
+            <input readonly type="text" class="form-control" value="`+data.EMPLEADO_DNI+`">
+          </div>
+          <div class="form-group">
+            <label for="nombre">Nombres</label>
+            <input readonly type="text" class="form-control" value="`+data.EMPLEADO_NOMBRES+`">
+          </div>
+          <div class="form-group">
+            <label for="nombre">Apellido Paterno</label>
+            <input readonly type="text" class="form-control" value="`+data.EMPLEADO_APATERNO+`">
+          </div>
+          <div class="form-group">
+            <label for="direccion">Apellido Materno</label>
+            <input readonly type="text" class="form-control" value="`+data.EMPLEADO_AMATERNO+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Correo</label>
+            <input readonly type="text" class="form-control" value="`+data.EMPLEADO_CORREO+`">
+          </div>
+          <div class="form-group">
+            <label for="telefono">Telefono:</label>
+            <input readonly type="text" class="form-control" value="`+data.EMPLEADO_TELEFONO+`">
+          </div>
+          <div class="form-group">
+            <label for="estado">Estado:</label>    
+            <input readonly type="text" class="form-control" value="`+data.EMPLEADO_ESTADO+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+  
+function colaboradorLeer(id){  
+  let modal=modalColaboradorLeer(empleados[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+  
+function modalColaboradorEditar(data){
+  let estado;
+  if(data.EMPLEADO_ESTADO=="ACTIVO"){
+    estado='<option value="ACTIVO">ACTIVO</option><option value="INACTIVO">INACTIVO</option>';
+  }else{
+    estado='<option value="INACTIVO">INACTIVO</option><option value="ACTIVO">ACTIVO</option>';
+  } 
+  
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Editar Cliente</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_colaborador_editar">
+          <div class="form-group">
+            <input type="hidden" name="id" value="`+data.EMPLEADO_ID+`">
+            <label for="dni">Dni *</label>
+            <input required type="text" class="form-control" id="dni" 
+              name="dni" value="`+data.EMPLEADO_DNI+`">
+          </div>
+          <div class="form-group">
+            <label for="nombres">Nombres *</label>
+            <input required type="text" class="form-control" id="nombres" 
+              name="nombres" value="`+data.EMPLEADO_NOMBRES+`">
+          </div>
+          <div class="form-group">
+            <label for="apaterno">Apellido Paterno *</label>
+            <input required type="text" class="form-control" id="apaterno" 
+              name="apaterno" value="`+data.EMPLEADO_APATERNO+`">
+          </div>
+          <div class="form-group">
+            <label for="amaterno">Apellido Materno *</label>
+            <input required type="text" class="form-control" id="amaterno" 
+              name="amaterno" value="`+data.EMPLEADO_AMATERNO+`">
+          </div>
+          <div class="form-group">
+            <label for="correo">Correo </label>
+            <input type="text" class="form-control" id="correo" name="correo" value="`+data.EMPLEADO_CORREO+`">
+          </div>
+          <div class="form-group">
+            <label for="telefono">Telefono </label>
+            <input type="number" class="form-control" id="telefono" name="telefono" value="`+data.EMPLEADO_TELEFONO+`">
+          </div>
+          <div class="form-group">
+            <label for="estado">Estado:</label>    
+            <select class="form-control" id="estado" name="estado">
+              `+estado+`
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="colaboradorEditarGuardar()">Editar</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+  
+function colaboradorEditar(id){  
+  let modal=modalColaboradorEditar(empleados[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+  
+function clientesEditarData(data){
+  /*Actualiza el Array en el Cliente*/
+  empleados[data['id']].EMPLEADO_DNI=data['dni'];
+  empleados[data['id']].EMPLEADO_NOMBRES=data['nombres'];
+  empleados[data['id']].EMPLEADO_APATERNO=data['apaterno'];
+  empleados[data['id']].EMPLEADO_AMATERNO=data['amaterno'];
+  empleados[data['id']].EMPLEADO_AMATERNO=data['correo'];    
+  empleados[data['id']].EMPLEADO_TELEFONO=data['telefono'];
+  empleados[data['id']].EMPLEADO_ESTADO=data['estado'];
+
+  /*Actualizamos la Fila de la Tabla*/
+  let fila=document.getElementById("f-"+data["id"]);       
+  let columna=fila.querySelectorAll("td");
+  columna[0].innerHTML=data['dni'];
+  columna[1].innerHTML=data['nombres']+' '+data['apaterno']+' '+data['amaterno'];
+  columna[2].innerHTML=data['correo'];    
+  columna[3].innerHTML=data['telefono'];
+  columna[4].innerHTML=data['estado'];
+}
+  
+function colaboradorEditarGuardar(){  
+  if (formValido("form_colaborador_editar")){      
+    let data_json=objForm("form_colaborador_editar");            
+    modalCargando();
+    $.post(baseUrl+"empleado/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle'); 
+      if (response.estado){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        clientesEditarData(data_json);        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+} 
+  
+exportarColaboradoresCsv = function() {
+  var exportCvs="DNI,NOMBRES,A PATERNO,A MATERNO,CORREO,TELEFONO,ESTADO\r\n";
+  for(x in empleados){
+    exportCvs+=empleados[x].EMPLEADO_DNI+",";
+    exportCvs+=empleados[x].EMPLEADO_NOMBRES+",";
+    exportCvs+=empleados[x].EMPLEADO_APATERNO+",";
+    exportCvs+=empleados[x].EMPLEADO_AMATERNO+",";
+    exportCvs+=empleados[x].EMPLEADO_CORREO+",";
+    exportCvs+=empleados[x].EMPLEADO_TELEFONO+",";
+    exportCvs+=empleados[x].EMPLEADO_ESTADO;
+    exportCvs+= "\r\n";
+  }
+
+  csvString = "data:application/csv," + encodeURIComponent(exportCvs);
+  var x = document.createElement("A");
+  x.setAttribute("href", csvString );
+  x.setAttribute("download","colaboradores.csv");
+  document.body.appendChild(x);
+  x.click();
+}
+  
+exportarColaboradoresPdf=function(){
+  // CREATE A WINDOW OBJECT.
+  let win = window.open('', '', 'height=700,width=900');
+  let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+    <thead>
+      <tr>          
+        <th>Dni</th>
+        <th>Nombres</th>
+        <th>A Paterno</th>
+        <th>A Materno</th>
+        <th>Correo</th>
+        <th>Telefono</th>
+        <th>Estado</th>              
+      </tr>
+    </thead>
+    <tbody>`;
+  for(x in empleados){
+    tabla+="<tr>";
+    tabla+="<td>"+empleados[x].EMPLEADO_DNI+"</td>";
+    tabla+="<td>"+empleados[x].EMPLEADO_NOMBRES+"</td>";
+    tabla+="<td>"+empleados[x].EMPLEADO_APATERNO+"</td>";
+    tabla+="<td>"+empleados[x].EMPLEADO_AMATERNO+"</td>";
+    tabla+="<td>"+empleados[x].EMPLEADO_CORREO+"</td>";
+    tabla+="<td>"+empleados[x].EMPLEADO_TELEFONO+"</td>";
+    tabla+="<td>"+empleados[x].EMPLEADO_ESTADO+"</td>";
+    tabla+="</tr>";
+  }
+  tabla+="</tbody></table>";
+  let style = "<style>";                        
+  style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+  style = style + "</style>";
+  win.document.write('<html><head>');
+  win.document.write('<title>Colaboradores</title>');   // <title> FOR PDF HEADER.
+  win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+  win.document.write('</head>');
+  win.document.write('<body>');
+  win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+  win.document.write('</body></html>');
+  win.document.close();   // CLOSE THE CURRENT WINDOW.
+  win.print();    // PRINT THE CONTENTS.
+}
+</script>  

@@ -11,6 +11,7 @@ class inventario
 	var $item_id;
   var $codigobarra;
   var $ubicacion;
+  var $lote;
 	var $cantidad;
   var $fechaingreso;
   var $fechafabricacion;
@@ -23,6 +24,7 @@ class inventario
     $array['id']=$this->id;
     $array['item_id']=$this->item_id;
     $array['codigobarra']=$this->codigobarra;
+    $array['lote']=$this->lote;
     $array['ubicacion']=$this->ubicacion;
     $array['cantidad']=$this->cantidad;    
     $array['fechaingreso']=$this->fechaingreso;
@@ -38,9 +40,9 @@ class inventario
     try {  
       $pdo->beginTransaction();
       $sql = "INSERT INTO INVENTARIO 
-        VALUES(default,?,?,?,?,STR_TO_DATE(?,'%d/%m/%Y %H:%i'),STR_TO_DATE(?, '%d/%m/%Y'),STR_TO_DATE(?, '%d/%m/%Y'),?)";
+        VALUES(default,?,?,?,?,?,STR_TO_DATE(?,'%d/%m/%Y %H:%i'),STR_TO_DATE(?, '%d/%m/%Y'),STR_TO_DATE(?, '%d/%m/%Y'),?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado));                  
+      $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->lote,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado));                  
       $mensaje['intentario_id']=$pdo->lastInsertId(); 
       $mensaje['estado']=true;
       $mensaje['mensaje']='INGRESO REGISTRADO CON EXITO'; 
@@ -79,13 +81,13 @@ class inventario
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "SELECT IFNULL(SUM(SALIDA_CANTIDAD),0) SALIO FROM SALIDA WHERE INVENTARIO_ID=?";
+      $sql = "SELECT IFNULL(SUM(SALIDA_CANTIDAD),0) SALIO FROM SALIDA WHERE SALIDA_ESTADO='ACTIVO' AND INVENTARIO_ID=?";
       $q = $pdo->prepare($sql);
       $q->execute(array($this->id));
       $data = $q->fetch(PDO::FETCH_ASSOC); 
       if($this->cantidad>=$data['SALIO']){
         if($this->estado=="INACTIVO"){
-          if($data['SALIO']>0){
+          if(intval($data['SALIO'])>0){
             $mensaje['estado']=false;
             $mensaje['mensaje']='DICHO INGRESO YA REGISTRO SALIDAS ELIMINAR SALIDAS PRIMERO'; 
           }else{
@@ -93,6 +95,7 @@ class inventario
             SET ITEM_ID=?,
               INVENTARIO_CODIGO_BARRA=?,
               INVENTARIO_UBICACION=?,
+              INVENTARIO_LOTE=?,
               INVENTARIO_CANTIDAD=?,        
               INVENTARIO_FECHA_INGRESO=STR_TO_DATE(?,'%d/%m/%Y %H:%i'),
               INVENTARIO_FECHA_FABRICACION=STR_TO_DATE(?,'%d/%m/%Y'),
@@ -100,7 +103,7 @@ class inventario
               INVENTARIO_ESTADO=?
               WHERE INVENTARIO_ID=?";
             $q = $pdo->prepare($sql);
-            $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado,$this->id));            
+            $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->lote,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado,$this->id));            
             $mensaje['estado']=true;
             $mensaje['mensaje']='INVENTARIO EDITADO CON EXITO'; 
           }
@@ -109,6 +112,7 @@ class inventario
           SET ITEM_ID=?,
             INVENTARIO_CODIGO_BARRA=?,
             INVENTARIO_UBICACION=?,
+            INVENTARIO_LOTE=?,
             INVENTARIO_CANTIDAD=?,        
             INVENTARIO_FECHA_INGRESO=STR_TO_DATE(?,'%d/%m/%Y %H:%i'),
             INVENTARIO_FECHA_FABRICACION=STR_TO_DATE(?,'%d/%m/%Y'),
@@ -116,7 +120,7 @@ class inventario
             INVENTARIO_ESTADO=?
             WHERE INVENTARIO_ID=?";
           $q = $pdo->prepare($sql);
-          $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado,$this->id));            
+          $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->lote,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado,$this->id));            
           $mensaje['estado']=true;
           $mensaje['mensaje']='INVENTARIO EDITADO CON EXITO'; 
         }
@@ -139,15 +143,21 @@ class inventario
 
   function eliminarInventario(){    
     $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);    
-    $sql = "CALL sp_inventario_eliminar(?)";
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+    $sql = "SELECT IFNULL(SUM(SALIDA_CANTIDAD),0) SALIO FROM SALIDA WHERE SALIDA_ESTADO='ACTIVO' AND INVENTARIO_ID=?";
     $q = $pdo->prepare($sql);
     $q->execute(array($this->id));
-    $data = $q->fetch(PDO::FETCH_ASSOC); 
-    if($data["ESTADO"])  
-    $status = ($data["ESTADO"]=="TRUE") ? true:false;                  
-    $mensaje['estado']=$status;
-    $mensaje['mensaje']=$data["MENSAJE"]; 
+    $data = $q->fetch(PDO::FETCH_ASSOC);      
+    if(intval($data['SALIO'])>0){
+      $mensaje['estado']=false;
+      $mensaje['mensaje']='DICHO INGRESO YA REGISTRO SALIDAS ELIMINAR SALIDAS PRIMERO'; 
+    }else{
+      $sql = "UPDATE INVENTARIO SET INVENTARIO_ESTADO='INACTIVO' WHERE INVENTARIO_ID=?";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($this->id));
+      $mensaje['estado']=true;
+      $mensaje['mensaje']='INGRESO ELIMINADO CORRECTAMENTE'; 
+    }
     $pdo = baseDatos::desconectar();
     return $mensaje;  
   }

@@ -20,11 +20,19 @@ class salida
   function crearSalida(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT ITM.ITEM_PRECIO_COMPRA
+      FROM INVENTARIO INV
+      JOIN ITEM ITM ON ITM.ITEM_ID=INV.ITEM_ID
+      WHERE INV.INVENTARIO_ID=?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($this->inventario_id));
+    $data = $q->fetch(PDO::FETCH_ASSOC);  
+    $preciocompra=$data['ITEM_PRECIO_COMPRA'];
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO SALIDA VALUES(default,?,?,?,STR_TO_DATE(?,'%d/%m/%Y %H:%i'),?,?,?,now())";
+      $sql = "INSERT INTO SALIDA VALUES(default,?,?,?,?,STR_TO_DATE(?,'%d/%m/%Y %H:%i'),?,?,?,now())";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->inventario_id,$this->precio,$this->cantidad,$this->fecha,$this->tipo,$this->usuario_id,$this->estado));
+      $q->execute(array($this->inventario_id,$preciocompra,$this->precio,$this->cantidad,$this->fecha,$this->tipo,$this->usuario_id,$this->estado));
       $mensaje['estado']=true;
       $mensaje['salida_id']=$pdo->lastInsertId(); 
       $mensaje['mensaje']='SALIDA REGISTRADA CON EXITO';       
@@ -102,6 +110,24 @@ class salida
     $mensaje['mensaje']='SALIDA ELIMINADO CON EXITO';     
     $pdo = baseDatos::desconectar();
     return $mensaje;  
+  }
+
+  function ResumenVenta($fecha){
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT DATE_FORMAT(SAL.SALIDA_FECHA,'%d/%m/%Y %H:%i') FECHA,
+      ITM.ITEM_NOMBRE,SAL.SALIDA_PRECIO,SAL.SALIDA_CANTIDAD
+      FROM SALIDA SAL
+      JOIN INVENTARIO INV ON INV.INVENTARIO_ID=SAL.INVENTARIO_ID
+      JOIN ITEM ITM ON ITM.ITEM_ID=INV.ITEM_ID
+      WHERE DATE_FORMAT(SAL.SALIDA_FECHA,'%d/%m/%Y')=?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($fecha));
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);      
+    $mensaje['estado']=true;
+    $mensaje['data']=$data ;      
+    baseDatos::desconectar();
+    return $mensaje; 
   }
  
   function listaSalidas($filtro,$fecha,$inicio,$final,$item_id){

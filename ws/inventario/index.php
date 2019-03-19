@@ -12,6 +12,7 @@ switch ($_GET['solicitud']){
         $inventario->item_id=$request['item_id'];
         $inventario->codigobarra=$request['codigobarra'];
         $inventario->ubicacion=$request['ubicacion'];
+        $inventario->lote=$request['lote'];        
         $inventario->cantidad=$request['cantidad'];        
         $inventario->fechaingreso=$request['fechaingreso'];  
         $inventario->fechafabricacion=$request['fechafabricacion'];  
@@ -21,6 +22,7 @@ switch ($_GET['solicitud']){
         $inventario->item_id=$_POST['item_id'];  
         $inventario->codigobarra=$_POST['codigobarra'];  
         $inventario->ubicacion=$_POST['ubicacion'];  
+        $inventario->lote=$_POST['lote'];
         $inventario->cantidad=$_POST['cantidad'];
         $inventario->fechaingreso=$_POST['fechaingreso']; 
         $inventario->fechafabricacion=$_POST['fechafabricacion']; 
@@ -43,6 +45,7 @@ switch ($_GET['solicitud']){
         $inventario->item_id=$request['item_id'];
         $inventario->codigobarra=$request['codigobarra'];
         $inventario->ubicacion=$request['ubicacion'];
+        $inventario->lote=$request['lote'];
         $inventario->cantidad=$request['cantidad'];
         $inventario->fechaingreso=$request['fechaingreso'];  
         $inventario->fechafabricacion=$request['fechafabricacion'];  
@@ -53,6 +56,7 @@ switch ($_GET['solicitud']){
         $inventario->item_id=$_POST['item_id'];
         $inventario->codigobarra=$_POST['codigobarra'];
         $inventario->ubicacion=$_POST['ubicacion'];
+        $inventario->lote=$_POST['lote'];
         $inventario->cantidad=$_POST['cantidad'];  
         $inventario->fechaingreso=$_POST['fechaingreso']; 
         $inventario->fechafabricacion=$_POST['fechafabricacion']; 

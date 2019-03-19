@@ -1,6 +1,6 @@
 <div class="form-cliente" id="form-cliente"> 
   <div class="form-cabecera">
-    <h4>Registrar Ingresos </h4>
+    <h4>Registrar Salidas </h4>
   </div>  
   <datalist id="inventario_list">
   </datalist>
@@ -52,7 +52,7 @@ function inventarioAddRow(){
 
   let row='<tr>';
     row+='<td><input class="t_input" readonly value="Sin Id"></td>';  
-    row+='<td><input class="t_input" readonly onclick="InventarioId(this)" placeholder="Seleccionar Item"></td>';    
+    row+='<td><input class="t_input" readonly onclick="InventarioId(this)" placeholder="Seleccionar Ingreso"></td>';    
     row+='<td><input type="number" class="t_input" name="precio" value="0"></td>';   
     row+='<td><input type="number" class="t_input" onchange="calcularVuelto(this)" name="cantidad" min="0" value="0"></td>';   
     row+='<td><input type="number" readonly class="t_input" name="total" value="0"></td>';     
@@ -349,6 +349,7 @@ function modalInventarioId(datahtml){
     </div>`;
   return modal;
 }
+
 var modal_item_id=0;
 var modal_item_name="";
 var modal_item_saldo=0;

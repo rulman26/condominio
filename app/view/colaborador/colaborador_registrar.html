@@ -1,0 +1,66 @@
+<div class="form-cliente" id="form-cliente"> 
+    <div class="form-cabecera">
+      <h4>Nuevo Colaborador</h4>
+    </div> 
+    <hr> 
+    <form id="form_colaborador_registrar">
+      <div class="form-group">
+        <label for="dni">Dni *</label>
+        <input requerid type="number" class="form-control" id="dni" name="dni" placeholder="Ingresar Dni">
+      </div>
+      <div class="form-group">
+        <label for="nombres">Nombres *</label>
+        <input required type="text" class="form-control" id="nombres" name="nombres" placeholder="Ingresar Nombres">
+      </div>
+      <div class="form-group">
+        <label for="apaterno">Apellido Paterno *</label>
+        <input required type="text" class="form-control" id="apaterno" name="apaterno" placeholder="Ingresar Apellido Paterno">
+      </div>
+      <div class="form-group">
+        <label for="amaterno">Apellido Materno *</label>
+        <input required type="text" class="form-control" id="amaterno" name="amaterno" placeholder="Ingresar Apellido Materno">
+      </div>  
+      <div class="form-group">
+        <label for="correo">Correo </label>
+        <input type="text" class="form-control" id="correo" name="correo" placeholder="Ingresar Ruc">
+      </div>
+      <div class="form-group">
+        <label for="telefono">Telefono</label>
+        <input type="number" class="form-control" id="telefono" name="telefono" placeholder="Ingresar Telefono">
+      </div>
+      <div class="form-group">
+        <label for="estado">Estado</label>    
+        <select class="form-control" id="estado" name="estado">
+          <option value="ACTIVO">ACTIVO</option>
+          <option value="INACTIVO">INACTIVO</option>
+        </select>
+      </div>
+    </form>
+    <button  class="btn btn-primary btn-block" onclick="formClienteRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
+  </div>
+  
+  <script type="text/javascript">
+  screenAltura("form-cliente",200);
+  function formClienteRegistrar(){
+    if (formValido("form_colaborador_registrar")){    
+      let data_json=objForm("form_colaborador_registrar");        
+      modalCargando();
+      $.post(baseUrl+"empleado/crear",data_json,function(data){      
+        let response=JSON.parse(data);
+        $('#modal_cargando').modal('toggle');
+        if (response.estado){        
+          let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle'); 
+          clearInputsForm("form_colaborador_registrar input");       
+        }else{        
+          let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle');      
+        }
+      }); 
+    } 
+    
+  }
+  
+  </script>

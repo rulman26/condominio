@@ -63,22 +63,6 @@ switch ($_GET['solicitud']){
     echo json_encode($data,JSON_PRETTY_PRINT);
   break;
 
-  case 'leer':   
-    if ($_SERVER['REQUEST_METHOD']=="POST") {
-      if (empty($_POST)) {
-        $request  = json_decode(trim(file_get_contents('php://input')), true);                
-        $proveedor->id=$request['id'];
-      }else{
-        $proveedor->id=$_POST['id'];
-      }     
-      $data=$proveedor->leerProveedor();     
-    }else{      
-      $data['estado']="ERROR";
-      $data['mensaje']="NO EXISTEN DATOS POST";                    
-    }             
-    echo json_encode($data,JSON_PRETTY_PRINT);
-  break;
-
   case 'eliminar':   
     if ($_SERVER['REQUEST_METHOD']=="POST") {
       if (empty($_POST)) {
@@ -117,7 +101,24 @@ switch ($_GET['solicitud']){
       $data['mensaje']="NO EXISTEN DATOS POST";                    
     }
 	  echo json_encode($data,JSON_PRETTY_PRINT);
-  break;  
+  break; 
+  
+  case 'resumen':   
+    if ($_SERVER['REQUEST_METHOD']=="POST") {
+      if (empty($_POST)) {
+        $request  = json_decode(trim(file_get_contents('php://input')), true);                
+        $fecha->id=$request['fecha'];
+      }else{
+        $fecha=$_POST['fecha'];
+      }     
+      $data=$salida->ResumenVenta($fecha);     
+    }else{      
+      $data['estado']="ERROR";
+      $data['mensaje']="NO EXISTEN DATOS POST";                    
+    }             
+    echo json_encode($data,JSON_PRETTY_PRINT);
+  break;
+  
 
   default:
     $msj['estado']='ERROR';

@@ -1,0 +1,277 @@
+
+<div class="row">
+  <div class="col-md-3">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Filtro</span>
+      </div>
+      <input type="date" class="form-control" id="fecha">
+    </div>
+  </div>
+
+  <div class="col-sm-3">
+    <div class="input-group">
+      <button class="btn btn-primary btn-block" onclick="clienteListar()">Buscar</button>
+    </div>
+  </div>
+  <div class="col-sm-3" id="div_buscar" style="display: none">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+      </div>
+      <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive" id="tabla_http_scroll">
+    <table class="table table-hover" id="tabla_http">
+      <thead>
+        <tr>          
+          <th width="200">FECHA</th>
+          <th width="220">ITEM</th>          
+          <th width="150">PRECIO</th>
+          <th width="150">CANTIDAD</th>          
+          <th width="150">TOTAL</th>                    
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+</div>
+
+
+<script type="text/javascript">
+screenAltura("tabla_http_scroll",280);
+var clientes=[];
+function clienteListar(){
+  document.getElementById("div_buscar").style.display="block";
+  let data={};
+  let fecha_chrome=document.getElementById("fecha").value;  
+  let Fecha=fecha_chrome.split("-");
+  data['fecha']=Fecha[2]+'/'+Fecha[1]+'/'+Fecha[0];
+  console.log(data);
+  $("#tabla_http tbody").html('<td colspan="5" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');
+  $.post(baseUrl+"salida/resumen",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);        
+    /*if (response.estado) {
+      for (x in response['data']) {
+        clientes[response['data'][x].CLIENTE_ID]=response['data'][x];         
+        let fila='<tr id="f-'+response['data'][x].CLIENTE_ID+'">';      
+        fila+='<td>'+response['data'][x].CLIENTE_NOMBRE+'</td>';  
+        fila+='<td>'+response['data'][x].CLIENTE_DIRECCION+'</td>';
+        fila+='<td>'+response['data'][x].CLIENTE_DNI+'</td>';
+        fila+='<td>'+response['data'][x].CLIENTE_RUC+'</td>';
+        fila+='<td>'+response['data'][x].CLIENTE_TELEFONO+'</td>';           
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }  */  
+  });
+}
+
+function modalClienteLeer(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Datos Cliente</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="nombre">Nombres y Apellidos:</label>
+            <input readonly type="text" class="form-control" value="`+data.CLIENTE_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="direccion">Direccion:</label>
+            <input readonly type="text" class="form-control" value="`+data.CLIENTE_DIRECCION+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Dni:</label>
+            <input readonly type="text" class="form-control" id="dni" value="`+data.CLIENTE_DNI+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Ruc:</label>
+            <input readonly type="text" class="form-control" id="ruc" value="`+data.CLIENTE_RUC+`">
+          </div>
+          <div class="form-group">
+            <label for="telefono">Telefono:</label>
+            <input readonly type="text" class="form-control" id="telefono" value="`+data.CLIENTE_RUC+`">
+          </div>
+          <div class="form-group">
+            <label for="estado">Estado:</label>    
+            <input readonly type="text" class="form-control" id="estado" value="`+data.CLIENTE_ESTADO+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function clienteLeer(id){  
+  let modal=modalClienteLeer(clientes[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalClienteEditar(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Editar Cliente</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_cliente_editar">
+          <div class="form-group">
+            <input type="hidden" name="id" value="`+data.CLIENTE_ID+`">
+            <input type="hidden" name="estado" value="`+data.CLIENTE_ESTADO+`">
+            <label for="nombre">Nombres y Apellidos:</label>
+            <input required type="text" class="form-control" id="nombre" 
+              name="nombre" value="`+data.CLIENTE_NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="direccion">Direccion:</label>
+            <input required type="text" class="form-control" id="direccion" 
+              name="direccion" value="`+data.CLIENTE_DIRECCION+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Dni:</label>
+            <input type="number" class="form-control" id="dni" name="dni" value="`+data.CLIENTE_DNI+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Ruc:</label>
+            <input type="number" class="form-control" id="ruc" name="ruc" value="`+data.CLIENTE_RUC+`">
+          </div>
+          <div class="form-group">
+            <label for="telefono">Telefono:</label>
+            <input type="text" class="form-control" id="telefono" name="telefono" value="`+data.CLIENTE_TELEFONO+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="clienteEditarGuardar()">Editar</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function clienteEditar(id){  
+  let modal=modalClienteEditar(clientes[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function clientesEditarData(data){
+  /*Actualiza el Array en el Cliente*/
+  clientes[data['id']].CLIENTE_NOMBRE=data['nombre'];
+  clientes[data['id']].CLIENTE_DIRECCION=data['direccion'];
+  clientes[data['id']].CLIENTE_DNI=data['dni'];
+  clientes[data['id']].CLIENTE_RUC=data['ruc'];
+  clientes[data['id']].CLIENTE_TELEFONO=data['telefono'];  
+
+  /*Actualizamos la Fila de la Tabla*/
+  let fila=document.getElementById("f-"+data["id"]);       
+  let columna=fila.querySelectorAll("td");
+  columna[0].innerHTML=data['nombre'];
+  columna[1].innerHTML=data['direccion'];
+  columna[2].innerHTML=data['dni'];
+  columna[3].innerHTML=data['ruc'];
+  columna[4].innerHTML=data['telefono'];  
+}
+
+function clienteEditarGuardar(){  
+  if (formValido("form_cliente_editar")){
+    let data=$("#form_cliente_editar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    modalCargando();
+    $.post(baseUrl+"cliente/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle'); 
+      if (response.estado){        
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        clientesEditarData(data_json);        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+function modalClienteEliminar(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Eliminar Cliente</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_cliente_eliminar">
+          <input type="hidden" name="id" value="`+data.CLIENTE_ID+`">
+        </form>
+        <h6>Estas Seguro de Eliminar Cliente..?"</h6>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="clienteEliminarGuardar()">Si</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function clienteEliminar(id){  
+  let modal=modalClienteEliminar(clientes[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function clienteEliminarGuardar(){
+  if (formValido("form_cliente_eliminar")){
+    let data=$("#form_cliente_eliminar").serializeArray();
+    let data_json={}
+    for (x in data){    
+      data_json[data[x].name]=data[x].value
+    }
+    modalCargando();
+    $.post(baseUrl+"cliente/eliminar",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle'); 
+      if (response.estado){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        $("#f-"+data_json['id']).remove();
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+
+}
+</script>  
