@@ -14,8 +14,7 @@
   <link rel="stylesheet" href="lib/css/menu.css"> 
   <script src="lib/js/mask.js"> </script>
   <!-- Font Awesome JS -->
-    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
-    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
 </head>
 
 <body>
@@ -319,5 +318,136 @@ function fechaHoraActual(){
     let minuto=(d.getMinutes()<10?'0':'') + d.getMinutes();   
     let fechaHora=dia+'/'+mes+'/'+anio+' '+hora+":"+minuto;    
     return fechaHora;
+}
+
+function clearInputsForm(idInput){
+  inputs=$("#"+idInput);
+  for (x in inputs)
+  {
+    inputs[x].value="";
+  }
+}
+
+function dataLocalEdit(local,obj){
+  Object.keys(obj).forEach(function(key) {    
+    local[obj['id']][key.toUpperCase()]=obj[key];
+  }); 
+}
+
+function datatableRowEdit(id,arreglo){
+  let fila=document.getElementById("f-"+id);       
+  let columna=fila.querySelectorAll("td");  
+  for (var i = 0; i < arreglo.length; i++) {
+    columna[i].innerHTML=arreglo[i];
+  }
+}
+
+function objForm(id)
+{ 
+  let data_json={}
+  let data=$("#"+id).serializeArray();  
+  for (x in data){    
+    data_json[data[x].name]=data[x].value
+  }
+  let selects=$("#form_usuario_editar select");
+  for (var i = 0; i < selects.length; i++) {      
+    data_json[selects[i].getAttribute('nameSelect')]=selects[i].selectedOptions[0].text
+  }
+  return data_json;
+}
+
+function modalLoadSelect(id,datos){
+  let select='<option value="'+id+'">'+datos[id].NOMBRE+'</option>';  
+  for(x in datos){
+    if(datos[x].ID!==id){
+        select+='<option value="'+datos[x].ID+'">'+datos[x].NOMBRE+'</option>';
+    }    
+  }
+  return select;
+}
+
+function modalLoadList(idList,datos,id,valor){
+  document.getElementById(idList).innerHTML="";
+  let list='<option codigo="'+id+'" value="'+valor+'"/>';
+  for(x in datos){            
+    list+='<option codigo="'+datos[x].ID+'" value="'+datos[x].NOMBRE+'"/>';	  	  
+  }    
+  document.getElementById(idList).innerHTML=list;
+}
+
+function SalirApp(){  
+  sessionStorage.clear();
+  window.location.href = "../../";
+}
+
+function usuarioResetearClave(){  
+  let id=sessionStorage.getItem("id");
+  let modal=modalUsuarioCambiarClave(id);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function modalUsuarioCambiarClave(id){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Cambiar Clave</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_usuario_cambiar_clave">
+          <input type="hidden" name="id" value="`+id+`">          
+          <div class="form-group">
+            <label for="password">Nueva Contraseña *</label>
+            <input required type="password" class="form-control" id="password" 
+              name="password">
+          </div>
+          <div class="form-group">
+            <label for="passwordnew">Nueva Contraseña *</label>
+            <input required type="password" class="form-control" id="passwordnew" 
+              name="passwordnew" >
+          </div>
+        </form>
+        
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="modalUsuarioCambiarClaveGuardar()">Si</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function modalUsuarioCambiarClaveGuardar(){
+  if (formValido("form_usuario_cambiar_clave")){
+    let pwd=document.getElementById("password").value;
+    let pwdnew=document.getElementById("passwordnew").value;
+    if(pwd==pwdnew){
+      let data_json=objForm("form_usuario_cambiar_clave");    
+      console.log(data_json);  
+      modalCargando();
+      $.post(baseUrl+"usuario/cambiar",data_json,function(data){      
+        let response=JSON.parse(data);      
+        $('#modal_cargando').modal('toggle'); 
+        if (response.estado){        
+          $('#modal_formulario').html("");
+          $('#modal_formulario').modal('toggle');      
+          let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle');        
+        }else{        
+          let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle');      
+        }
+      }); 
+    }else{
+      alert("Las Contraseñas Ingresadas No son Iguales")
+      pwd.value="";
+      pwdnew.value="";
+    }  
+    
+  } 
 }
 </script>

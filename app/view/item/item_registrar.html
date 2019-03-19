@@ -90,12 +90,8 @@ function datosFormItemRegistrar(){
 datosFormItemRegistrar();
 screenAltura("form-cliente",200);
 function formItemRegistrar(){
-  if (formValido("form_item_registrar")){
-    let data=$("#form_item_registrar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
+  if (formValido("form_item_registrar")){    
+    let data_json=objForm("form_item_registrar");    
     modalCargando();   
     $.post(baseUrl+"item/crear",data_json,function(data){      
       let response=JSON.parse(data);
@@ -104,11 +100,7 @@ function formItemRegistrar(){
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle'); 
-        inputs=$("#form_item_registrar input");
-        for (x in inputs)
-          {
-            inputs[x].value="";
-          }     
+        clearInputsForm("form_item_registrar input");         
       }else{
         let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);

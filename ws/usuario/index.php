@@ -21,21 +21,30 @@ switch ($_GET['solicitud']){
 			$data['mensaje']="NO EXISTEN DATOS POST";    			           
 		}        	    
     echo json_encode($data,JSON_PRETTY_PRINT);
-  	break;
+	break;
+	
+	case 'formcrear':    
+    $data=$usuario->formCrear();
+    echo json_encode($data,JSON_PRETTY_PRINT);  
+  break;
 
 	case 'crear': 	
 		if ($_SERVER['REQUEST_METHOD']=="POST") {
 			if (empty($_POST)) {
 				$request  = json_decode(trim(file_get_contents('php://input')), true);			          
-				$usuario->perfil=$request['perfil'];
 				$usuario->usuario=$request['usuario'];
 				$usuario->password=$request['usuario'];
-				$usuario->nombres=$request['nombres'];	
+				$usuario->token="";
+				$usuario->tipo_id=$request['tipo_id'];	
+				$usuario->empleado_id=$request['empleado_id'];
+				$usuario->estado_id='ACTIVO';
 			}else{
-				$usuario->perfil=$_POST['perfil'];
 				$usuario->usuario=$_POST['usuario'];
 				$usuario->password=$_POST['usuario'];
-				$usuario->nombres=$_POST['nombres'];	
+				$usuario->token="";
+				$usuario->tipo_id=$_POST['tipo_id'];
+				$usuario->empleado_id=$_POST['empleado_id'];
+				$usuario->estado_id='ACTIVO';      				 	
 			}			
 			$data=$usuario->crearUsuario();			
 		}else{			
@@ -43,23 +52,46 @@ switch ($_GET['solicitud']){
 			$data['mensaje']="NO EXISTEN DATOS POST";    			           
 		}        	    
     echo json_encode($data,JSON_PRETTY_PRINT);
- 	break;
+	break;
+
+	case 'formeditar':    
+    $data=$usuario->formEditar();
+    echo json_encode($data,JSON_PRETTY_PRINT);  
+  break;
+
+	case 'buscar':
+	if ($_SERVER['REQUEST_METHOD']=="POST") {
+		if (empty($_POST)) {
+			$request  = json_decode(trim(file_get_contents('php://input')), true);
+			$columna=$request['filtro'];
+      $valor=$request['input_filtro'];	
+		}else{
+			$columna=$_POST['filtro'];
+      $valor=$_POST['input_filtro'];
+		}			
+		$data=$usuario->BuscarUsuarios($columna,$valor);  			
+	}else{			
+		$data['estado']="ERROR";
+		$data['mensaje']="NO EXISTEN DATOS POST";    			           
+	}        	    
+	echo json_encode($data,JSON_PRETTY_PRINT);
+	break;
 
  	case 'editar': 	
 		if ($_SERVER['REQUEST_METHOD']=="POST") {
 			if (empty($_POST)) {
 				$request  = json_decode(trim(file_get_contents('php://input')), true);			          
-				$usuario->id=$request['id'];
-				$usuario->perfil=$request['perfil'];
+				$usuario->id=$request['id'];				
 				$usuario->usuario=$request['usuario'];				
-				$usuario->nombres=$request['nombres'];	
+				$usuario->tipo_id=$request['tipo_id'];				
+				$usuario->empleado_id=$request['empleado_id'];	
 				$usuario->estado=$request['estado'];	
 			}else{
-				$usuario->id=$_POST['id'];
-				$usuario->perfil=$_POST['perfil'];
-				$usuario->usuario=$_POST['usuario'];				
-				$usuario->nombres=$_POST['nombres'];
-				$usuario->estado=$_POST['estado'];		
+				$usuario->id=$_POST['id']; 
+				$usuario->usuario=$_POST['usuario'];            
+				$usuario->tipo_id=$_POST['tipo_id'];
+				$usuario->empleado_id=$_POST['empleado_id'];
+				$usuario->estado=$_POST['estado'];  		
 			}			
 			$data=$usuario->editarUsuario();			
 		}else{			
@@ -69,27 +101,25 @@ switch ($_GET['solicitud']){
     echo json_encode($data,JSON_PRETTY_PRINT);
  	break;
 
-  	case 'cambiarclave': 	
-		if ($_SERVER['REQUEST_METHOD']=="POST") {
-			if (empty($_POST)) {
-				$request  = json_decode(trim(file_get_contents('php://input')), true);			          
-				$usuario->id=$request['id'];
-				$usuario->usuario=$request['usuario'];
-				$usuario->password=$request['password'];					
-			}else{
-				$usuario->id=$_POST['id'];	
-				$usuario->usuario=$_POST['usuario'];
-				$usuario->password=$_POST['password'];				
-			}			
-			$data=$usuario->cambiarClave();			
-		}else{			
-      $data['estado']="ERROR";
-			$data['mensaje']="NO EXISTEN DATOS POST";    			           
-		}        	    
-    echo json_encode($data,JSON_PRETTY_PRINT);
-  break;
+	case 'cambiar': 	
+	 if ($_SERVER['REQUEST_METHOD']=="POST") {
+		 if (empty($_POST)) {
+			 $request  = json_decode(trim(file_get_contents('php://input')), true);			          
+			 $usuario->id=$request['id'];				
+			 $usuario->password=$request['password'];
+		 }else{
+			 $usuario->id=$_POST['id'];
+			 $usuario->password=$_POST['password'];
+		 }			
+		 $data=$usuario->cambiarClave();			
+	 }else{
+		 $data['estado']="ERROR";
+		 $data['mensaje']="NO EXISTEN DATOS POST";    			           
+	 }        	    
+	 echo json_encode($data,JSON_PRETTY_PRINT);
+ 	break; 
 
-  	case 'resetear': 	
+  case 'resetear': 	
 		if ($_SERVER['REQUEST_METHOD']=="POST") {
 			if (empty($_POST)) {
 				$request  = json_decode(trim(file_get_contents('php://input')), true);			          

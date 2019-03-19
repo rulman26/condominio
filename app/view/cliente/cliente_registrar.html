@@ -38,12 +38,8 @@
 <script type="text/javascript">
 screenAltura("form-cliente",200);
 function formClienteRegistrar(){
-  if (formValido("form_cliente_registrar")){
-    let data=$("#form_cliente_registrar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
+  if (formValido("form_cliente_registrar")){    
+    let data_json=objForm("form_cliente_registrar");        
     modalCargando();
     $.post(baseUrl+"cliente/crear",data_json,function(data){      
       let response=JSON.parse(data);
@@ -52,11 +48,7 @@ function formClienteRegistrar(){
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle'); 
-        inputs=$("#form_cliente_registrar input");
-        for (x in inputs)
-          {
-            inputs[x].value="";
-          }     
+        clearInputsForm("form_cliente_registrar input");       
       }else{        
         let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
