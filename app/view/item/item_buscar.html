@@ -39,9 +39,7 @@
     <table class="table table-hover" id="tabla_http">
       <thead>
         <tr>                    
-          <th width="200">Nombre</th>
-          <th width="80">P C</th>
-          <th width="80">P V</th>
+          <th width="200">Nombre</th>          
           <th width="150">Tipo</th>          
           <th width="180">Laboratorio</th>          
           <th width="180">Proveedor</th>          
@@ -122,9 +120,7 @@ function itemListar(){
       for (x in response['data']) {
         items[response['data'][x].ITEM_ID]=response['data'][x];         
         let fila='<tr id="f-'+response['data'][x].ITEM_ID+'">';               
-        fila+='<td>'+response['data'][x].ITEM_NOMBRE+'</td>';
-        fila+='<td>'+response['data'][x].ITEM_PRECIO_COMPRA+'</td>';
-        fila+='<td>'+response['data'][x].ITEM_PRECIO_VENTA+'</td>';
+        fila+='<td>'+response['data'][x].ITEM_NOMBRE+'</td>';        
         fila+='<td>'+response['data'][x].ITEM_TIPO_NOMBRE+'</td>';        
         fila+='<td>'+response['data'][x].LABORATORIO_NOMBRE+'</td>';   
         fila+='<td>'+response['data'][x].PROVEEDOR_NOMBRE+'</td>';        
@@ -166,14 +162,6 @@ function modalItemLeer(data){
           <div class="form-group">
             <label for="nombre">Nombre</label>
             <input readonly type="text" class="form-control" id="nombre" value="`+data.ITEM_NOMBRE+`">
-          </div>
-          <div class="form-group">
-            <label for="preciocompra">Precio Compra:</label>
-            <input readonly type="number" class="form-control" id="preciocompra" value="`+data.ITEM_PRECIO_COMPRA+`">
-          </div>
-          <div class="form-group">
-            <label for="precioventa">Precio Venta</label>
-            <input readonly type="number" class="form-control" id="precioventa" value="`+data.ITEM_PRECIO_VENTA+`">
           </div>
           <div class="form-group">
             <label for="proveedor_id">Laboratorio</label>    
@@ -226,14 +214,6 @@ function modalItemEditar(data){
             <label for="nombre">Nombre *</label>
             <input required type="text" class="form-control" id="nombre" name="nombre" value="`+data.ITEM_NOMBRE+`">
           </div>
-          <div class="form-group">
-            <label for="preciocompra">Precio Compra *</label>
-            <input required type="number" class="form-control" id="preciocompra" name="preciocompra"  value="`+data.ITEM_PRECIO_COMPRA+`">
-          </div>
-          <div class="form-group">
-            <label for="precioventa">Precio Venta *</label>
-            <input required type="number" class="form-control" id="precioventa" name="precioventa" value="`+data.ITEM_PRECIO_VENTA+`">
-          </div> 
           <div class="form-group">
             <label for="laboratorio_id">Laboratorio *</label>    
             <select class="form-control" id="laboratorio_id" name="laboratorio_id">
@@ -299,9 +279,7 @@ function itemsEditarData(data){
   items[data['id']].ITEM_CATEGORIA_NOMBRE=data['item_tipo_categoria'];
   items[data['id']].ITEM_CODIGO=data['codigo'];
   items[data['id']].ITEM_ESTADO=data['estado'];  
-  items[data['id']].ITEM_NOMBRE=data['nombre'];  
-  items[data['id']].ITEM_PRECIO_COMPRA=data['preciocompra'];  
-  items[data['id']].ITEM_PRECIO_VENTA=data['precioventa'];  
+  items[data['id']].ITEM_NOMBRE=data['nombre'];    
   items[data['id']].ITEM_TIPO_ID=data['item_tipo_id'];  
   items[data['id']].ITEM_TIPO_NOMBRE=data['item_tipo_nombre'];    
   items[data['id']].LABORATORIO_ID=data['laboratorio_id'];  
@@ -312,12 +290,10 @@ function itemsEditarData(data){
   /*Actualizamos la Fila de la Tabla*/
   let fila=document.getElementById("f-"+data["id"]);       
   let columna=fila.querySelectorAll("td");  
-  columna[0].innerHTML=data['nombre'];
-  columna[1].innerHTML=data['preciocompra'];
-  columna[2].innerHTML=data['precioventa'];
-  columna[3].innerHTML=data['item_tipo_nombre'];  
-  columna[4].innerHTML=data['laboratorio_nombre'];
-  columna[5].innerHTML=data['proveedor_nombre'];
+  columna[0].innerHTML=data['nombre'];  
+  columna[1].innerHTML=data['item_tipo_nombre'];  
+  columna[2].innerHTML=data['laboratorio_nombre'];
+  columna[3].innerHTML=data['proveedor_nombre'];
 }
 
 function selectOptionTextForm(idSelect){

@@ -8,7 +8,7 @@
     <table class="table" id="tabla_http">
       <thead>
         <tr>        
-          <th width="100">Ingreso</th> 
+          <th width="100">Nro Ingreso</th> 
           <th width="180">Item</th>                            
           <th width="100">Precio</th>
           <th width="100">Cantidad</th>                 
@@ -39,7 +39,7 @@ function list_inventario(){
     data_inventario=response.inventario;
     let fila="";    
   	for (x in data_inventario) {	  	  	
-  	  fila+='<option codigo="'+data_inventario[x].INVENTARIO_ID+'" precio="'+data_inventario[x].ITEM_PRECIO_VENTA+'" value="'+data_inventario[x].ITEM_NOMBRE+'"> Precio : '+data_inventario[x].ITEM_PRECIO_VENTA+' - FV : '+data_inventario[x].FECHA_VENCIMIENTO+'</option>';	  	  
+  	  fila+='<option codigo="'+data_inventario[x].INVENTARIO_ID+'" precio="'+data_inventario[x].INVENTARIO_PRECIO_VENTA+'" value="ID='+data_inventario[x].INVENTARIO_ID+' : '+data_inventario[x].ITEM_NOMBRE+'"> Precio : '+data_inventario[x].INVENTARIO_PRECIO_VENTA+' - FV : '+data_inventario[x].FECHA_VENCIMIENTO+'</option>';	  	  
   	}  
   	$("#inventario_list").html(fila);
 	});
@@ -116,8 +116,7 @@ function tableSalidaRegistrar(boton){
   let precio=filaInputs[2].value;
   let cantidad=filaInputs[3].value;
   let fecha=filaInputs[5].value;
-  let tipo="VENTA";
-  let usuario_id=1;
+  let tipo="VENTA";  
   let estado="ACTIVO";
 
   let filaSelects=$(boton).parents("tr").find("select");  
@@ -127,8 +126,7 @@ function tableSalidaRegistrar(boton){
   obj_json['precio']=precio;
   obj_json['cantidad']=cantidad;
   obj_json['fecha']=fecha;
-  obj_json['tipo']=tipo;
-  obj_json['usuario_id']=usuario_id;  
+  obj_json['tipo']=tipo;  
   obj_json['estado']=estado;
   modalCargando();
   if(inventario_id!="" || precio!=0 || fecha!="" || tipo!="" || usuario_id!="" || cantidad!=0){
@@ -184,7 +182,7 @@ function modalSalidaEditar(data){
           <div class="form-group">
           <label for="inventario_nombre">Item</label>
           <input required type="text" class="form-control" list="inventario_list" id="inventario_nombre" 
-              name="inventario_nombre" value="`+data.item_nombre+`" onchange="id_inventario_modal(this)">
+              name="inventario_nombre" value="ID=`+data.id+" : "+data.item_nombre+`" onchange="id_inventario_modal(this)">
           </div>
           <div class="form-group">
             <label for="m_precio">Precio</label>
@@ -239,8 +237,7 @@ function salidaEditarGuardar(){
     let data_json={}
     for (x in data){    
       data_json[data[x].name]=data[x].value
-    }        
-    data_json['usuario_id']=1;
+    }            
     data_json['tipo']="VENTA";
     data_json['estado']="ACTIVO";
     console.log(data_json)
@@ -257,7 +254,7 @@ function salidaEditarGuardar(){
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle');
         let fila='<td>'+data_json.inventario_id+'</td>';          
-          fila+='<td>'+data_json.inventario_nombre+'</td>';          
+          fila+='<td>'+data_json.inventario_nombre.split(":")[1].trim()+'</td>';          
           fila+='<td>'+data_json.precio+'</td>';
           fila+='<td>'+data_json.cantidad+'</td>';
           fila+='<td>'+data_json.total+'</td>';
@@ -376,7 +373,7 @@ function InventarioId(fila){
     datahtml+='<td>'+data_inventario[x].ITEM_NOMBRE+'</td>';
     datahtml+='<td>'+data_inventario[x].ITEM_TIPO_NOMBRE+'</td>';    
     datahtml+='<td>'+data_inventario[x].INVENTARIO_SALDO+'</td>';
-    datahtml+='<td>'+data_inventario[x].ITEM_PRECIO_VENTA+'</td>';
+    datahtml+='<td>'+data_inventario[x].INVENTARIO_PRECIO_VENTA+'</td>';
     datahtml+='<td>'+data_inventario[x].FECHA_VENCIMIENTO+'</td>';
     datahtml+='<td>'+data_inventario[x].ITEM_CATEGORIA_NOMBRE+'</td>';
     datahtml+='<td>'+data_inventario[x].LABORATORIO_NOMBRE+'</td>';
@@ -444,7 +441,8 @@ function eliminar(boton){
   $(boton).parents("tr").remove();
 }
 
-function id_inventario_modal(input) {        	 
+function id_inventario_modal(input) {
+  console.log("CAmbia")        	 ;
   list = document.getElementById('inventario_list').options;
   let m_inventario_id=document.getElementById('m_inventario_id');
   let precio=document.getElementById('m_precio');

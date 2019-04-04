@@ -20,14 +20,11 @@ class salida
   function crearSalida(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT ITM.ITEM_PRECIO_COMPRA
-      FROM INVENTARIO INV
-      JOIN ITEM ITM ON ITM.ITEM_ID=INV.ITEM_ID
-      WHERE INV.INVENTARIO_ID=?";
+    $sql = "SELECT  INVENTARIO_PRECIO_COMPRA FROM INVENTARIO WHERE INVENTARIO_ID=?";
     $q = $pdo->prepare($sql);
     $q->execute(array($this->inventario_id));
     $data = $q->fetch(PDO::FETCH_ASSOC);  
-    $preciocompra=$data['ITEM_PRECIO_COMPRA'];
+    $preciocompra=$data['INVENTARIO_PRECIO_COMPRA'];
     try {  
       $pdo->beginTransaction();
       $sql = "INSERT INTO SALIDA VALUES(default,?,?,?,?,STR_TO_DATE(?,'%d/%m/%Y %H:%i'),?,?,?,now())";

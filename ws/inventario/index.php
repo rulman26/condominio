@@ -12,20 +12,24 @@ switch ($_GET['solicitud']){
         $inventario->item_id=$request['item_id'];
         $inventario->codigobarra=$request['codigobarra'];
         $inventario->ubicacion=$request['ubicacion'];
+        $inventario->precio_compra=$request['precio_compra']; 
+        $inventario->precio_venta=$request['precio_venta']; 
         $inventario->lote=$request['lote'];        
         $inventario->cantidad=$request['cantidad'];        
-        $inventario->fechaingreso=$request['fechaingreso'];  
-        $inventario->fechafabricacion=$request['fechafabricacion'];  
+        $inventario->factura=$request['factura'];        
+        $inventario->fechaingreso=$request['fechaingreso'];          
         $inventario->fechavencimiento=$request['fechavencimiento'];          
         $inventario->estado=$request['estado'];  
       }else{
         $inventario->item_id=$_POST['item_id'];  
         $inventario->codigobarra=$_POST['codigobarra'];  
         $inventario->ubicacion=$_POST['ubicacion'];  
+        $inventario->precio_compra=$_POST['precio_compra'];  
+        $inventario->precio_venta=$_POST['precio_venta'];  
         $inventario->lote=$_POST['lote'];
         $inventario->cantidad=$_POST['cantidad'];
-        $inventario->fechaingreso=$_POST['fechaingreso']; 
-        $inventario->fechafabricacion=$_POST['fechafabricacion']; 
+        $inventario->factura=$_POST['factura'];
+        $inventario->fechaingreso=$_POST['fechaingreso'];         
         $inventario->fechavencimiento=$_POST['fechavencimiento'];  
         $inventario->estado=$_POST['estado'];  
       }     
@@ -45,10 +49,13 @@ switch ($_GET['solicitud']){
         $inventario->item_id=$request['item_id'];
         $inventario->codigobarra=$request['codigobarra'];
         $inventario->ubicacion=$request['ubicacion'];
+        $inventario->precio_compra=$request['precio_compra'];
+        $inventario->precio_venta=$request['precio_venta'];
+        $inventario->ubicacion=$request['ubicacion'];
         $inventario->lote=$request['lote'];
         $inventario->cantidad=$request['cantidad'];
-        $inventario->fechaingreso=$request['fechaingreso'];  
-        $inventario->fechafabricacion=$request['fechafabricacion'];  
+        $inventario->factura=$request['factura'];
+        $inventario->fechaingreso=$request['fechaingreso'];          
         $inventario->fechavencimiento=$request['fechavencimiento'];  
         $inventario->estado=$request['estado'];  
       }else{
@@ -56,10 +63,12 @@ switch ($_GET['solicitud']){
         $inventario->item_id=$_POST['item_id'];
         $inventario->codigobarra=$_POST['codigobarra'];
         $inventario->ubicacion=$_POST['ubicacion'];
+        $inventario->precio_compra=$_POST['precio_compra'];
+        $inventario->precio_venta=$_POST['precio_venta'];
         $inventario->lote=$_POST['lote'];
-        $inventario->cantidad=$_POST['cantidad'];  
-        $inventario->fechaingreso=$_POST['fechaingreso']; 
-        $inventario->fechafabricacion=$_POST['fechafabricacion']; 
+        $inventario->cantidad=$_POST['cantidad'];
+        $inventario->factura=$_POST['factura'];
+        $inventario->fechaingreso=$_POST['fechaingreso'];         
         $inventario->fechavencimiento=$_POST['fechavencimiento'];  
         $inventario->estado=$_POST['estado'];  
       }       

@@ -14,7 +14,7 @@ switch ($_GET['solicitud']){
         $salida->cantidad=$request['cantidad'];
         $salida->fecha=$request['fecha'];
         $salida->tipo=$request['tipo'];
-        $salida->usuario_id=$request['usuario_id'];
+        $salida->usuario_id=1;
         $salida->estado=$request['estado'];
       }else{
         $salida->inventario_id=$_POST['inventario_id'];        
@@ -22,7 +22,7 @@ switch ($_GET['solicitud']){
         $salida->cantidad=$_POST['cantidad'];
         $salida->fecha=$_POST['fecha'];
         $salida->tipo=$_POST['tipo'];
-        $salida->usuario_id=$_POST['usuario_id'];
+        $salida->usuario_id=1;
         $salida->estado=$_POST['estado'];
       }     
       $data=$salida->crearSalida();     
@@ -43,7 +43,7 @@ switch ($_GET['solicitud']){
         $salida->cantidad=$request['cantidad'];
         $salida->fecha=$request['fecha'];
         $salida->tipo=$request['tipo'];
-        $salida->usuario_id=$request['usuario_id'];
+        $salida->usuario_id=1;
         $salida->estado=$request['estado'];
       }else{
         $salida->id=$_POST['id'];
@@ -52,7 +52,7 @@ switch ($_GET['solicitud']){
         $salida->cantidad=$_POST['cantidad'];
         $salida->fecha=$_POST['fecha'];
         $salida->tipo=$_POST['tipo'];
-        $salida->usuario_id=$_POST['usuario_id'];
+        $salida->usuario_id=1;
         $salida->estado=$_POST['estado'];
       }     
       $data=$salida->editarSalida();     

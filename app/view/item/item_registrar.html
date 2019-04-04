@@ -9,33 +9,27 @@
       <input required type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresar Nombre">
     </div>
     <div class="form-group">
-      <label for="preciocompra">Precio Compra *</label>
-      <input required type="number" class="form-control" id="preciocompra" name="preciocompra" 
-        placeholder="Ingresar Precio Compra">
-    </div>
-    <div class="form-group">
-      <label for="precioventa">Precio Venta *</label>
-      <input required type="number" class="form-control" id="precioventa" name="precioventa" 
-        placeholder="Ingresar Precio Venta">
-    </div> 
-    <div class="form-group">
       <label for="laboratorio_id">Laboratorio *</label>    
       <select class="form-control" id="laboratorio_id" name="laboratorio_id">
+        <option>Cargando..!</option>
       </select>
     </div>   
     <div class="form-group">
       <label for="proveedor_id">Proveedor *:</label>    
       <select class="form-control" id="proveedor_id" name="proveedor_id">
+        <option>Cargando..!</option>
       </select>
     </div>
     <div class="form-group">
       <label for="item_tipo_id">Presentacion *:</label>
       <select class="form-control" id="item_tipo_id" name="item_tipo_id">
+        <option>Cargando..!</option>
       </select>
     </div>
     <div class="form-group">
       <label for="item_categoria_id">Categoria *</label>
       <select class="form-control" id="item_categoria_id" name="item_categoria_id">
+        <option>Cargando..!</option>
       </select>
     </div>
     <div class="form-group">
@@ -53,7 +47,6 @@
 function datosFormItemRegistrar(){  
   $.get(baseUrl+"item/formitemregistrar",function(data){      
     let response=JSON.parse(data);    
-    console.log(response);
     let selectLaboratorio=document.getElementById("laboratorio_id");
     let laboratoriosOptions="";
     let laboratorios=response.laboratorios;    
@@ -91,10 +84,12 @@ datosFormItemRegistrar();
 screenAltura("form-cliente",200);
 function formItemRegistrar(){
   if (formValido("form_item_registrar")){    
-    let data_json=objForm("form_item_registrar");    
+    let data_json=objForm("form_item_registrar");  
+    console.log(data_json);  
     modalCargando();   
     $.post(baseUrl+"item/crear",data_json,function(data){      
       let response=JSON.parse(data);
+      console.log(response); 
       $('#modal_cargando').modal('toggle');
       if (response.estado){
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        

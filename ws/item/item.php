@@ -10,8 +10,6 @@ class item
   var $id;  	
   var $codigo;
 	var $nombre;
-	var $preciocompra;
-  var $precioventa;
   var $unidades;
   var $laboratorio_id;
   var $proveedor_id;    
@@ -25,8 +23,6 @@ class item
     $arrayItem["id"]=$this->id;
     $arrayItem["codigo"]=$this->codigo;
     $arrayItem["nombre"]=$this->nombre;
-    $arrayItem["preciocompra"]=$this->preciocompra;
-    $arrayItem["precioventa"]=$this->precioventa;
     $arrayItem["unidades"]=$this->unidades;
     $arrayItem["proveedor_id"]=$this->proveedor_id;
     $arrayItem["item_tipo_id"]=$this->item_tipo_id;
@@ -40,9 +36,9 @@ class item
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO ITEM VALUES(default,?,?,?,?,?,?,?,?,?,?)";
+      $sql = "INSERT INTO ITEM VALUES(default,?,?,?,?,?,?,?,?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->codigo,$this->nombre,$this->preciocompra,$this->precioventa,$this->unidades,$this->laboratorio_id,$this->proveedor_id,$this->item_tipo_id,$this->item_categoria_id,$this->estado));                  
+      $q->execute(array($this->codigo,$this->nombre,$this->unidades,$this->laboratorio_id,$this->proveedor_id,$this->item_tipo_id,$this->item_categoria_id,$this->estado));                  
       $mensaje['estado']=true;
       $mensaje['mensaje']='ITEM REGISTRADO CON EXITO'; 
       $pdo->commit();  
@@ -62,9 +58,7 @@ class item
       $pdo->beginTransaction();
       $sql = "UPDATE ITEM 
         SET ITEM_CODIGO=?,
-        ITEM_NOMBRE=?,
-        ITEM_PRECIO_COMPRA=?,
-        ITEM_PRECIO_VENTA=?,
+        ITEM_NOMBRE=?,        
         ITEM_UNIDADES=?,
         LABORATORIO_ID=?,
         PROVEEDOR_ID=?,
@@ -73,7 +67,7 @@ class item
         ITEM_ESTADO=?
         WHERE ITEM_ID=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->codigo,$this->nombre,$this->preciocompra,$this->precioventa,$this->unidades,$this->laboratorio_id,$this->proveedor_id,$this->item_tipo_id,$this->item_categoria_id,$this->estado,$this->id)); 
+      $q->execute(array($this->codigo,$this->nombre,$this->unidades,$this->laboratorio_id,$this->proveedor_id,$this->item_tipo_id,$this->item_categoria_id,$this->estado,$this->id)); 
       //Retornamoe el dato actualizado                  
       $mensaje['estado']=true;
       $mensaje['mensaje']='ITEM EDITADO CON EXITO'; 
@@ -143,7 +137,7 @@ class item
   function formItemInventario(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "SELECT ITM.ITEM_ID,ITM.ITEM_NOMBRE,ITEM_PRECIO_COMPRA,ITEM_PRECIO_VENTA,
+    $sql = "SELECT ITM.ITEM_ID,ITM.ITEM_NOMBRE,
       ITMTIPO.ITEM_TIPO_NOMBRE,ITMCATEGORIA.ITEM_CATEGORIA_NOMBRE,
       LAB.LABORATORIO_NOMBRE,PRO.PROVEEDOR_NOMBRE
       FROM ITEM  ITM
@@ -194,7 +188,7 @@ class item
       }
       $pdo = baseDatos::conectar();
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT IT.ITEM_ID,IT.ITEM_CODIGO,IT.ITEM_NOMBRE,IT.ITEM_PRECIO_COMPRA,IT.ITEM_PRECIO_VENTA,
+      $sql = "SELECT IT.ITEM_ID,IT.ITEM_CODIGO,IT.ITEM_NOMBRE,
         IT.ITEM_UNIDADES,IT.LABORATORIO_ID,LAB.LABORATORIO_NOMBRE,
         IT.PROVEEDOR_ID,PRO.PROVEEDOR_NOMBRE,
         IT.ITEM_TIPO_ID,ITP.ITEM_TIPO_NOMBRE,IT.ITEM_CATEGORIA_ID,

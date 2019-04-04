@@ -10,9 +10,7 @@ switch ($_GET['solicitud']){
       if (empty($_POST)) {
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
         $item->codigo="";
-        $item->nombre=$request['nombre'];
-        $item->preciocompra=$request['preciocompra'];
-        $item->precioventa=$request['precioventa'];        
+        $item->nombre=$request['nombre'];        
         $item->unidades=1;  
         $item->laboratorio_id=$request['laboratorio_id'];  
         $item->proveedor_id=$request['proveedor_id'];  
@@ -21,9 +19,7 @@ switch ($_GET['solicitud']){
         $item->estado=$request['estado'];  
       }else{
         $item->codigo=""; 
-        $item->nombre=$_POST['nombre'];        
-        $item->preciocompra=$_POST['preciocompra'];  
-        $item->precioventa=$_POST['precioventa']; 
+        $item->nombre=$_POST['nombre'];                
         $item->unidades=1; 
         $item->laboratorio_id=$_POST['laboratorio_id']; 
         $item->proveedor_id=$_POST['proveedor_id']; 
@@ -45,9 +41,7 @@ switch ($_GET['solicitud']){
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
         $item->id=$request['id'];        
         $item->codigo="";
-        $item->nombre=$request['nombre'];
-        $item->preciocompra=$request['preciocompra'];
-        $item->precioventa=$request['precioventa'];        
+        $item->nombre=$request['nombre'];              
         $item->unidades=1;  
         $item->laboratorio_id=$request['laboratorio_id']; 
         $item->proveedor_id=$request['proveedor_id'];  
@@ -57,17 +51,15 @@ switch ($_GET['solicitud']){
       }else{
         $item->id=$_POST['id'];
         $item->codigo="";         
-        $item->nombre=$_POST['nombre'];        
-        $item->preciocompra=$_POST['preciocompra'];  
-        $item->precioventa=$_POST['precioventa']; 
+        $item->nombre=$_POST['nombre'];                
         $item->unidades=1; 
         $item->laboratorio_id=$_POST['laboratorio_id']; 
         $item->proveedor_id=$_POST['proveedor_id']; 
         $item->item_tipo_id=$_POST['item_tipo_id'];  
         $item->item_categoria_id=$_POST['item_categoria_id'];  
         $item->estado=$_POST['estado'];
-      }     
-      $data=$item->editarItem();     
+      }
+      $data=$item->editarItem();           
     }else{      
       $data['estado']="ERROR";
       $data['mensaje']="NO EXISTEN DATOS POST";                    

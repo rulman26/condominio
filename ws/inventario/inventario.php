@@ -11,10 +11,12 @@ class inventario
 	var $item_id;
   var $codigobarra;
   var $ubicacion;
+  var $precio_compra;
+  var $precio_venta;
   var $lote;
-	var $cantidad;
-  var $fechaingreso;
-  var $fechafabricacion;
+  var $cantidad;
+  var $factura;
+  var $fechaingreso;  
   var $fechavencimiento;
   var $estado;
 
@@ -40,9 +42,9 @@ class inventario
     try {  
       $pdo->beginTransaction();
       $sql = "INSERT INTO INVENTARIO 
-        VALUES(default,?,?,?,?,?,STR_TO_DATE(?,'%d/%m/%Y %H:%i'),STR_TO_DATE(?, '%d/%m/%Y'),STR_TO_DATE(?, '%d/%m/%Y'),?)";
+        VALUES(default,?,?,?,?,?,?,?,?,STR_TO_DATE(?,'%d/%m/%Y %H:%i'),STR_TO_DATE(?, '%d/%m/%Y'),?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->lote,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado));                  
+      $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->precio_compra,$this->precio_venta,$this->lote,$this->cantidad,$this->factura,$this->fechaingreso,$this->fechavencimiento,$this->estado));                  
       $mensaje['intentario_id']=$pdo->lastInsertId(); 
       $mensaje['estado']=true;
       $mensaje['mensaje']='INGRESO REGISTRADO CON EXITO'; 
@@ -95,32 +97,36 @@ class inventario
             SET ITEM_ID=?,
               INVENTARIO_CODIGO_BARRA=?,
               INVENTARIO_UBICACION=?,
+              INVENTARIO_PRECIO_COMPRA=?,
+              INVENTARIO_PRECIO_VENTA=?,
               INVENTARIO_LOTE=?,
-              INVENTARIO_CANTIDAD=?,        
-              INVENTARIO_FECHA_INGRESO=STR_TO_DATE(?,'%d/%m/%Y %H:%i'),
-              INVENTARIO_FECHA_FABRICACION=STR_TO_DATE(?,'%d/%m/%Y'),
+              INVENTARIO_CANTIDAD=?,
+              INVENTARIO_FACTURA=?,
+              INVENTARIO_FECHA_INGRESO=STR_TO_DATE(?,'%d/%m/%Y %H:%i'),              
               INVENTARIO_FECHA_VENCIMIENTO=STR_TO_DATE(?,'%d/%m/%Y'),
               INVENTARIO_ESTADO=?
               WHERE INVENTARIO_ID=?";
             $q = $pdo->prepare($sql);
-            $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->lote,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado,$this->id));            
+            $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->precio_compra,$this->precio_venta,$this->lote,$this->cantidad,$this->factura,$this->fechaingreso,$this->fechavencimiento,$this->estado,$this->id));            
             $mensaje['estado']=true;
             $mensaje['mensaje']='INVENTARIO EDITADO CON EXITO'; 
           }
         }else{
           $sql = "UPDATE INVENTARIO 
-          SET ITEM_ID=?,
-            INVENTARIO_CODIGO_BARRA=?,
-            INVENTARIO_UBICACION=?,
-            INVENTARIO_LOTE=?,
-            INVENTARIO_CANTIDAD=?,        
-            INVENTARIO_FECHA_INGRESO=STR_TO_DATE(?,'%d/%m/%Y %H:%i'),
-            INVENTARIO_FECHA_FABRICACION=STR_TO_DATE(?,'%d/%m/%Y'),
-            INVENTARIO_FECHA_VENCIMIENTO=STR_TO_DATE(?,'%d/%m/%Y'),
-            INVENTARIO_ESTADO=?
-            WHERE INVENTARIO_ID=?";
-          $q = $pdo->prepare($sql);
-          $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->lote,$this->cantidad,$this->fechaingreso,$this->fechafabricacion,$this->fechavencimiento,$this->estado,$this->id));            
+            SET ITEM_ID=?,
+              INVENTARIO_CODIGO_BARRA=?,
+              INVENTARIO_UBICACION=?,
+              INVENTARIO_PRECIO_COMPRA=?,
+              INVENTARIO_PRECIO_VENTA=?,
+              INVENTARIO_LOTE=?,
+              INVENTARIO_CANTIDAD=?,
+              INVENTARIO_FACTURA=?,
+              INVENTARIO_FECHA_INGRESO=STR_TO_DATE(?,'%d/%m/%Y %H:%i'),              
+              INVENTARIO_FECHA_VENCIMIENTO=STR_TO_DATE(?,'%d/%m/%Y'),
+              INVENTARIO_ESTADO=?
+              WHERE INVENTARIO_ID=?";
+            $q = $pdo->prepare($sql);
+            $q->execute(array($this->item_id,$this->codigobarra,$this->ubicacion,$this->precio_compra,$this->precio_venta,$this->lote,$this->cantidad,$this->factura,$this->fechaingreso,$this->fechavencimiento,$this->estado,$this->id));
           $mensaje['estado']=true;
           $mensaje['mensaje']='INVENTARIO EDITADO CON EXITO'; 
         }
@@ -182,10 +188,10 @@ class inventario
       }
       $pdo = baseDatos::conectar();
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT INV.INVENTARIO_ID,INV.ITEM_ID,ITM.ITEM_NOMBRE,
-        INV.INVENTARIO_CANTIDAD,INV.INVENTARIO_UBICACION,
-        DATE_FORMAT(INV.INVENTARIO_FECHA_INGRESO,'%d/%m/%Y %H:%i') INVENTARIO_FECHA_INGRESO,
-        DATE_FORMAT(INV.INVENTARIO_FECHA_FABRICACION,'%d/%m/%Y') INVENTARIO_FECHA_FABRICACION,
+      $sql = "SELECT INV.INVENTARIO_ID,INV.ITEM_ID,ITM.ITEM_NOMBRE,INV.INVENTARIO_LOTE,
+        INV.INVENTARIO_CANTIDAD,INV.INVENTARIO_PRECIO_COMPRA,INV.INVENTARIO_PRECIO_VENTA,
+        INV.INVENTARIO_FACTURA,
+        DATE_FORMAT(INV.INVENTARIO_FECHA_INGRESO,'%d/%m/%Y %H:%i') INVENTARIO_FECHA_INGRESO,        
         DATE_FORMAT(INV.INVENTARIO_FECHA_VENCIMIENTO,'%d/%m/%Y') INVENTARIO_FECHA_VENCIMIENTO,
         INV.INVENTARIO_ESTADO 
         FROM INVENTARIO INV
@@ -226,7 +232,7 @@ class inventario
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
     $sql = "SELECT INV.INVENTARIO_ID,ITM.ITEM_NOMBRE,
       INV.INVENTARIO_FECHA_VENCIMIENTO,ITMT.ITEM_TIPO_NOMBRE,ITMC.ITEM_CATEGORIA_NOMBRE,
-      LAB.LABORATORIO_NOMBRE,PRO.PROVEEDOR_NOMBRE,ITM.ITEM_PRECIO_VENTA,
+      LAB.LABORATORIO_NOMBRE,PRO.PROVEEDOR_NOMBRE,INV.INVENTARIO_PRECIO_VENTA,
       DATE_FORMAT(INV.INVENTARIO_FECHA_VENCIMIENTO, '%d/%m/%Y')FECHA_VENCIMIENTO,
       (INV.INVENTARIO_CANTIDAD-IFNULL(sum(SAL.SALIDA_CANTIDAD),0)) AS INVENTARIO_SALDO
       FROM INVENTARIO INV
@@ -239,7 +245,7 @@ class inventario
       WHERE INV.INVENTARIO_ESTADO='ACTIVO'
       GROUP BY INV.INVENTARIO_ID,ITM.ITEM_NOMBRE,
       INV.INVENTARIO_FECHA_VENCIMIENTO,ITMT.ITEM_TIPO_NOMBRE,ITMC.ITEM_CATEGORIA_NOMBRE,
-      PRO.PROVEEDOR_NOMBRE,ITM.ITEM_PRECIO_VENTA,
+      PRO.PROVEEDOR_NOMBRE,INV.INVENTARIO_PRECIO_VENTA,
       DATE_FORMAT(INV.INVENTARIO_FECHA_VENCIMIENTO, '%d/%m/%Y')            
       HAVING INVENTARIO_SALDO>0
       ORDER BY 3 asc";
