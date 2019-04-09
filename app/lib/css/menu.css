@@ -263,7 +263,7 @@ text-overflow: ellipsis;
 }
 .form-cabecera{
     text-align: center;
-    color:#FF4081;
+    color:#E64A19;
 }
 .table-loader{
     width:150px;
@@ -273,3 +273,8 @@ text-overflow: ellipsis;
 }
 /*Scroll estilo*/
 /*RULMAN*/
+/*Iconos menu*/
+.menu_icon{
+    width: 30px;
+    margin-left: 5px;
+}

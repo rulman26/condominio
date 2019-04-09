@@ -16,7 +16,6 @@
   <!-- Font Awesome JS -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
 </head>
-
 <body>
   <div class="wrapper">
     <!-- Sidebar Holder -->
@@ -26,7 +25,7 @@
       </div>
       <ul class="list-unstyled components">   
         <li >
-          <a href="#menuUsuario" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Usuario</a>
+          <a href="#menuUsuario" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-users"></i> Usuario</a>
           <ul class="collapse list-unstyled" id="menuUsuario">
             <li>
               <a onclick="cargar_vista('view/usuario/usuario_registrar.html')">Nuevo
@@ -38,7 +37,7 @@
           </ul>
         </li>
         <li >
-          <a href="#menuColaborador" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Colaborador</a>
+          <a href="#menuColaborador" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-child"></i> Colaborador</a>
           <ul class="collapse list-unstyled" id="menuColaborador">
             <li>
               <a onclick="cargar_vista('view/colaborador/colaborador_registrar.html')">Nuevo Colaborador</a>
@@ -49,7 +48,7 @@
           </ul>
         </li>             
         <li >
-          <a href="#menuCliente" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Cliente</a>
+          <a href="#menuCliente" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-flask"></i> Cliente</a>
           <ul class="collapse list-unstyled" id="menuCliente">
             <li>
               <a onclick="cargar_vista('view/cliente/cliente_registrar.html')">Nuevo Cliente</a>
@@ -63,7 +62,7 @@
           </ul>
         </li>
         <li>
-          <a href="#menuLaboratorio" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Laboratorio</a>
+          <a href="#menuLaboratorio" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-flask"></i> Laboratorio</a>
           <ul class="collapse list-unstyled" id="menuLaboratorio">            
             <li>
               <a onclick="cargar_vista('view/laboratorio/laboratorio_registrar.html')">Nuevo Laboratorio</a>
@@ -201,8 +200,8 @@
       $('#sidebar').toggleClass('active');
       $(this).toggleClass('active');
     });
-    $('#sidebar ul li a').on('click', function () {
-      $('#sidebar ul li a').removeClass('a_activo')
+    $('#sidebar ul li ul li a').on('click', function () {
+      $('#sidebar ul li ul li a').removeClass('a_activo')
       $(this).addClass('a_activo');
     });
   });
