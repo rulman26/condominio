@@ -1,69 +1,74 @@
-<div class="form-cabecera">
-    <h4>Buscar Ingresos </h4>
-</div> 
-<datalist id="item_list">
-</datalist>
-<div class="row">
-  <div class="col-md-2">
-    <div class="input-group">      
-      <input type="hidden" id="item_id" name="item_id">            
-      <input required type="text" class="form-control" list="item_list" id="item_nombre" 
-        name="item_nombre" onchange="id_item(this)" placeholder="Nombre Item">
-    </div>
-  </div>
-  <div class="col-sm-2">
-      <div class="input-group">
-        <select class="form-control" id="proveedor_id" name="proveedor_id">
-        </select>
+<div class="form-cliente">
+  <div class="form-cabecera">
+    <h4>Stock de Productos</h4>
+  </div> 
+  <hr>
+  <div class="container-fluid">    
+    <datalist id="item_list">
+    </datalist>
+    <div class="row">
+      <div class="col-md-2">
+        <div class="input-group">      
+          <input type="hidden" id="item_id" name="item_id">            
+          <input required type="text" class="form-control" list="item_list" id="item_nombre" 
+            name="item_nombre" onchange="id_item(this)" placeholder="Nombre Item">
+        </div>
       </div>
-  </div>
-  <div class="col-sm-2">
-      <div class="input-group">
-        <select class="form-control" id="item_tipo_id" name="item_tipo_id">
-        </select>
-      </div>
-  </div>
-  <div class="col-sm-2">
-      <div class="input-group">
-          <select class="form-control" id="item_categoria_id" name="item_categoria_id">
+      <div class="col-sm-2">
+          <div class="input-group">
+            <select class="form-control" id="proveedor_id" name="proveedor_id">
             </select>
+          </div>
       </div>
-  </div>
-  <div class="col-sm-2">
-      <div class="input-group">
-        <button class="btn btn-primary btn-block" onclick="stockListar()">Buscar</button>
+      <div class="col-sm-2">
+          <div class="input-group">
+            <select class="form-control" id="item_tipo_id" name="item_tipo_id">
+            </select>
+          </div>
       </div>
-  </div>
-  <div class="col-sm-2" id="div_buscar" style="display: none">
-    <div class="input-group">
-      <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')" placeholder="Filtar Datos">
-      <div class="input-group-prepend">        
-        <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarIngresosCsv()">Exportar CVS</a>
-          <a class="dropdown-item" href="javascript:void(0)" onclick="exportarIngresosPdf()">Exportar PDF</a>          
+      <div class="col-sm-2">
+          <div class="input-group">
+              <select class="form-control" id="item_categoria_id" name="item_categoria_id">
+                </select>
+          </div>
+      </div>
+      <div class="col-sm-2">
+          <div class="input-group">
+            <button class="btn btn-primary btn-block" onclick="stockListar()">Buscar</button>
+          </div>
+      </div>
+      <div class="col-sm-2" id="div_buscar" style="display: none">
+        <div class="input-group">
+          <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')" placeholder="Filtar Datos">
+          <div class="input-group-prepend">        
+            <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarIngresosCsv()">Exportar CVS</a>
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarIngresosPdf()">Exportar PDF</a>          
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="table-responsive" id="tabla_http_scroll">
-  <table class="table table-hover" id="tabla_http">
-      <thead>
-      <th width="50">Id</th>          
-      <th width="200">Item</th>
-      <th width="150">Ingreso</th>
-      <th width="150">Fabricacion</th>
-      <th width="150">Vencimiento</th>                    
-      <th width="100">cantidad</th>          
-      <th width="100">Saldo</th>          
-      </tr>
-      </thead>
-      <tbody>
-      </tbody>
-  </table>
-</div>
+    <div class="table-responsive" id="tabla_http_scroll">
+      <table class="table table-hover" id="tabla_http">
+        <thead>
+        <th width="50">Id</th>          
+        <th width="200">Item</th>
+        <th width="150">Ingreso</th>
+        <th width="150">Fabricacion</th>
+        <th width="150">Vencimiento</th>                    
+        <th width="100">cantidad</th>          
+        <th width="100">Saldo</th>          
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>    
 <script type="text/javascript">
 function list_items(){
   $.get(baseUrl+"item/forminventario",function(data){
