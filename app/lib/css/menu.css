@@ -96,6 +96,9 @@ a, a:hover, a:focus {
     background: #fff;
     cursor: pointer;
 }
+.a_activo{
+    background: #7B1FA2;
+}
 
 #sidebar ul li.active > a, a[aria-expanded="true"] {
     color: #fff;

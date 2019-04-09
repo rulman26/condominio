@@ -201,6 +201,10 @@
       $('#sidebar').toggleClass('active');
       $(this).toggleClass('active');
     });
+    $('#sidebar ul li a').on('click', function () {
+      $('#sidebar ul li a').removeClass('a_activo')
+      $(this).addClass('a_activo');
+    });
   });
 
   function cargar_vista(pagina)
