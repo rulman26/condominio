@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="Documento nuevo 1">
+   sodipodi:docname="logo.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="22.593929"
-     inkscape:cy="271.73746"
+     inkscape:zoom="1.1100741"
+     inkscape:cx="372.04724"
+     inkscape:cy="219.83535"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -1977,8 +1977,11 @@ TkSuQmCC
        id="use3920-3"
        y="885.05426"
        x="151.40619"
-       style="font-size:83.03525543px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#d45500;fill-opacity:1;stroke:none;font-family:New Athletic M54;-inkscape-font-specification:New Athletic M54"
-       xml:space="preserve"><tspan
+       style="font-size:83.03525543000000653px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#4caf50;fill-opacity:1;stroke:none;font-family:New Athletic M54;-inkscape-font-specification:New Athletic M54"
+       xml:space="preserve"
+       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/logo_verde.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
          y="885.05426"
          x="151.40619"
          id="tspan3936-5"
@@ -2179,10 +2182,13 @@ IQ6Egj4hhDgQCvqEEOJA/h8IM5MnN1zHNAAAAABJRU5ErkJggg==
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csssccccssc" />
     <path
-       style="fill:none;stroke:#d85e2b;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#4caf50;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;fill-opacity:1"
        d="m 58.387722,877.38602 c 0,0 -6.421564,13.34005 1.01072,13.57216 8.046397,0.25129 14.944006,0.28052 22.739667,-0.50941 7.852136,-0.79564 -9.134733,-22.83358 -12.692772,-25.68164 -3.503557,-2.80444 7.209239,-11.50144 7.209239,-11.50144 12.339399,7.68803 20.965854,18.20871 22.839437,37.25324 l 18.484357,0.2339 c -1.1411,-17.36688 -1.25643,-39.22703 -27.225273,-54.26954 0,0 15.493903,-23.75657 21.961803,-18.83904 20.86501,15.86361 29.02714,51.51248 30.44136,70.88588 0.27427,3.75721 -12.51183,2.4079 -12.51183,2.4079"
        id="path4199-8"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="csscccccssc" />
+       sodipodi:nodetypes="csscccccssc"
+       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/logo_verde.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
   </g>
 </svg>
