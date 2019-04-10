@@ -21,7 +21,7 @@
     <!-- Sidebar Holder -->
     <nav id="sidebar">
       <div class="sidebar-header">        
-        <a href="./"><img src="../../img/logo_naranja.png" width="200px;"></a>
+        <a href="./"><img src="../../img/rulotec.png" width="200px;"></a>
       </div>
       <ul class="list-unstyled components">   
         <li >
