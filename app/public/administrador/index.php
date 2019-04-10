@@ -10,29 +10,29 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="lib/css/menu.css"> 
+  <link rel="stylesheet" href="../../lib/css/menu.css"> 
   <script src="lib/js/mask.js"> </script>
   <!-- Font Awesome JS -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
-  <link rel="icon" href="img/favicon.ico" type="image/x-icon"/>
+  <link rel="icon" href="../../img/favicon.ico" type="image/x-icon"/>
 </head>
 <body>
   <div class="wrapper">
     <!-- Sidebar Holder -->
     <nav id="sidebar">
       <div class="sidebar-header">        
-        <a href="./"><img src="img/logo_naranja.png" width="200px;"></a>
+        <a href="./"><img src="../../img/logo_naranja.png" width="200px;"></a>
       </div>
       <ul class="list-unstyled components">   
         <li >
           <a href="#menuUsuario" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-users"></i> Usuario</a>
           <ul class="collapse list-unstyled" id="menuUsuario">
             <li>
-              <a onclick="cargar_vista('view/usuario/usuario_registrar.html')">Nuevo
+              <a onclick="cargar_vista('../../view/usuario/usuario_registrar.html')">Nuevo
                  Usuario</a>
             </li>
             <li>
-              <a onclick="cargar_vista('view/usuario/usuario_lista.html')">Lista de Usuarios</a>
+              <a onclick="cargar_vista('../../view/usuario/usuario_lista.html')">Lista de Usuarios</a>
             </li> 
           </ul>
         </li>
@@ -40,10 +40,10 @@
           <a href="#menuColaborador" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-child"></i> Colaborador</a>
           <ul class="collapse list-unstyled" id="menuColaborador">
             <li>
-              <a onclick="cargar_vista('view/colaborador/colaborador_registrar.html')">Nuevo Colaborador</a>
+              <a onclick="cargar_vista('../../view/colaborador/colaborador_registrar.html')">Nuevo Colaborador</a>
             </li>
             <li>
-              <a onclick="cargar_vista('view/colaborador/colaborador_administrar.html')">Adminstrar Colaboradro</a>
+              <a onclick="cargar_vista('../../view/colaborador/colaborador_administrar.html')">Adminstrar Colaboradro</a>
             </li>                        
           </ul>
         </li>             
@@ -51,13 +51,13 @@
           <a href="#menuCliente" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-user-check"></i> Cliente</a>
           <ul class="collapse list-unstyled" id="menuCliente">
             <li>
-              <a onclick="cargar_vista('view/cliente/cliente_registrar.html')">Nuevo Cliente</a>
+              <a onclick="cargar_vista('../../view/cliente/cliente_registrar.html')">Nuevo Cliente</a>
             </li>
             <li>
-              <a onclick="cargar_vista('view/cliente/cliente_lista.html')">Lista de Cliente</a>
+              <a onclick="cargar_vista('../../view/cliente/cliente_lista.html')">Lista de Cliente</a>
             </li> 
             <li>
-              <a onclick="cargar_vista('view/cliente/cliente_administrar.html')">Adminstrar Clientes</a>
+              <a onclick="cargar_vista('../../view/cliente/cliente_administrar.html')">Adminstrar Clientes</a>
             </li>                        
           </ul>
         </li>
@@ -65,13 +65,13 @@
           <a href="#menuLaboratorio" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-flask"></i> Laboratorio</a>
           <ul class="collapse list-unstyled" id="menuLaboratorio">            
             <li>
-              <a onclick="cargar_vista('view/laboratorio/laboratorio_registrar.html')">Nuevo Laboratorio</a>
+              <a onclick="cargar_vista('../../view/laboratorio/laboratorio_registrar.html')">Nuevo Laboratorio</a>
             </li>
             <li>
-              <a onclick="cargar_vista('view/laboratorio/laboratorio_lista.html')">Lista de Laboratorio</a>
+              <a onclick="cargar_vista('../../view/laboratorio/laboratorio_lista.html')">Lista de Laboratorio</a>
             </li>                        
             <li>
-              <a onclick="cargar_vista('view/laboratorio/laboratorio_administrar.html')">Administrar Laboratorio</a>
+              <a onclick="cargar_vista('../../view/laboratorio/laboratorio_administrar.html')">Administrar Laboratorio</a>
             </li>                                   
           </ul>
         </li>
@@ -79,13 +79,13 @@
           <a href="#menuProveedor" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-bus"></i> Proveedor</a>
           <ul class="collapse list-unstyled" id="menuProveedor">
             <li>
-              <a onclick="cargar_vista('view/proveedor/proveedor_registrar.html')">Nuevo Proveedor</a>
+              <a onclick="cargar_vista('../../view/proveedor/proveedor_registrar.html')">Nuevo Proveedor</a>
             </li>
             <li>
-              <a onclick="cargar_vista('view/proveedor/proveedor_lista.html')">Lista de Proveedores</a>
+              <a onclick="cargar_vista('../../view/proveedor/proveedor_lista.html')">Lista de Proveedores</a>
             </li>                        
             <li>
-              <a onclick="cargar_vista('view/proveedor/proveedor_administrar.html')">Administrar Proveedores</a>
+              <a onclick="cargar_vista('../../view/proveedor/proveedor_administrar.html')">Administrar Proveedores</a>
             </li>
           </ul>
         </li>
@@ -93,19 +93,19 @@
           <a href="#homeItem" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-pills"></i> Producto</a>
           <ul class="collapse list-unstyled" id="homeItem">
             <li>
-              <a onclick="cargar_vista('view/item/item_registrar.html')">Nuevo Producto</a>
+              <a onclick="cargar_vista('../../view/item/item_registrar.html')">Nuevo Producto</a>
             </li>
             <li>
-              <a onclick="cargar_vista('view/item/item_buscar.html')">Buscar Producto</a>
+              <a onclick="cargar_vista('../../view/item/item_buscar.html')">Buscar Producto</a>
             </li> 
             <li>
-              <a onclick="cargar_vista('view/item/item_administrar.html')">Administrar Productos</a>
+              <a onclick="cargar_vista('../../view/item/item_administrar.html')">Administrar Productos</a>
             </li>
             <li>
-              <a onclick="cargar_vista('view/item/item_tipo_administrar.html')">Buscar Presentacion</a>
+              <a onclick="cargar_vista('../../view/item/item_tipo_administrar.html')">Buscar Presentacion</a>
             </li>
             <li>
-              <a onclick="cargar_vista('view/item/item_categoria_administrar.html')">Buscar Categoria</a>
+              <a onclick="cargar_vista('../../view/item/item_categoria_administrar.html')">Buscar Categoria</a>
             </li>                         
           </ul>
         </li>
@@ -113,19 +113,19 @@
           <a href="#homeInventario" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-notes-medical"></i> Inventario</a>
           <ul class="collapse list-unstyled" id="homeInventario">
             <li>
-              <a onclick="cargar_vista('view/inventario/inventario_ingreso.html')">Registrar Ingreso</a>
+              <a onclick="cargar_vista('../../view/inventario/inventario_ingreso.html')">Registrar Ingreso</a>
             </li>
             <li>
-              <a onclick="cargar_vista('view/inventario/inventario_buscar.html')">Buscar Ingresos</a>
+              <a onclick="cargar_vista('../../view/inventario/inventario_buscar.html')">Buscar Ingresos</a>
             </li>
             <li>
-              <a onclick="cargar_vista('view/inventario/inventario_salida.html')">Registrar Salida</a>
+              <a onclick="cargar_vista('../../view/inventario/inventario_salida.html')">Registrar Salida</a>
             </li> 
             <li>
-              <a onclick="cargar_vista('view/inventario/salida_buscar.html')">Buscar Salidas</a>
+              <a onclick="cargar_vista('../../view/inventario/salida_buscar.html')">Buscar Salidas</a>
             </li>
             <li>
-                <a onclick="cargar_vista('view/inventario/stock.html')">Stock</a>
+                <a onclick="cargar_vista('../../view/inventario/stock.html')">Stock</a>
             </li>                        
           </ul>
         </li>
@@ -133,10 +133,10 @@
             <a href="#homeVentas" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-chart-line"></i> Ventas</a>
             <ul class="collapse list-unstyled" id="homeVentas">
               <li>
-                  <a onclick="cargar_vista('view/venta/venta_resumen.html')">Resumen de Venta</a>
+                  <a onclick="cargar_vista('../../view/venta/venta_resumen.html')">Resumen de Venta</a>
               </li> 
               <li>
-                  <a onclick="cargar_vista('view/venta/ganacia_resumen.html')">Resumen de Ganancia</a>
+                  <a onclick="cargar_vista('../../view/venta/ganacia_resumen.html')">Resumen de Ganancia</a>
               </li>                       
             </ul>
           </li>
@@ -169,7 +169,7 @@
       </nav>
       <!-- Menu Superior -->  
       <div class="container-fluid" id="contenido">
-        <center style="margin-top: 50px"><img src="img/farmacia.png"></center>          
+        <center style="margin-top: 50px"><img src="../../img/farmacia.png"></center>          
       </div>  
       <!-- Menu Superior -->
     </div>
@@ -473,5 +473,9 @@ function modalUsuarioCambiarClaveGuardar(){
     }  
     
   } 
+}
+
+function tableLoader(idTableBody,col,img){
+  $("#"+idTableBody).html('<td colspan="'+col+'" class="table-loader-td"><img class="table-loader" src="../../img/cargando_modal.gif" /><td>');
 }
 </script>

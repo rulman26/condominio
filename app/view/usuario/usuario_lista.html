@@ -98,51 +98,47 @@ screenAltura("tabla_http_scroll",340);
 
 var usuarios=[];
 
-function tableLoader(idTableBody,col,img){
-  $("#"+idTableBody).html('<td colspan="'+col+'" class="table-loader-td"><img class="table-loader" src="'+img+'" /><td>');    
-}
-
 function usuarioListar(){
     document.getElementById("div_buscar").style.display="block";
     let data={};
     data['filtro']=document.getElementById("filtro").value;
-    data['input_filtro']=document.getElementById("filtro_input").value;    
-    tableLoader('tabla_http tbody',4,'img/cargando_modal.gif');
+    data['input_filtro']=document.getElementById("filtro_input").value;        
+    tableLoader('tabla_http tbody',4);
     $.post(baseUrl+"usuario/buscar",data,function(data){
-    $("#tabla_http tbody").html("");
-    let response=JSON.parse(data);        
-    if (response.estado) {
-      for (x in response['data']) {
-        usuarios[response['data'][x].ID]=response['data'][x];         
-        let fila='<tr id="f-'+response['data'][x].ID+'">';      
-        fila+='<td>'+response['data'][x].PERFIL+'</td>';  
-        fila+='<td>'+response['data'][x].USUARIO+'</td>';
-        fila+='<td>'+response['data'][x].COLABORADOR+'</td>';
-        fila+='<td>'+response['data'][x].ESTADO+'</td>';        
-        fila+='<td style="text-align:center;">';        
-        fila+=`<div class="dropdown">
-                <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
-                  <i class="fas fa-cog"></i>
-                </button>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="usuarioLeer(`+response['data'][x].ID+`)">Ver</a>
-                  <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="usuarioEditar(`+response['data'][x].ID+`)">Editar</a>
-                  <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="usuarioResetearClave(`+response['data'][x].ID+`)">Resetear Clave</a>  
-                </div>
-              </div>`;
-        fila+='</td>';      
-        fila+='</tr>';
-        $("#tabla_http tbody").append(fila);
-      }
-    }else{
-      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
-      $('#modal_mensaje').html(modal_conten_loader);
-      $('#modal_mensaje').modal('toggle'); 
-    }    
-  });
+      $("#tabla_http tbody").html("");
+      let response=JSON.parse(data);        
+      if (response.estado) {
+        for (x in response['data']) {
+          usuarios[response['data'][x].ID]=response['data'][x];         
+          let fila='<tr id="f-'+response['data'][x].ID+'">';      
+          fila+='<td>'+response['data'][x].PERFIL+'</td>';  
+          fila+='<td>'+response['data'][x].USUARIO+'</td>';
+          fila+='<td>'+response['data'][x].COLABORADOR+'</td>';
+          fila+='<td>'+response['data'][x].ESTADO+'</td>';        
+          fila+='<td style="text-align:center;">';        
+          fila+=`<div class="dropdown">
+                  <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
+                    <i class="fas fa-cog"></i>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="javascript:void(0)" 
+                      onclick="usuarioLeer(`+response['data'][x].ID+`)">Ver</a>
+                    <a class="dropdown-item" href="javascript:void(0)" 
+                      onclick="usuarioEditar(`+response['data'][x].ID+`)">Editar</a>
+                    <a class="dropdown-item" href="javascript:void(0)" 
+                      onclick="usuarioResetearClave(`+response['data'][x].ID+`)">Resetear Clave</a>  
+                  </div>
+                </div>`;
+          fila+='</td>';      
+          fila+='</tr>';
+          $("#tabla_http tbody").append(fila);
+        }
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle'); 
+      }    
+    });
 }
 
 function usuarioLeer(id){  

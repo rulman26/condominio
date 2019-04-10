@@ -17,19 +17,22 @@
       <div class="col-sm-2">
           <div class="input-group">
             <select class="form-control" id="proveedor_id" name="proveedor_id">
+              <option>Cargando..!</option>
             </select>
           </div>
       </div>
       <div class="col-sm-2">
           <div class="input-group">
             <select class="form-control" id="item_tipo_id" name="item_tipo_id">
+              <option>Cargando..!</option>
             </select>
           </div>
       </div>
       <div class="col-sm-2">
           <div class="input-group">
               <select class="form-control" id="item_categoria_id" name="item_categoria_id">
-                </select>
+                <option>Cargando..!</option>
+              </select>
           </div>
       </div>
       <div class="col-sm-2">
@@ -56,8 +59,7 @@
         <thead>
         <th width="50">Id</th>          
         <th width="200">Item</th>
-        <th width="150">Ingreso</th>
-        <th width="150">Fabricacion</th>
+        <th width="150">Ingreso</th>        
         <th width="150">Vencimiento</th>                    
         <th width="100">cantidad</th>          
         <th width="100">Saldo</th>          
@@ -133,9 +135,8 @@ function stockListar(){
   data['item_id']=document.getElementById("item_id").value;
   data['proveedor_id']=document.getElementById("proveedor_id").value;
   data['item_tipo_id']=document.getElementById("item_tipo_id").value;
-  data['item_categoria_id']=document.getElementById("item_categoria_id").value;
-  console.log(data);
-  $("#tabla_http tbody").html('<td colspan="5" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');    
+  data['item_categoria_id']=document.getElementById("item_categoria_id").value; 
+  tableLoader('tabla_http tbody',6);
   $.post(baseUrl+"inventario/stock",data,function(data){
     $("#tabla_http tbody").html("");      
     let response=JSON.parse(data);        
@@ -146,8 +147,7 @@ function stockListar(){
         let fila='<tr>';      
         fila+='<td>'+response['stock'][x].INVENTARIO_ID+'</td>';  
         fila+='<td>'+response['stock'][x].ITEM_NOMBRE+'</td>';
-        fila+='<td>'+response['stock'][x].FECHA_INGRESO+'</td>';
-        fila+='<td>'+response['stock'][x].FECHA_FABRICACION+'</td>';
+        fila+='<td>'+response['stock'][x].FECHA_INGRESO+'</td>';        
         fila+='<td>'+response['stock'][x].FECHA_VENCIMIENTO+'</td>';          
         fila+='<td>'+response['stock'][x].INVENTARIO_CANTIDAD+'</td>';        
         fila+='<td>'+response['stock'][x].INVENTARIO_SALDO+'</td>';                     

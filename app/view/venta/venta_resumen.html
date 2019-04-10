@@ -67,8 +67,8 @@ function clienteListar(){
   let fecha_chrome=document.getElementById("fecha").value;  
   let Fecha=fecha_chrome.split("-");
   fecha=Fecha[2]+'/'+Fecha[1]+'/'+Fecha[0];  
-  data['fecha']=fecha;
-  $("#tabla_http tbody").html('<tr><td colspan="6" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td></tr>');
+  data['fecha']=fecha;  
+  tableLoader('tabla_http tbody',7);
   $.post(baseUrl+"salida/resumen",data,function(data){
     $("#tabla_http tbody").html("");
     let response=JSON.parse(data);        

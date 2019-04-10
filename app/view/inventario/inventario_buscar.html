@@ -100,8 +100,8 @@ function inventarioListar(){
   data['fecha']=document.getElementById("filtro").value;
   data['inicio']=document.getElementById("inicio").value;
   data['final']=document.getElementById("final").value;
-  data['item_id']=document.getElementById("item_id").value;
-  $("#tabla_http tbody").html('<td colspan="5" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');    
+  data['item_id']=document.getElementById("item_id").value;  
+  tableLoader('tabla_http tbody',8);
   $.post(baseUrl+"inventario/filtrar/todos",data,function(data){
     $("#tabla_http tbody").html("");      
     let response=JSON.parse(data);        

@@ -70,8 +70,8 @@ function clienteBuscar(){
   document.getElementById("div_buscar").style.display="block";
   let data={};
   data['filtro']=document.getElementById("filtro").value;
-  data['input_filtro']=document.getElementById("filtro_input").value;  
-  $("#tabla_http tbody").html('<td colspan="5" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');
+  data['input_filtro']=document.getElementById("filtro_input").value;    
+  tableLoader('tabla_http tbody',5);
   $.post(baseUrl+"cliente/filtrar/todos",data,function(data){
     $("#tabla_http tbody").html("");
     let response=JSON.parse(data);        
@@ -287,44 +287,43 @@ exportarClientesCsv = function() {
   x.click();
 }
 
-exportarClientesPdf=function(){
-   // CREATE A WINDOW OBJECT.
-        let win = window.open('', '', 'height=700,width=900');
-        let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
-          <thead>
-            <tr>          
-              <th>Nombre</th>
-              <th>Direccion</th>
-              <th>Dni</th>
-              <th>Ruc</th>
-              <th>Telefono</th>
-              <th>Estado</th>              
-            </tr>
-          </thead>
-          <tbody>`;
-        for(x in clientes){
-          tabla+="<tr>";
-          tabla+="<td>"+clientes[x].CLIENTE_NOMBRE+"</td>";
-          tabla+="<td>"+clientes[x].CLIENTE_DIRECCION+"</td>";
-          tabla+="<td>"+clientes[x].CLIENTE_DNI+"</td>";
-          tabla+="<td>"+clientes[x].CLIENTE_RUC+"</td>";
-          tabla+="<td>"+clientes[x].CLIENTE_TELEFONO+"</td>";
-          tabla+="<td>"+clientes[x].CLIENTE_ESTADO+"</td>";
-          tabla+="</tr>";
-        }
-        tabla+="</tbody></table>";
-        let style = "<style>";                        
-        style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
-        style = style + "</style>";
-        win.document.write('<html><head>');
-        win.document.write('<title>Clientes</title>');   // <title> FOR PDF HEADER.
-        win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
-        win.document.write('</head>');
-        win.document.write('<body>');
-        win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
-        win.document.write('</body></html>');
-        win.document.close();   // CLOSE THE CURRENT WINDOW.
-        win.print();    // PRINT THE CONTENTS.
+exportarClientesPdf=function(){   
+  let win = window.open('', '', 'height=700,width=900');
+  let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+    <thead>
+      <tr>          
+        <th>Nombre</th>
+        <th>Direccion</th>
+        <th>Dni</th>
+        <th>Ruc</th>
+        <th>Telefono</th>
+        <th>Estado</th>              
+      </tr>
+    </thead>
+    <tbody>`;
+  for(x in clientes){
+    tabla+="<tr>";
+    tabla+="<td>"+clientes[x].CLIENTE_NOMBRE+"</td>";
+    tabla+="<td>"+clientes[x].CLIENTE_DIRECCION+"</td>";
+    tabla+="<td>"+clientes[x].CLIENTE_DNI+"</td>";
+    tabla+="<td>"+clientes[x].CLIENTE_RUC+"</td>";
+    tabla+="<td>"+clientes[x].CLIENTE_TELEFONO+"</td>";
+    tabla+="<td>"+clientes[x].CLIENTE_ESTADO+"</td>";
+    tabla+="</tr>";
+  }
+  tabla+="</tbody></table>";
+  let style = "<style>";                        
+  style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+  style = style + "</style>";
+  win.document.write('<html><head>');
+  win.document.write('<title>Clientes</title>');   // <title> FOR PDF HEADER.
+  win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+  win.document.write('</head>');
+  win.document.write('<body>');
+  win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+  win.document.write('</body></html>');
+  win.document.close();   // CLOSE THE CURRENT WINDOW.
+  win.print();    // PRINT THE CONTENTS.
 }
 
 </script>  

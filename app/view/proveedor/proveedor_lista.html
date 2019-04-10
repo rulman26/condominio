@@ -62,7 +62,7 @@ function proveedorListar(){
   let data={};
   data['filtro']=document.getElementById("filtro").value;
   data['input_filtro']=document.getElementById("filtro_input").value;
-  $("#tabla_http tbody").html('<td colspan="6" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');
+  tableLoader('tabla_http tbody',5);
   $.post(baseUrl+"proveedor/filtrar/activos",data,function(data){
     $("#tabla_http tbody").html("");
     let response=JSON.parse(data);        

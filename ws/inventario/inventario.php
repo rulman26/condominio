@@ -29,8 +29,7 @@ class inventario
     $array['lote']=$this->lote;
     $array['ubicacion']=$this->ubicacion;
     $array['cantidad']=$this->cantidad;    
-    $array['fechaingreso']=$this->fechaingreso;
-    $array['fechafabricacion']=$this->fechafabricacion;
+    $array['fechaingreso']=$this->fechaingreso;    
     $array['fechavencimiento']=$this->fechavencimiento;
     $array['estado']=$this->estado;
     return $array;
@@ -64,7 +63,7 @@ class inventario
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
     $sql = "SELECT INV.INVENTARIO_ID,INV.INVENTARIO_CODIGO_BARRA,INV.INVENTARIO_UBICACION,INV.ITEM_ID,ITM.ITEM_CODIGO,ITM.ITEM_NOMBRE,INV.INVENTARIO_CANTIDAD,INV.INVENTARIO_SALDO,
-      INV.INVENTARIO_FECHA_INGRESO,INV.INVENTARIO_FECHA_FABRICACION,
+      INV.INVENTARIO_FECHA_INGRESO,
       INV.INVENTARIO_FECHA_VENCIMIENTO,INV.INVENTARIO_ESTADO 
       FROM INVENTARIO INV
       JOIN ITEM ITM ON ITM.ITEM_ID=INV.ITEM_ID 
@@ -278,8 +277,7 @@ class inventario
     $sql = "SELECT INV.INVENTARIO_ID,
       ITM.ITEM_NOMBRE,
       INV.INVENTARIO_FECHA_VENCIMIENTO,
-      DATE_FORMAT(INV.INVENTARIO_FECHA_INGRESO,'%d/%m/%Y %H:%i') FECHA_INGRESO,
-      DATE_FORMAT(INV.INVENTARIO_FECHA_FABRICACION,'%d/%m/%Y')FECHA_FABRICACION,
+      DATE_FORMAT(INV.INVENTARIO_FECHA_INGRESO,'%d/%m/%Y %H:%i') FECHA_INGRESO,      
       DATE_FORMAT(INV.INVENTARIO_FECHA_VENCIMIENTO,'%d/%m/%Y')FECHA_VENCIMIENTO,
       INVENTARIO_CANTIDAD,
       (INV.INVENTARIO_CANTIDAD-IFNULL(sum(SAL.SALIDA_CANTIDAD),0)) AS INVENTARIO_SALDO
@@ -291,8 +289,7 @@ class inventario
       INV.INVENTARIO_ID,
       ITM.ITEM_NOMBRE,
       INV.INVENTARIO_FECHA_VENCIMIENTO,
-      DATE_FORMAT(INV.INVENTARIO_FECHA_INGRESO,'%d/%m/%Y %H:%i'),
-      DATE_FORMAT(INV.INVENTARIO_FECHA_FABRICACION,'%d/%m/%Y'),
+      DATE_FORMAT(INV.INVENTARIO_FECHA_INGRESO,'%d/%m/%Y %H:%i'),      
       DATE_FORMAT(INV.INVENTARIO_FECHA_VENCIMIENTO,'%d/%m/%Y'),
       INVENTARIO_CANTIDAD
       HAVING INVENTARIO_SALDO>0

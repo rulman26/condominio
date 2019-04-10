@@ -117,8 +117,8 @@ function itemListar(){
   document.getElementById("div_buscar").style.display="block";
   let data={};
   data['filtro']=document.getElementById("filtro").value;
-  data['input_filtro']=document.getElementById("filtro_input").value;
-  $("#tabla_http tbody").html('<td colspan="6" class="table-loader-td"><img class="table-loader" src="img/cargando_modal.gif"><td>');
+  data['input_filtro']=document.getElementById("filtro_input").value;  
+  tableLoader('tabla_http tbody',4);
   $.post(baseUrl+"item/filtrar/activos",data,function(data){
     $("#tabla_http tbody").html("");
     let response=JSON.parse(data);        
