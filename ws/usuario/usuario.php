@@ -16,36 +16,43 @@ class usuario
   var $estado_id;  
 
   function loginUsuario(){
-    $pdo = baseDatos::conectar();
+    $pdo = BaseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT *FROM USUARIO WHERE USUARIO=? AND PASSWORD=?";
-    $q = $pdo->prepare($sql);    
-    $q->execute(array($this->usuario,$this->password));
-    $data = $q->fetch(PDO::FETCH_ASSOC);       
-    
-    if(empty($data)){      
-      $mensaje['estado']=false;
-      $mensaje['mensaje']='USUARIO O CLAVE INCORRECTA'; 
-    }else{
-      $mensaje['estado']=true;
-      $mensaje['data']=$data; 
-      try {
-      $fecha = date_create();
-      $texto="Random".date_timestamp_get($fecha); 
-      $this->token=md5($texto);  
-      $pdo->beginTransaction();
-      $sql = "UPDATE USUARIO SET TOKEN=? WHERE USUARIO=?";
+    $sql = "SELECT USUARIO,PASSWORD FROM USUARIO WHERE USUARIO=?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($this->usuario));
+    $data= $q->fetch(PDO::FETCH_ASSOC); 
+    if(password_verify($this->password,$data['PASSWORD'])){
+      $sql = "SELECT a.ID,a.USUARIO,b.EMPLEADO_DNI,TIPO_ID,a.EMPLEADO_ID,
+        CONCAT(b.EMPLEADO_NOMBRES,' ',b.EMPLEADO_APATERNO,' ',b.EMPLEADO_AMATERNO) COLABORADOR,
+        LOWER(c.USUARIO_TIPO_NOMBRE) REDIRECT
+        FROM USUARIO a
+        JOIN EMPLEADO b ON b.EMPLEADO_ID=a.EMPLEADO_ID
+        JOIN USUARIO_TIPO c ON c.USUARIO_TIPO_ID=a.TIPO_ID
+        WHERE a.USUARIO=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->token,$this->usuario));                         
-      $pdo->commit();  
-      }catch(PDOException $e) { 
-        $mensaje['estado']=false;
-        $mensaje['mensaje']=$e->getMessage();
-        $pdo->rollBack();
-      }       
+      $q->execute(array($this->usuario));
+      $data= $q->fetch(PDO::FETCH_ASSOC);   
+      if(!empty($data)){
+        $token="rulman";
+        $sql = "UPDATE USUARIO SET TOKEN=? WHERE ID=?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($token,$data['ID']));
+        $response["status"]=true;
+        $response["data"]=$data;
+        $secret=$data['ID'].",".$token.",".$data['EMPLEADO_ID'];
+        $response["token"]=base64_encode($secret);      
+        $response["redirect"]=$data['REDIRECT'];  
+      }else{
+        $response["status"]=false;
+        $response["mensaje"]="Datos No encontrado";
+      }
+    }else{
+      $response["status"]=false;
+      $response["mensaje"]="Usuario o Contraseña Incorrecta";
     }
-    baseDatos::desconectar();
-    return $mensaje; 
+    BaseDatos::desconectar();
+    return $response; 
   }
 
   function formCrear(){

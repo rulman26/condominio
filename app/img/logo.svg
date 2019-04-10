@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.78494092"
-     inkscape:cx="407.80625"
-     inkscape:cy="775.38588"
+     inkscape:zoom="1.1100741"
+     inkscape:cx="167.87695"
+     inkscape:cy="768.88039"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -35,7 +35,9 @@
      inkscape:window-height="729"
      inkscape:window-x="1366"
      inkscape:window-y="0"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     showguides="true"
+     inkscape:guide-bbox="true" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -112,29 +114,6 @@
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csscccccssc"
        inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/favicon.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
-    <text
-       sodipodi:linespacing="125%"
-       id="use3920-3-5"
-       y="323.14432"
-       x="182.10608"
-       style="font-size:83.03525543px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#ff5722;fill-opacity:1;stroke:none;font-family:Pandora;-inkscape-font-specification:Pandora Bold"
-       xml:space="preserve"
-       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/logo.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"><tspan
-         y="323.14432"
-         x="182.10608"
-         id="tspan3936-5-3"
-         sodipodi:role="line">fERROtec</tspan></text>
-    <path
-       style="fill:none;stroke:#ff5722;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 89.087661,315.47606 c 0,0 -6.42156,13.3401 1.01072,13.5722 8.0464,0.2513 14.944009,0.2805 22.739669,-0.5094 7.85213,-0.7957 -9.13474,-22.8336 -12.69277,-25.6817 -3.503559,-2.8044 7.20923,-11.50142 7.20923,-11.50142 12.3394,7.68802 20.96586,18.20872 22.83945,37.25322 l 18.48435,0.2339 c -1.1411,-17.3669 -1.25643,-39.22701 -27.22527,-54.26952 0,0 15.4939,-23.75657 21.9618,-18.83904 20.86501,15.86361 29.02714,51.51246 30.44136,70.88586 0.27427,3.7572 -12.51183,2.4079 -12.51183,2.4079"
-       id="path4199-8-5"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="csscccccssc"
-       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/logo.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <g
@@ -373,10 +352,13 @@
          sodipodi:nodetypes="ccccc"
          inkscape:connector-curvature="0"
          id="path4147-6"
-         d="m 964.47909,-245.73579 c -32.6388,-2.76435 -50.5177,15.12144 -58.77834,44.57953 30.48694,2.37902 73.27914,11.55033 66.60414,64.72758 21.4147,-34.65688 7.9722,-66.20607 -41.5381,-81.86135 7.4577,-13.46829 20.4483,-20.61329 33.7123,-27.44576 z"
-         style="fill:#00adff;fill-opacity:1;fill-rule:evenodd;stroke:none" />
+         d="m 1000.6905,-445.20721 c -24.11601,-2.04251 -37.32629,11.17287 -43.42988,32.93873 22.52606,1.7578 54.14418,8.53426 49.21218,47.82564 15.8228,-25.60713 5.8905,-48.91806 -30.69149,-60.48536 5.51031,-9.9514 15.10875,-15.23066 24.90919,-20.27901 z"
+         style="fill:#00adff;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulo_tec.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
       <ellipse
-         transform="matrix(0.44420887,0,0,0.44420887,658.31035,-284.41077)"
+         transform="matrix(0.32821515,0,0,0.32821515,774.46986,-473.78322)"
          ry="16.288708"
          rx="21.086933"
          cy="137.7953"
@@ -387,27 +369,39 @@
          sodipodi:cy="137.7953"
          sodipodi:rx="21.086933"
          sodipodi:ry="16.288708"
-         d="m 697.00533,137.7953 c 0,8.99601 -9.44094,16.28871 -21.08693,16.28871 -11.646,0 -21.08694,-7.2927 -21.08694,-16.28871 0,-8.996 9.44094,-16.2887 21.08694,-16.2887 11.64599,0 21.08693,7.2927 21.08693,16.2887 z" />
+         d="m 697.00533,137.7953 c 0,8.99601 -9.44094,16.28871 -21.08693,16.28871 -11.646,0 -21.08694,-7.2927 -21.08694,-16.28871 0,-8.996 9.44094,-16.2887 21.08694,-16.2887 11.64599,0 21.08693,7.2927 21.08693,16.2887 z"
+         inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulo_tec.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
       <path
          sodipodi:nodetypes="ccccc"
          inkscape:connector-curvature="0"
          id="path4147-1-1"
-         d="m 963.26199,-130.25285 c 2.7643,-32.63879 -15.1214,-50.51768 -44.5795,-58.77834 -2.379,30.48694 -11.5504,73.27914 -64.7276,66.6041 34.65688,21.41473 66.2061,7.97222 81.8614,-41.53803 13.4682,7.45769 20.6132,20.44825 27.4457,33.71227 z"
-         style="fill:#f68a00;fill-opacity:1;fill-rule:evenodd;stroke:none" />
+         d="m 999.79122,-359.87967 c 2.04248,-24.11601 -11.17283,-37.32629 -32.93871,-43.42989 -1.75778,22.52606 -8.53431,54.14418 -47.82565,49.21216 25.60713,15.82282 48.91808,5.89048 60.4854,-30.69145 9.95133,5.51031 15.23059,15.10872 20.27896,24.90918 z"
+         style="fill:#f68a00;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulo_tec.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
       <path
          sodipodi:nodetypes="ccccc"
          inkscape:connector-curvature="0"
          id="path4147-1-3-8"
-         d="m 845.027,-129.84371 c 32.6388,2.76438 50.51767,-15.12143 58.77836,-44.57953 -30.48694,-2.37902 -73.27914,-11.55032 -66.60411,-64.72758 -21.41475,34.65688 -7.97222,66.20608 41.53802,81.86136 -7.45768,13.46828 -20.44824,20.61328 -33.71227,27.44575 z"
-         style="fill:#eb008b;fill-opacity:1;fill-rule:evenodd;stroke:none" />
+         d="m 912.43026,-359.57737 c 24.11602,2.04254 37.32628,-11.17285 43.4299,-32.93873 -22.52606,-1.7578 -54.14417,-8.53425 -49.21216,-47.82563 -15.82283,25.60712 -5.89048,48.91806 30.69144,60.48537 -5.5103,9.95138 -15.10871,15.23065 -24.90918,20.27899 z"
+         style="fill:#eb008b;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulo_tec.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
       <path
          sodipodi:nodetypes="ccccc"
          inkscape:connector-curvature="0"
          id="path4147-1-3-4-7"
-         d="m 847.70916,-246.18032 c -2.76435,32.63879 15.12144,50.51768 44.57955,58.77835 2.37901,-30.48694 11.55032,-73.27914 64.72758,-66.60411 -34.6569,-21.41474 -66.20608,-7.97222 -81.86138,41.53804 -13.46828,-7.45769 -20.61328,-20.44825 -27.44575,-33.71228 z"
-         style="fill:#63ae00;fill-opacity:1;fill-rule:evenodd;stroke:none" />
+         d="m 914.41204,-445.53566 c -2.04251,24.116 11.17287,37.32629 32.93875,43.42989 1.75779,-22.52605 8.53425,-54.14417 47.82564,-49.21215 -25.60714,-15.82284 -48.91807,-5.89048 -60.48539,30.69144 -9.95138,-5.5103 -15.23065,-15.10871 -20.279,-24.90918 z"
+         style="fill:#63ae00;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulo_tec.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
       <ellipse
-         transform="matrix(0.44420887,0,0,0.44420887,658.31035,-284.41077)"
+         transform="matrix(0.32821515,0,0,0.32821515,774.46986,-473.78322)"
          ry="16.288708"
          rx="21.086933"
          cy="331.11328"
@@ -418,9 +412,12 @@
          sodipodi:cy="331.11328"
          sodipodi:rx="21.086933"
          sodipodi:ry="16.288708"
-         d="m 653.44246,331.11328 c 0,8.99601 -9.44094,16.28871 -21.08693,16.28871 -11.64599,0 -21.08693,-7.2927 -21.08693,-16.28871 0,-8.996 9.44094,-16.28871 21.08693,-16.28871 11.64599,0 21.08693,7.29271 21.08693,16.28871 z" />
+         d="m 653.44246,331.11328 c 0,8.99601 -9.44094,16.28871 -21.08693,16.28871 -11.64599,0 -21.08693,-7.2927 -21.08693,-16.28871 0,-8.996 9.44094,-16.28871 21.08693,-16.28871 11.64599,0 21.08693,7.29271 21.08693,16.28871 z"
+         inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulo_tec.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
       <ellipse
-         transform="matrix(0.44420887,0,0,0.44420887,658.31035,-284.41077)"
+         transform="matrix(0.32821515,0,0,0.32821515,774.46986,-473.78322)"
          ry="16.288708"
          rx="21.086933"
          cy="98.778206"
@@ -431,9 +428,12 @@
          sodipodi:cy="98.778206"
          sodipodi:rx="21.086933"
          sodipodi:ry="16.288708"
-         d="m 493.83834,98.778206 c 0,8.996004 -9.44094,16.288704 -21.08694,16.288704 -11.64599,0 -21.08693,-7.2927 -21.08693,-16.288704 0,-8.996005 9.44094,-16.288708 21.08693,-16.288708 11.646,0 21.08694,7.292703 21.08694,16.288708 z" />
+         d="m 493.83834,98.778206 c 0,8.996004 -9.44094,16.288704 -21.08694,16.288704 -11.64599,0 -21.08693,-7.2927 -21.08693,-16.288704 0,-8.996005 9.44094,-16.288708 21.08693,-16.288708 11.646,0 21.08694,7.292703 21.08694,16.288708 z"
+         inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulo_tec.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
       <ellipse
-         transform="matrix(0.44420887,0,0,0.44420887,658.31035,-284.41077)"
+         transform="matrix(0.32821515,0,0,0.32821515,774.46986,-473.78322)"
          ry="16.288708"
          rx="21.086933"
          cy="290.70715"
@@ -444,68 +444,93 @@
          sodipodi:cy="290.70715"
          sodipodi:rx="21.086933"
          sodipodi:ry="16.288708"
-         d="m 455.45253,290.70715 c 0,8.99601 -9.44094,16.28871 -21.08693,16.28871 -11.64599,0 -21.08693,-7.2927 -21.08693,-16.28871 0,-8.996 9.44094,-16.2887 21.08693,-16.2887 11.64599,0 21.08693,7.2927 21.08693,16.2887 z" />
+         d="m 455.45253,290.70715 c 0,8.99601 -9.44094,16.28871 -21.08693,16.28871 -11.64599,0 -21.08693,-7.2927 -21.08693,-16.28871 0,-8.996 9.44094,-16.2887 21.08693,-16.2887 11.64599,0 21.08693,7.2927 21.08693,16.2887 z"
+         inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulo_tec.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
     </g>
     <text
        sodipodi:linespacing="125%"
        id="use3920-3-5-2"
-       y="586.0116"
-       x="275.60315"
+       y="798.36383"
+       x="322.36359"
        style="font-size:109.6984787px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ff5722;fill-opacity:1;stroke:none;font-family:New Athletic M54;-inkscape-font-specification:New Athletic M54"
        xml:space="preserve"
        inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/logo_verde.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="scale(0.88619069,1.1284253)"><tspan
-         y="586.0116"
-         x="275.60315"
+         y="798.36383"
+         x="322.36359"
          id="tspan3936-5-3-3"
          sodipodi:role="line">medisoft</tspan></text>
-    <text
-       sodipodi:linespacing="125%"
-       id="use3920-3-5-7"
-       y="431.43585"
-       x="189.24797"
-       style="font-size:83.6506424px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ff5722;fill-opacity:1;stroke:none;font-family:New Athletic M54;-inkscape-font-specification:New Athletic M54"
-       xml:space="preserve"
-       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulotec.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
-       transform="scale(1.029327,0.97150857)"><tspan
-         y="431.43585"
-         x="189.24797"
-         id="tspan3936-5-3-5"
-         sodipodi:role="line">rulotec</tspan></text>
     <path
        style="fill:none;stroke:#ff5722;stroke-width:11.53033733;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 96.629143,412.00572 c 0,0 -6.351184,12.45278 0.999643,12.66945 7.958214,0.23458 14.780234,0.26184 22.490454,-0.47552 7.76608,-0.74278 -9.03463,-21.31483 -12.55366,-23.97349 -3.46517,-2.61786 7.13022,-10.7364 7.13022,-10.7364 12.20417,7.17665 20.7361,16.99757 22.58915,34.77533 l 18.28177,0.21834 c -1.12859,-16.21175 -1.24266,-36.61783 -26.9269,-50.6598 0,0 15.3241,-22.1764 21.72112,-17.58596 20.63634,14.80845 28.70902,48.08612 30.10774,66.1709 0.27127,3.50729 -12.37471,2.24774 -12.37471,2.24774"
+       d="m -111.0298,665.52798 c 0,0 -6.35118,12.45278 0.99965,12.66945 7.95821,0.23458 14.78023,0.26184 22.49045,-0.47552 7.76608,-0.74278 -9.03463,-21.31483 -12.55366,-23.97349 -3.46517,-2.61786 7.13022,-10.7364 7.13022,-10.7364 12.20417,7.17665 20.7361,16.99757 22.58915,34.77533 l 18.28177,0.21834 c -1.12859,-16.21175 -1.24266,-36.61783 -26.9269,-50.6598 0,0 15.3241,-22.1764 21.72112,-17.58596 20.63634,14.80845 28.70902,48.08612 30.10774,66.1709 0.27127,3.50729 -12.37471,2.24774 -12.37471,2.24774"
        id="path4199-8-5-9"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csscccccssc"
-       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulotec.png"
+       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rultec.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <text
        sodipodi:linespacing="125%"
        id="use3920-3-5-22"
-       y="213.13036"
-       x="177.29886"
+       y="364.4968"
+       x="293.14059"
        style="font-size:83.03525543px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ff5722;fill-opacity:1;stroke:none;font-family:New Athletic M54;-inkscape-font-specification:New Athletic M54"
        xml:space="preserve"
-       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/logo.png"
+       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/logo_text.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"><tspan
-         y="213.13036"
-         x="177.29886"
+         y="364.4968"
+         x="293.14059"
          id="tspan3936-5-3-8"
-         sodipodi:role="line">FERROLAB</tspan></text>
+         sodipodi:role="line">rulotec</tspan></text>
     <path
-       style="fill:none;stroke:#ff5722;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#eb008b;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 84.280443,205.4621 c 0,0 -6.42156,13.3401 1.01072,13.5722 8.0464,0.2513 14.944007,0.2805 22.739667,-0.5094 7.85213,-0.7957 -9.134738,-22.8336 -12.692768,-25.6817 -3.503559,-2.8044 7.209228,-11.50142 7.209228,-11.50142 12.3394,7.68802 20.96586,18.20872 22.83945,37.25322 l 18.48435,0.2339 c -1.1411,-17.3669 -1.25643,-39.22701 -27.22527,-54.26952 0,0 15.4939,-23.75657 21.9618,-18.83904 20.86501,15.86361 29.02714,51.51246 30.44136,70.88586 0.27427,3.7572 -12.51183,2.4079 -12.51183,2.4079"
        id="path4199-8-5-97"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csscccccssc"
        inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/logo.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       sodipodi:linespacing="125%"
+       id="use3920-3-5-3"
+       y="563.65051"
+       x="244.76759"
+       style="font-size:110.55448151000000223px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ff5722;fill-opacity:1;stroke:none;font-family:Amandita;-inkscape-font-specification:Amandita"
+       xml:space="preserve"
+       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/rulo_tec.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         y="563.65051"
+         x="244.76759"
+         id="tspan3936-5-3-6"
+         sodipodi:role="line"
+         style="font-size:110.55448151000000223px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff5722;fill-opacity:1;font-family:Milestone Free Version;-inkscape-font-specification:Milestone Free Version">Rulo Tec</tspan></text>
+    <path
+       sodipodi:type="arc"
+       style="fill:#cccccc;fill-opacity:1;stroke:none"
+       id="path3060"
+       sodipodi:cx="102.87399"
+       sodipodi:cy="439.89572"
+       sodipodi:rx="47.455799"
+       sodipodi:ry="47.455799"
+       d="m 150.32979,439.89572 a 47.455799,47.455799 0 1 1 -94.911596,0 47.455799,47.455799 0 1 1 94.911596,0 z"
+       transform="matrix(1.9354226,0,0,1.9354226,-9.9184382,-514.99938)"
+       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/icon_redondo.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#ff5722;stroke-width:12.85659790000000058;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 135.48044,348.57909 c 0,0 -6.87995,14.29237 1.08285,14.54101 8.62077,0.26915 17.69976,0.54183 26.05188,-0.30444 8.41267,-0.85252 -13.59882,-27.51496 -13.59882,-27.51496 0,0 8.34882,-13.76245 10.97768,-13.02203 2.62888,0.74039 24.05153,15.62369 27.62722,40.37081 l 23.78505,0.15067 c -9.24145,-39.93348 -30.14789,-53.69962 -41.25015,-58.04344 0,0 12.91278,-20.11466 20.79963,-16.43032 25.42549,11.87756 44.92823,46.40038 49.51449,73.29887 0.67834,3.97869 -13.28433,1.14922 -13.28433,1.14922"
+       id="path4199-8-5"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cssczcccssc"
+       inkscape:export-filename="/var/www/html/rulo-farmacia/app/img/icon_redondo.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
   </g>

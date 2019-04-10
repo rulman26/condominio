@@ -74,6 +74,7 @@ a, a:hover, a:focus {
 #sidebar .sidebar-header {
     padding: 5px;
     background: #133247;
+    margin-left: 15px;
 }
 
 #sidebar ul.components {
