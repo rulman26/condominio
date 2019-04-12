@@ -1,25 +1,29 @@
 <?php
-header('Access-Control-Allow-Origin: *');  
 require_once 'usuario.php'; 
 $usuario=new usuario();
-$header=getallheaders();
+function tokenValido(){
+  $header=apache_request_headers();
+  $token=base64_decode($header['Authorization']);
+  $datos=explode(",",$token);
+  $valido=BaseDatos::Valido($datos[0],$datos[1]);  
+  return $valido;
+}
 switch ($_GET['solicitud']){
-
-	case 'login': 	
-		if ($_SERVER['REQUEST_METHOD']=="POST") {
-			if (empty($_POST)) {
-				$request  = json_decode(trim(file_get_contents('php://input')), true);			          
-				$usuario->usuario=$request['usuario'];
-				$usuario->password=$request['password'];				
-			}else{
-				$usuario->usuario=$_POST['usuario'];
-				$usuario->password=$_POST['password'];				
-			}			
-			$data=$usuario->loginUsuario();			
-		}else{			
-      $data['estado']="ERROR";
-			$data['mensaje']="NO EXISTEN DATOS POST";    			           
-		}        	    
+	case 'login':	
+	if ($_SERVER['REQUEST_METHOD']=="POST") {
+		if (empty($_POST)) {
+			$request  = json_decode(trim(file_get_contents('php://input')), true);			          
+			$usuario->usuario=ltrim($request['usuario']);
+			$usuario->password=base64_decode($request['password']);
+		}else{
+			$usuario->usuario=ltrim($_POST['usuario']);
+			$usuario->password=base64_decode($_POST['password']);
+		}			
+		$data=$usuario->loginUsuario();			
+	}else{			
+		$data['status']="ERROR";
+		$data['mensaje']="NO EXISTEN DATOS POST";    			           
+	}
     echo json_encode($data,JSON_PRETTY_PRINT);
 	break;
 	
@@ -28,29 +32,34 @@ switch ($_GET['solicitud']){
     echo json_encode($data,JSON_PRETTY_PRINT);  
   break;
 
-	case 'crear': 	
-		if ($_SERVER['REQUEST_METHOD']=="POST") {
-			if (empty($_POST)) {
-				$request  = json_decode(trim(file_get_contents('php://input')), true);			          
-				$usuario->usuario=$request['usuario'];
-				$usuario->password=$request['usuario'];
-				$usuario->token="";
-				$usuario->tipo_id=$request['tipo_id'];	
-				$usuario->empleado_id=$request['empleado_id'];
-				$usuario->estado_id='ACTIVO';
-			}else{
-				$usuario->usuario=$_POST['usuario'];
-				$usuario->password=$_POST['usuario'];
-				$usuario->token="";
-				$usuario->tipo_id=$_POST['tipo_id'];
-				$usuario->empleado_id=$_POST['empleado_id'];
-				$usuario->estado_id='ACTIVO';      				 	
-			}			
-			$data=$usuario->crearUsuario();			
-		}else{			
-      $data['estado']="ERROR";
-			$data['mensaje']="NO EXISTEN DATOS POST";    			           
-		}        	    
+	case 'crear': 
+		if(tokenValido()){ 		
+			if ($_SERVER['REQUEST_METHOD']=="POST") {
+				if (empty($_POST)) {
+					$request  = json_decode(trim(file_get_contents('php://input')), true);			          
+					$usuario->usuario=$request['usuario'];
+					$usuario->password=$request['usuario'];
+					$usuario->token="";
+					$usuario->tipo_id=$request['tipo_id'];	
+					$usuario->empleado_id=$request['empleado_id'];
+					$usuario->estado_id=1;
+				}else{
+					$usuario->usuario=$_POST['usuario'];
+					$usuario->password=$_POST['usuario'];
+					$usuario->token="";
+					$usuario->tipo_id=$_POST['tipo_id'];
+					$usuario->empleado_id=$_POST['empleado_id'];
+					$usuario->estado_id=1;      				 	
+				}			
+				$data=$usuario->crearUsuario();			
+			}else{			
+	      $data['status']=false;
+				$data['mensaje']="NO EXISTEN DATOS POST";    			           
+			}
+		}else{
+			$data['status']=false;
+      $data['mensaje']="token Seguridad Error";
+		}	        	    
     echo json_encode($data,JSON_PRETTY_PRINT);
 	break;
 
@@ -60,44 +69,56 @@ switch ($_GET['solicitud']){
   break;
 
 	case 'buscar':
-	if ($_SERVER['REQUEST_METHOD']=="POST") {
-		if (empty($_POST)) {
-			$request  = json_decode(trim(file_get_contents('php://input')), true);
-			$columna=$request['filtro'];
-      $valor=$request['input_filtro'];	
-		}else{
-			$columna=$_POST['filtro'];
-      $valor=$_POST['input_filtro'];
-		}			
-		$data=$usuario->BuscarUsuarios($columna,$valor);  			
-	}else{			
-		$data['estado']="ERROR";
-		$data['mensaje']="NO EXISTEN DATOS POST";    			           
-	}        	    
+	if(tokenValido()){
+		if ($_SERVER['REQUEST_METHOD']=="POST") {
+			if (empty($_POST)) {
+				$request  = json_decode(trim(file_get_contents('php://input')), true);
+				$columna=$request['filtro'];
+	      $valor=$request['input_filtro'];	
+	      $status=$request['status'];	
+			}else{
+				$columna=$_POST['filtro'];
+	      $valor=$_POST['input_filtro'];
+	      $status=$_POST['status'];
+			}			
+			$data=$usuario->BuscarUsuarios($columna,$valor,$status);  			
+		}else{			
+			$data['status']=false;
+			$data['mensaje']="NO EXISTEN DATOS POST";    			           
+		}
+	}else{
+		$data['status']=false;
+    $data['mensaje']="token Seguridad Error";
+	}	        	    
 	echo json_encode($data,JSON_PRETTY_PRINT);
 	break;
 
- 	case 'editar': 	
-		if ($_SERVER['REQUEST_METHOD']=="POST") {
-			if (empty($_POST)) {
-				$request  = json_decode(trim(file_get_contents('php://input')), true);			          
-				$usuario->id=$request['id'];				
-				$usuario->usuario=$request['usuario'];				
-				$usuario->tipo_id=$request['tipo_id'];				
-				$usuario->empleado_id=$request['empleado_id'];	
-				$usuario->estado=$request['estado'];	
-			}else{
-				$usuario->id=$_POST['id']; 
-				$usuario->usuario=$_POST['usuario'];            
-				$usuario->tipo_id=$_POST['tipo_id'];
-				$usuario->empleado_id=$_POST['empleado_id'];
-				$usuario->estado=$_POST['estado'];  		
-			}			
-			$data=$usuario->editarUsuario();			
-		}else{			
-      $data['estado']="ERROR";
-			$data['mensaje']="NO EXISTEN DATOS POST";    			           
-		}        	    
+ 	case 'editar':
+ 		if(tokenValido()){ 	
+			if ($_SERVER['REQUEST_METHOD']=="POST") {
+				if (empty($_POST)) {
+					$request  = json_decode(trim(file_get_contents('php://input')), true);			          
+					$usuario->id=$request['id'];				
+					$usuario->usuario=$request['usuario'];				
+					$usuario->tipo_id=$request['tipo_id'];				
+					$usuario->empleado_id=$request['empleado_id'];	
+					$usuario->estado_id=$request['estado_id'];	
+				}else{
+					$usuario->id=$_POST['id']; 
+					$usuario->usuario=$_POST['usuario'];            
+					$usuario->tipo_id=$_POST['tipo_id'];
+					$usuario->empleado_id=$_POST['empleado_id'];
+					$usuario->estado_id=$_POST['estado_id'];  		
+				}			
+				$data=$usuario->editarUsuario();			
+			}else{			
+	      $data['status']=false;
+				$data['mensaje']="NO EXISTEN DATOS POST";    			           
+			}        	    
+		}else{
+			$data['status']=false;
+    	$data['mensaje']="token Seguridad Error";
+		}	
     echo json_encode($data,JSON_PRETTY_PRINT);
  	break;
 
@@ -113,7 +134,7 @@ switch ($_GET['solicitud']){
 		 }			
 		 $data=$usuario->cambiarClave();			
 	 }else{
-		 $data['estado']="ERROR";
+		 $data['status']=false;
 		 $data['mensaje']="NO EXISTEN DATOS POST";    			           
 	 }        	    
 	 echo json_encode($data,JSON_PRETTY_PRINT);
@@ -131,33 +152,14 @@ switch ($_GET['solicitud']){
 			}			
 			$data=$usuario->resetearClave();			
 		}else{
-      $data['estado']="ERROR";
+      $data['status']=false;
 			$data['mensaje']="NO EXISTEN DATOS POST";    			           
 		}        	    
     echo json_encode($data,JSON_PRETTY_PRINT);
   break;
   
-  case 'filtrar': 
-	    $filtro=$_GET['id'];
-	    if ($_SERVER['REQUEST_METHOD']=="POST") {
-	      if (empty($_POST)) {
-	        $request  = json_decode(trim(file_get_contents('php://input')), true);                        
-	        $columna=$request['filtro'];
-	        $valor=$request['input_filtro'];
-	      }else{
-	        $columna=$_POST['filtro'];
-	        $valor=$_POST['input_filtro'];
-	      }     
-	      $data=$usuario->listaUsuarios($filtro,$columna,$valor);
-	    }else{      
-	      $data['estado']=false;
-	      $data['mensaje']="NO EXISTEN DATOS POST";                    
-	    }    		
-		echo json_encode($data,JSON_PRETTY_PRINT);
-  break;  
-
   default:
-    $msj['estado']='ERROR';
+    $msj['status']=false;
     $msj['mensaje']='API NO CONTIENE DATA';
     echo json_encode($msj,JSON_PRETTY_PRINT);
   break;

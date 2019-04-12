@@ -7,7 +7,7 @@
     <div class="row">
       <div class="col-md-3">
         <div class="input-group">
-          <button class="btn btn-primary btn-block" onclick="itemTipoRegistrar()">Registrar Tipo</button>
+          <button class="btn btn-primary btn-block" onclick="openItemPresentacionRegistrar()">Nueva Presentacion</button>
         </div>
       </div>
       <div class="col-md-3">
@@ -17,7 +17,7 @@
       </div>  
       <div class="col-sm-3">
         <div class="input-group">
-          <button class="btn btn-primary btn-block" onclick="itemTiposBuscar()">Buscar</button>
+          <button class="btn btn-primary btn-block" onclick="itemPresentacionesBuscar()">Buscar</button>
         </div>
       </div>
       <div class="col-sm-3" id="div_buscar" style="display: none">
@@ -29,8 +29,8 @@
           <div class="input-group-prepend">        
             <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarItemTiposCsv()">Exportar CVS</a>
-              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarItemTiposPdf()">Exportar PDF</a>          
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarItemPresentacionesCsv()">Exportar CVS</a>
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarItemPresentacionesPdf()">Exportar PDF</a>
             </div>
           </div>
         </div>
@@ -54,21 +54,32 @@
 </div>  
   
 <script type="text/javascript">
+var estados=[];  
+function datosFormItemPresentacionEditar(){  
+  $.get(baseUrl+"item/formeditarpresentacion",function(data){      
+    let response=JSON.parse(data);
+    estados=response['estados'];      
+  });     
+}  
+datosFormItemPresentacionEditar();  
 screenAltura("tabla_http_scroll",340);
-var itemTipos=[];
-function itemTiposBuscar(){    
+
+var presentaciones=[];
+function itemPresentacionesBuscar(){    
   document.getElementById("div_buscar").style.display="block";
+  let data={};
+  data['input_filtro']=document.getElementById("filtro_input").value;    
+  data['status']="1,2";
   tableLoader('tabla_http tbody',2);
-  $.get(baseUrl+"item/tipofiltrar/todos",function(data){
+  $.post(baseUrl+"item/presentacionbuscar",data,function(data){
     $("#tabla_http tbody").html("");
-    let response=JSON.parse(data);    
-    console.log(response)
-    if (response.estado) {
-      for (x in response['data']) {
-          itemTipos[response['data'][x].ITEM_TIPO_ID]=response['data'][x];         
-        let fila='<tr id="f-'+response['data'][x].ITEM_TIPO_ID+'">';      
-        fila+='<td>'+response['data'][x].ITEM_TIPO_NOMBRE+'</td>';  
-        fila+='<td>'+response['data'][x].ITEM_TIPO_ESTADO+'</td>';      
+    let response=JSON.parse(data);        
+    if (response.status) {
+      presentaciones=arrayToObj(response['data'])
+      for (x in response['data']) {          
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].NOMBRE+'</td>';  
+        fila+='<td>'+response['data'][x].ESTADO+'</td>';      
         fila+='<td style="text-align:center;">';        
         fila+=`<div class="dropdown">
                 <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
@@ -76,9 +87,9 @@ function itemTiposBuscar(){
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="itemTipoLeer(`+response['data'][x].ITEM_TIPO_ID+`)">Ver</a>
+                    onclick="itemPresentacionLeer(`+response['data'][x].ID+`)">Ver</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="itemTipoEditar(`+response['data'][x].ITEM_TIPO_ID+`)">Editar</a>                  
+                    onclick="itemPresentacionEditar(`+response['data'][x].ID+`)">Editar</a>                  
                 </div>
               </div>`;
         fila+='</td>';      
@@ -93,30 +104,29 @@ function itemTiposBuscar(){
   });
 }
 
-function modalItemTipoRegistrar(){
+function openItemPresentacionRegistrar(){
+  let modal=modalItemPresentacionRegistrar();  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function modalItemPresentacionRegistrar(){
   let modal=`<div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Registrar Item Tipo</h4>
+        <h4 class="modal-title">Nueva Presentacion</h4>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="form_item_tipo_registrar">
+        <form id="form_presentacion_registrar">
           <div class="form-group">            
             <label for="nombre">Nombre *</label>
             <input required type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresar Nombre">
           </div>
-          <div class="form-group">
-            <label for="estado">Estado:</label>    
-            <select class="form-control" id="estado" name="estado">
-              <option value="ACTIVO">ACTIVO</option>
-              <option value="INACTIVO">INACTIVO</option>
-            </select>
-          </div>
         </form>
       </div>
       <div class="modal-footer"> 
-        <button type="button" class="btn btn-success" onclick="itemTipoRegistrarGuardar()">Registrar</button>       
+        <button type="button" class="btn btn-success" onclick="itemPresentacionRegistrar()">Registrar</button>       
         <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
       </div>
     </div>
@@ -124,24 +134,16 @@ function modalItemTipoRegistrar(){
   return modal;
 }
 
-function itemTipoRegistrar(){
-  let modal=modalItemTipoRegistrar();  
-  $('#modal_formulario').html(modal);
-  $('#modal_formulario').modal('toggle'); 
-}
 
-function itemTipoRegistrarGuardar(){  
-  if (formValido("form_item_tipo_registrar")){
-    let data=$("#form_item_tipo_registrar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
+
+function itemPresentacionRegistrar(){  
+  if (formValido("form_presentacion_registrar")){
+    let data_json=objForm("form_presentacion_registrar");  
     modalCargando();
-    $.post(baseUrl+"item/tipocrear",data_json,function(data){      
+    $.post(baseUrl+"item/presentacioncrear",data_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle'); 
-      if (response.estado){
+      if (response.status){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
@@ -156,7 +158,13 @@ function itemTipoRegistrarGuardar(){
   } 
 } 
 
-function modalItemTipoLeer(data){
+function itemPresentacionLeer(id){    
+  let modal=modalItemPresentacionLeer(presentaciones[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalItemPresentacionLeer(data){
   let modal=`<div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -167,11 +175,11 @@ function modalItemTipoLeer(data){
         <form>
           <div class="form-group">
             <label for="nombre">Nombres y Apellidos:</label>
-            <input readonly type="text" class="form-control" value="`+data.ITEM_TIPO_NOMBRE+`">
+            <input readonly type="text" class="form-control" value="`+data.NOMBRE+`">
           </div>
           <div class="form-group">
             <label for="estado">Estado:</label>    
-            <input readonly type="text" class="form-control" id="estado" value="`+data.ITEM_TIPO_ESTADO+`">
+            <input readonly type="text" class="form-control" id="estado" value="`+data.ESTADO+`">
           </div>
         </form>
       </div>
@@ -183,20 +191,14 @@ function modalItemTipoLeer(data){
   return modal;
 }
 
-function itemTipoLeer(id){    
-  let modal=modalItemTipoLeer(itemTipos[id]);  
-  $('#modal_mensaje').html(modal);
-  $('#modal_mensaje').modal('toggle'); 
+function itemPresentacionEditar(id){    
+  let modal=modalItemPresentacionEditar(presentaciones[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
 }
 
-function modalItemTipoEditar(data){
-  let estado;
-  if(data.ITEM_TIPO_ESTADO=="ACTIVO"){
-    estado='<option value="ACTIVO">ACTIVO</option><option value="INACTIVO">INACTIVO</option>';
-  }else{
-    estado='<option value="INACTIVO">INACTIVO</option><option value="ACTIVO">ACTIVO</option>';
-  } 
-  
+function modalItemPresentacionEditar(data){
+  let estado=modalLoadSelect(data.ESTADO_ID,estados);
   let modal=`<div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -204,23 +206,23 @@ function modalItemTipoEditar(data){
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="form_item_tipo_editar">
+        <form id="form_item_presentacion_editar">
           <div class="form-group">
-            <input type="hidden" name="id" value="`+data.ITEM_TIPO_ID+`">
-            <label for="nombre">Nombre:</label>
+            <input type="hidden" name="id" value="`+data.ID+`">
+            <label for="nombre">Nombre *</label>
             <input required type="text" class="form-control" id="nombre" 
-              name="nombre" value="`+data.ITEM_TIPO_NOMBRE+`">
+              name="nombre" value="`+data.NOMBRE+`">
           </div>
           <div class="form-group">
-            <label for="estado">Estado:</label>    
-            <select class="form-control" id="estado" name="estado">
+            <label for="estado_id">Estado *</label>    
+            <select class="form-control" id="estado_id" name="estado_id" nameSelect="estado">
               `+estado+`
             </select>
           </div>
         </form>
       </div>
       <div class="modal-footer"> 
-        <button type="button" class="btn btn-success" onclick="itemTipoEditarGuardar()">Editar</button>       
+        <button type="button" class="btn btn-success" onclick="itemPresentacionEditarGuardar()">Editar</button>       
         <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
       </div>
     </div>
@@ -228,41 +230,25 @@ function modalItemTipoEditar(data){
   return modal;
 }
 
-function itemTipoEditar(id){    
-  let modal=modalItemTipoEditar(itemTipos[id]);  
-  $('#modal_formulario').html(modal);
-  $('#modal_formulario').modal('toggle'); 
-}
 
-function itemTiposEditarData(data){
-  /*Actualiza el Array en el Cliente*/
-  itemTipos[data['id']].ITEM_TIPO_NOMBRE=data['nombre'];
-  itemTipos[data['id']].ITEM_TIPO_ESTADO=data['estado'];
-  /*Actualizamos la Fila de la Tabla*/
-  let fila=document.getElementById("f-"+data["id"]);       
-  let columna=fila.querySelectorAll("td");
-  columna[0].innerHTML=data['nombre'];
-  columna[1].innerHTML=data['estado'];
-}
-
-function itemTipoEditarGuardar(){  
-  if (formValido("form_item_tipo_editar")){
-    let data=$("#form_item_tipo_editar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
+function itemPresentacionEditarGuardar(){  
+  if (formValido("form_item_presentacion_editar")){
+    let data_json=objForm("form_item_presentacion_editar");
     modalCargando();
-    $.post(baseUrl+"item/tipoeditar",data_json,function(data){      
+    $.post(baseUrl+"item/presentacioneditar",data_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle');      
-      if (response.estado){
+      if (response.status){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle');
-        itemTiposEditarData(data_json);        
+         dataLocalEdit(presentaciones,data_json); 
+        let aObjetos=[]
+        aObjetos.push(data_json['nombre']);        
+        aObjetos.push(data_json['estado']);
+        datatableRowEdit(data_json['id'],aObjetos);       
       }else{
         let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
@@ -272,51 +258,50 @@ function itemTipoEditarGuardar(){
   } 
 } 
 
-exportarItemTiposCsv = function() {
-  var exportCvs="NOMBRE,ESTADO\r\n";
-  for(x in itemTipos){
-    exportCvs+=itemTipos[x].ITEM_TIPO_NOMBRE+",";      
-    exportCvs+=itemTipos[x].ITEM_TIPO_ESTADO;
+exportarItemPresentacionesCsv = function() {
+  let exportCvs="NOMBRE,ESTADO\r\n";
+  for(x in presentaciones){
+    exportCvs+=presentaciones[x].NOMBRE+",";      
+    exportCvs+=presentaciones[x].ESTADO;
     exportCvs+= "\r\n";
   }
 
   csvString = "data:application/csv," + encodeURIComponent(exportCvs);
-  var x = document.createElement("A");
-  x.setAttribute("href", csvString );
-  x.setAttribute("download","itemTipos.csv");
-  document.body.appendChild(x);
-  x.click();
+  let data = document.createElement("A");
+  data.setAttribute("href", csvString );
+  data.setAttribute("download","presentaciones.csv");
+  document.body.appendChild(data);
+  data.click();
 }
 
-exportarItemTiposPdf=function(){
-    // CREATE A WINDOW OBJECT.
-        let win = window.open('', '', 'height=700,width=900');
-        let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
-          <thead>
-            <tr>          
-              <th>Nombre</th>
-              <th>Estado</th>              
-            </tr>
-          </thead>
-          <tbody>`;
-        for(x in itemTipos){
-          tabla+="<tr>";
-          tabla+="<td>"+itemTipos[x].ITEM_TIPO_NOMBRE+"</td>";
-          tabla+="<td>"+itemTipos[x].ITEM_TIPO_ESTADO+"</td>";
-          tabla+="</tr>";
-        }
-        tabla+="</tbody></table>";
-        let style = "<style>";                        
-        style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
-        style = style + "</style>";
-        win.document.write('<html><head>');
-        win.document.write('<title>Item Tipos</title>');   // <title> FOR PDF HEADER.
-        win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
-        win.document.write('</head>');
-        win.document.write('<body>');
-        win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
-        win.document.write('</body></html>');
-        win.document.close();   // CLOSE THE CURRENT WINDOW.
-        win.print();    // PRINT THE CONTENTS.
+exportarItemPresentacionesPdf=function(){    
+  let win = window.open('', '', 'height=700,width=900');
+  let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+    <thead>
+      <tr>          
+        <th>Nombre</th>
+        <th>Estado</th>              
+      </tr>
+    </thead>
+    <tbody>`;
+  for(x in presentaciones){
+    tabla+="<tr>";
+    tabla+="<td>"+presentaciones[x].NOMBRE+"</td>";
+    tabla+="<td>"+presentaciones[x].ESTADO+"</td>";
+    tabla+="</tr>";
+  }
+  tabla+="</tbody></table>";
+  let style = "<style>";                        
+  style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+  style = style + "</style>";
+  win.document.write('<html><head>');
+  win.document.write('<title>Presentaciones</title>');   // <title> FOR PDF HEADER.
+  win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+  win.document.write('</head>');
+  win.document.write('<body>');
+  win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+  win.document.write('</body></html>');
+  win.document.close();   // CLOSE THE CURRENT WINDOW.
+  win.print();    // PRINT THE CONTENTS.
 }
 </script>  

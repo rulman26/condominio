@@ -9,21 +9,21 @@ class laboratorio
 {
   var $id;  	
   var $nombre;      
-  var $estado;
+  var $estado_id;
 
   function crearLaboratorio(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO LABORATORIO VALUES(default,?,?)";
+      $sql = "INSERT INTO talaboratorio VALUES(default,?,?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->nombre,$this->estado));
-      $mensaje['estado']=true;
+      $q->execute(array($this->nombre,$this->estado_id));
+      $mensaje['status']=true;
       $mensaje['mensaje']='LABORATORIO REGISTRADO CON EXITO'; 
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -31,23 +31,36 @@ class laboratorio
     return $mensaje;  
   }
 
+  function formEditar(){
+    $pdo = BaseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data['estados'] = $q->fetchAll(PDO::FETCH_ASSOC);    
+  
+    $data['status']=true;
+    BaseDatos::desconectar();
+    return $data; 
+  }
+
   function editarLaboratorio(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "UPDATE LABORATORIO 
-        SET LABORATORIO_NOMBRE=?,  
-        LABORATORIO_ESTADO=?
-        WHERE LABORATORIO_ID=?";
+      $sql = "UPDATE talaboratorio 
+        SET NOMBRE=?,  
+        ESTADO_ID=?
+        WHERE ID=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->nombre,$this->estado,$this->id));
+      $q->execute(array($this->nombre,$this->estado_id,$this->id));
       //Retornamoe el dato actualizado                        
-      $mensaje['estado']=true;
+      $mensaje['status']=true;
       $mensaje['mensaje']='LABORATORIO EDITADO CON EXITO';       
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -58,39 +71,32 @@ class laboratorio
   function eliminarLaboratorio(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "UPDATE LABORATORIO SET LABORATORIO_ESTADO='INACTIVO' WHERE  LABORATORIO_ID=?";
+    $sql = "UPDATE talaboratorio SET ESTADO_ID=2 WHERE ID=?";
     $q = $pdo->prepare($sql);
     $q->execute(array($this->id));     
-    $mensaje['estado']=true;
+    $mensaje['status']=true;
     $mensaje['mensaje']='LABORATORIO ELIMINADO CON EXITO';     
     $pdo = baseDatos::desconectar();
     return $mensaje;  
   }
 
-  function listaLaboratorio($filtro,$columna,$valor){
-    $filtrosAceptados=['activos','inactivos','todos'];
-    if (in_array($filtro, $filtrosAceptados)) {
-      if ($filtro=="activos") {
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND LABORATORIO_ESTADO='ACTIVO'";
-      }elseif($filtro=="inactivos"){
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND LABORATORIO_ESTADO='INACTIVO'";
-      }else{
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' ";
-      }
-      $pdo = baseDatos::conectar();
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT * FROM LABORATORIO ".$cadena;
-      $q = $pdo->prepare($sql);
-      $q->execute();
-      $data = $q->fetchAll(PDO::FETCH_ASSOC);      
-      $mensaje['estado']=true;
-      $mensaje['data']=$data ;  
+  function buscarLaboratorios($columna,$valor,$estados){
+    if(empty($valor)){
+      $cadena="WHERE a.ESTADO_ID IN (".$estados.")";
     }else{
-      $mensaje['estado']=false;
-      $mensaje['mensaje']="SOLO ACEPTA (activos,inactivos y todos)";
-    }
+      $cadena="WHERE ".$columna." like '%".strtoupper($valor)."%' AND a.ESTADO_ID IN (".$estados.")";
+    }   
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT a.*,b.NOMBRE ESTADO FROM talaboratorio a 
+      JOIN gnestados b on b.ID=a.ESTADO_ID ".$cadena;
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);      
+    $mensaje['status']=true;
+    $mensaje['data']=$data ;  
     baseDatos::desconectar();
     return $mensaje; 
-  } 
+  }  
 }
 ?>

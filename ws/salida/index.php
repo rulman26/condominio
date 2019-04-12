@@ -1,35 +1,43 @@
 <?php
-header('Access-Control-Allow-Origin: *');  
 require_once 'salida.php'; 
 $salida=new salida();
-$header=getallheaders();
+$usuarioId=explode(",",base64_decode(apache_request_headers()['Authorization']))[0]; 
+function tokenValido(){
+  $header=apache_request_headers();
+  $token=base64_decode($header['Authorization']);
+  $datos=explode(",",$token);
+  $valido=BaseDatos::Valido($datos[0],$datos[1]);  
+  return $valido;
+}
 switch ($_GET['solicitud']){
-
-  case 'crear':   
-    if ($_SERVER['REQUEST_METHOD']=="POST") {
-      if (empty($_POST)) {
-        $request  = json_decode(trim(file_get_contents('php://input')), true);                
-        $salida->inventario_id=$request['inventario_id'];        
-        $salida->precio=$request['precio'];
-        $salida->cantidad=$request['cantidad'];
-        $salida->fecha=$request['fecha'];
-        $salida->tipo=$request['tipo'];
-        $salida->usuario_id=1;
-        $salida->estado=$request['estado'];
-      }else{
-        $salida->inventario_id=$_POST['inventario_id'];        
-        $salida->precio=$_POST['precio'];
-        $salida->cantidad=$_POST['cantidad'];
-        $salida->fecha=$_POST['fecha'];
-        $salida->tipo=$_POST['tipo'];
-        $salida->usuario_id=1;
-        $salida->estado=$_POST['estado'];
-      }     
-      $data=$salida->crearSalida();     
-    }else{      
-      $data['estado']="ERROR";
-      $data['mensaje']="NO EXISTEN DATOS POST";                    
-    }             
+  case 'crear':
+    if(tokenValido()){    
+      if ($_SERVER['REQUEST_METHOD']=="POST") {
+        if (empty($_POST)) {
+          $request  = json_decode(trim(file_get_contents('php://input')), true);                
+          $salida->ingreso_id=$request['ingreso_id'];        
+          $salida->precioventa=$request['precioventa'];
+          $salida->cantidad=$request['cantidad'];
+          $salida->fecha=$request['fecha'];          
+          $salida->usuario_id=$usuarioId;
+          $salida->estado_id=1;
+        }else{
+          $salida->ingreso_id=$_POST['ingreso_id'];        
+          $salida->precioventa=$_POST['precioventa'];
+          $salida->cantidad=$_POST['cantidad'];
+          $salida->fecha=$_POST['fecha'];          
+          $salida->usuario_id=$usuarioId;
+          $salida->estado_id=1;
+        }     
+        $data=$salida->crearSalida();     
+      }else{      
+        $data['status']="ERROR";
+        $data['mensaje']="NO EXISTEN DATOS POST";                    
+      }
+    }else{
+      $data['status']=false;
+      $data['mensaje']="token Seguridad Error";
+    }               
     echo json_encode($data,JSON_PRETTY_PRINT);
   break;
 
@@ -38,26 +46,24 @@ switch ($_GET['solicitud']){
       if (empty($_POST)) {
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
         $salida->id=$request['id'];
-        $salida->inventario_id=$request['inventario_id'];        
-        $salida->precio=$request['precio'];
+        $salida->ingreso_id=$request['ingreso_id'];        
+        $salida->precioventa=$request['precioventa'];
         $salida->cantidad=$request['cantidad'];
-        $salida->fecha=$request['fecha'];
-        $salida->tipo=$request['tipo'];
-        $salida->usuario_id=1;
-        $salida->estado=$request['estado'];
+        $salida->fecha=$request['fecha'];        
+        $salida->usuario_id=$usuarioId;
+        $salida->estado_id=$request['estado_id'];
       }else{
         $salida->id=$_POST['id'];
-        $salida->inventario_id=$_POST['inventario_id'];        
-        $salida->precio=$_POST['precio'];
+        $salida->ingreso_id=$_POST['ingreso_id'];        
+        $salida->precioventa=$_POST['precioventa'];
         $salida->cantidad=$_POST['cantidad'];
-        $salida->fecha=$_POST['fecha'];
-        $salida->tipo=$_POST['tipo'];
-        $salida->usuario_id=1;
-        $salida->estado=$_POST['estado'];
+        $salida->fecha=$_POST['fecha'];        
+        $salida->usuario_id=$usuarioId;
+        $salida->estado_id=$_POST['estado_id'];
       }     
       $data=$salida->editarSalida();     
     }else{      
-      $data['estado']="ERROR";
+      $data['status']=false;
       $data['mensaje']="NO EXISTEN DATOS POST";                    
     }             
     echo json_encode($data,JSON_PRETTY_PRINT);
@@ -73,14 +79,14 @@ switch ($_GET['solicitud']){
       }     
       $data=$salida->eliminarSalida();     
     }else{      
-      $data['estado']="ERROR";
+      $data['status']=false;
       $data['mensaje']="NO EXISTEN DATOS POST";                    
     }             
     echo json_encode($data,JSON_PRETTY_PRINT);
   break;
   
 
-  case 'filtrar':
+  case 'buscar':
     if ($_SERVER['REQUEST_METHOD']=="POST") {
       if (empty($_POST)) {
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
@@ -88,19 +94,20 @@ switch ($_GET['solicitud']){
         $inicio=$request['inicio'];
         $final=$request['final'];
         $item_id=$request['item_id'];
+        $status=$request['status'];
       }else{
         $fecha=$_POST['fecha'];
         $inicio=$_POST['inicio'];
         $final=$_POST['final'];
-        $item_id=$_POST['item_id'];
-      }           
-      $filtro=$_GET['id'];      
-      $data=$salida->listaSalidas($filtro,$fecha,$inicio,$final,$item_id);
+        $item_id=$_POST['item_id'];        
+        $status=$_POST['status'];            
+      }                 
+      $data=$salida->buscarSalidas($fecha,$inicio,$final,$item_id,$status);
     }else{      
-      $data['estado']="ERROR";
+      $data['status']=false;
       $data['mensaje']="NO EXISTEN DATOS POST";                    
     }
-	  echo json_encode($data,JSON_PRETTY_PRINT);
+    echo json_encode($data,JSON_PRETTY_PRINT);
   break; 
   
   case 'resumen':   
@@ -113,15 +120,14 @@ switch ($_GET['solicitud']){
       }     
       $data=$salida->ResumenVenta($fecha);     
     }else{      
-      $data['estado']="ERROR";
+      $data['status']=false;
       $data['mensaje']="NO EXISTEN DATOS POST";                    
     }             
     echo json_encode($data,JSON_PRETTY_PRINT);
   break;
-  
 
   default:
-    $msj['estado']='ERROR';
+    $msj['status']=false;
     $msj['mensaje']='API NO CONTIENE DATA';
     echo json_encode($msj,JSON_PRETTY_PRINT);
   break;

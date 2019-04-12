@@ -24,13 +24,6 @@
       <label for="email">Email </label>
       <input type="text" class="form-control" id="email" name="email" placeholder="Ingresar Email">
     </div>
-    <div class="form-group">
-      <label for="estado">Estado *</label>    
-      <select class="form-control" id="estado" name="estado">
-        <option value="ACTIVO">ACTIVO</option>
-        <option value="INACTIVO">INACTIVO</option>
-      </select>
-    </div>
   </form>
   <button  class="btn btn-primary btn-block" onclick="formProveedorRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
 </div>
@@ -43,7 +36,7 @@ function formProveedorRegistrar(){
     $.post(baseUrl+"proveedor/crear",data_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle');
-      if (response.estado){
+      if (response.status){
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle'); 

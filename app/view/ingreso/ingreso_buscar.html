@@ -10,8 +10,7 @@
       <div class="col-md-2">
         <div class="input-group">
           <select class="form-control" id="filtro">
-            <option value="INVENTARIO_FECHA_INGRESO">Fecha Ingreso</option>
-            <option value="INVENTARIO_FECHA_FABRICACION">Fecha Fabricacion</option>
+            <option value="INVENTARIO_FECHA_INGRESO">Fecha Ingreso</option>            
             <option value="INVENTARIO_FECHA_VENCIMIENTO">Fecha Vencimiento</option>
           </select>
         </div>
@@ -36,7 +35,7 @@
       </div>
       <div class="col-sm-2">
           <div class="input-group">
-            <button class="btn btn-primary btn-block" onclick="inventarioListar()">Buscar</button>
+            <button class="btn btn-primary btn-block" onclick="ingresoBuscar()">Buscar</button>
           </div>
       </div>
       <div class="col-sm-2" id="div_buscar" style="display: none">
@@ -74,16 +73,12 @@
   </div>
 </div>    
 <script type="text/javascript">
+var estados=[];
 function list_items(){
-  $.get(baseUrl+"item/forminventario",function(data){
+  $.get(baseUrl+"ingreso/formeditar",function(data){
     let response=JSON.parse(data); 
-    console.log(response)	
-    let fila;
-    let items=response.items;
-    for (x in items) {	  	  	
-      fila+='<option codigo="'+items[x].ITEM_ID+'" value="'+items[x].ITEM_NOMBRE+'"/>';	  	  
-    }  
-    $("#item_list").html(fila);
+    loadListNew("item_list",response['items'])
+    estados=response['estados'];   
   });
 }
 list_items();
@@ -94,29 +89,30 @@ document.getElementById("final").value=fechaActual()
 screenAltura("tabla_http_scroll",340);
 
 var ingresos=[];
-function inventarioListar(){
+function ingresoBuscar(){
   document.getElementById("div_buscar").style.display="block";
   let data={};
   data['fecha']=document.getElementById("filtro").value;
   data['inicio']=document.getElementById("inicio").value;
   data['final']=document.getElementById("final").value;
   data['item_id']=document.getElementById("item_id").value;  
+  data['status']="1,2";  
   tableLoader('tabla_http tbody',8);
-  $.post(baseUrl+"inventario/filtrar/todos",data,function(data){
+  $.post(baseUrl+"ingreso/buscar",data,function(data){
     $("#tabla_http tbody").html("");      
     let response=JSON.parse(data);        
-    if (response.estado) {
-      for (x in response['data']) {
-        ingresos[response['data'][x].INVENTARIO_ID]=response['data'][x];         
-        let fila='<tr id="f-'+response['data'][x].INVENTARIO_ID+'">';      
-        fila+='<td>'+response['data'][x].INVENTARIO_ID+'</td>';  
-        fila+='<td>'+response['data'][x].ITEM_NOMBRE+'</td>';
-        fila+='<td>'+response['data'][x].INVENTARIO_PRECIO_COMPRA+'</td>';
-        fila+='<td>'+response['data'][x].INVENTARIO_PRECIO_VENTA+'</td>';
-        fila+='<td>'+response['data'][x].INVENTARIO_CANTIDAD+'</td>';
-        fila+='<td>'+response['data'][x].INVENTARIO_FECHA_INGRESO+'</td>';          
-        fila+='<td>'+response['data'][x].INVENTARIO_FECHA_VENCIMIENTO+'</td>';        
-        fila+='<td>'+response['data'][x].INVENTARIO_ESTADO+'</td>';        
+    if (response.status) {      
+      ingresos=arrayToObj(response['data'])
+      for (x in response['data']) {        
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].ID+'</td>';  
+        fila+='<td>'+response['data'][x].ITEM+'</td>';
+        fila+='<td>'+response['data'][x].PRECIOCOMPRA+'</td>';
+        fila+='<td>'+response['data'][x].PRECIOVENTA+'</td>';
+        fila+='<td>'+response['data'][x].CANTIDAD+'</td>';
+        fila+='<td>'+response['data'][x].FECHAINGRESO+'</td>';          
+        fila+='<td>'+response['data'][x].FECHAVENCIMIENTO+'</td>';        
+        fila+='<td>'+response['data'][x].ESTADO+'</td>';        
         fila+='<td style="text-align:center;">';        
         fila+=`<div class="dropdown">
                 <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
@@ -124,11 +120,11 @@ function inventarioListar(){
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="inventarioLeer(`+response['data'][x].INVENTARIO_ID+`)">Ver</a>
+                    onclick="ingresoLeer(`+response['data'][x].ID+`)">Ver</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="inventarioEditar(`+response['data'][x].INVENTARIO_ID+`)">Editar</a>
+                    onclick="ingresoEditar(`+response['data'][x].ID+`)">Editar</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="inventarioSalidas(`+response['data'][x].INVENTARIO_ID+`)">Salidas</a>  
+                    onclick="inventarioSalidas(`+response['data'][x].ID+`)">Salidas</a>  
                 </div>
               </div>`;
         fila+='</td>';      
@@ -143,56 +139,56 @@ function inventarioListar(){
   });
 }
 
-function inventarioLeer(id){  
-  let modal=modalInventarioLeer(ingresos[id]);  
+function ingresoLeer(id){  
+  let modal=modalIngresoLeer(ingresos[id]);  
   $('#modal_mensaje').html(modal);
   $('#modal_mensaje').modal('toggle'); 
 }
 
-function modalInventarioLeer(data){    
+function modalIngresoLeer(data){  
   let modal=`<div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Ingreso Nro : `+data.INVENTARIO_ID+`</h4>
+        <h4 class="modal-title">Ingreso Nro : `+data.ID+`</h4>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
         <form>
           <div class="form-group">
             <label>Producto </label>
-            <input readonly type="text" class="form-control" value="`+data.ITEM_NOMBRE+`">
+            <input readonly type="text" class="form-control" value="`+data.ITEM+`">
           </div>
           <div class="form-group">
             <label>Precio Compra</label>
-            <input readonly type="text" class="form-control" value="`+data.INVENTARIO_PRECIO_COMPRA+`">
+            <input readonly type="text" class="form-control" value="`+data.PRECIOCOMPRA+`">
           </div>
           <div class="form-group">
             <label>Precio Venta</label>
-            <input readonly type="text" class="form-control" value="`+data.INVENTARIO_PRECIO_VENTA+`">
+            <input readonly type="text" class="form-control" value="`+data.PRECIOVENTA+`">
           </div>
           <div class="form-group">
             <label>Numero de Lote</label>
-            <input readonly type="text" class="form-control" value="`+data.INVENTARIO_LOTE+`">
+            <input readonly type="text" class="form-control" value="`+data.LOTE+`">
           </div>
           <div class="form-group">
             <label>Cantidad</label>
-            <input readonly type="text" class="form-control" value="`+data.INVENTARIO_CANTIDAD+`">
+            <input readonly type="text" class="form-control" value="`+data.CANTIDAD+`">
           </div>
           <div class="form-group">
             <label>Factura</label>
-            <input readonly type="text" class="form-control" value="`+data.INVENTARIO_FACTURA+`">
+            <input readonly type="text" class="form-control" value="`+data.FACTURA+`">
           </div>
           <div class="form-group">
             <label>Fecha Ingreso </label>
-            <input readonly type="text" class="form-control" value="`+data.INVENTARIO_FECHA_INGRESO+`">
+            <input readonly type="text" class="form-control" value="`+data.FECHAINGRESO+`">
           </div>            
           <div class="form-group">
             <label>Fecha Vencimiento</label>
-            <input readonly type="text" class="form-control" value="`+data.INVENTARIO_FECHA_VENCIMIENTO+`">
+            <input readonly type="text" class="form-control" value="`+data.FECHAVENCIMIENTO+`">
           </div>
           <div class="form-group">
             <label>Estado </label>    
-            <input readonly type="text" class="form-control" value="`+data.INVENTARIO_ESTADO+`">
+            <input readonly type="text" class="form-control" value="`+data.ESTADO+`">
           </div>
         </form>
       </div>
@@ -204,15 +200,129 @@ function modalInventarioLeer(data){
   return modal;
 }
 
+function ingresoEditar(id){  
+  let modal=modalIngresoEditar(ingresos[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle');
+  $(".fecha").mask("99/99/9999");  
+  $(".fechahora").mask("99/99/9999 99:99");   
+}
+
+function modalIngresoEditar(data){  
+  let estado=modalLoadSelect(data.ESTADO_ID,estados); 
+  let modal=`<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+        <h4 class="modal-title">Editar Ingreso Nro : `+data.ID+`</h4>
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="form_ingreso_editar">
+        <div class="form-group">
+          <input type="hidden" name="id" value="`+data.ID+`">            
+          <input type="hidden" name="ubicacion" value="">            
+          <input type="hidden" id="m_item_id" name="item_id" value="`+data.ITEM_ID+`">            
+          <label for="item_nombre">Item *</label>
+          <input required type="text" class="form-control" list="item_list" id="item_nombre" 
+            name="item_nombre" value="`+data.ITEM+`" onchange="id_item_modal(this)">
+        </div>
+        <div class="form-group">
+          <label for="preciocompra">Precio Compra *</label>
+          <input required type="text" class="form-control" id="preciocompra" 
+            name="preciocompra" value="`+data.PRECIOCOMPRA+`">
+        </div>
+        <div class="form-group">
+          <label for="precioventa">Precio Venta *</label>
+          <input required type="text" class="form-control" id="precioventa" 
+            name="precioventa" value="`+data.PRECIOVENTA+`">
+        </div>
+        <div class="form-group">
+          <label for="lote">Numero de Lote </label>
+          <input type="text" class="form-control" id="lote" 
+            name="lote" value="`+data.LOTE+`">
+        </div>
+        <div class="form-group">
+          <label for="cantidad">Cantidad *</label>
+          <input required type="text" class="form-control" id="cantidad" 
+            name="cantidad" value="`+data.CANTIDAD+`">
+        </div>
+        <div class="form-group">
+          <label for="factura">Factura </label>
+          <input type="text" class="form-control" id="factura" 
+          name="factura" value="`+data.FACTURA+`">
+        </div>
+        <div class="form-group">
+          <label for="fechaingreso">Fecha Ingreso</label>
+          <input type="text" class="fechahora form-control" id="fechaingreso" name="fechaingreso" value="`+data.FECHAINGRESO+`">
+        </div>
+        <div class="form-group">
+          <label for="fechavencimiento">Fecha Vencimiento</label>
+          <input type="text" class="fecha form-control" id="fechavencimiento" name="fechavencimiento" value="`+data.FECHAVENCIMIENTO+`">
+        </div>
+        <div class="form-group">
+          <label for="estado_id">Estado </label>    
+          <select class="form-control" id="estado_id" name="estado_id" nameSelect="estado">
+            `+estado+`
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer"> 
+      <button type="button" class="btn btn-success" onclick="InventarioEditarGuardar()">Editar</button>       
+      <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+    </div>
+  </div>
+  </div>`;  
+return modal;
+}
+
+
+
+function InventarioEditarGuardar(){  
+  if (formValido("form_ingreso_editar")){
+    let data=$("#form_ingreso_editar").serializeArray();
+    let data_json=objForm("form_ingreso_editar");   
+    data_json['codigobarra']=""; 
+    console.log(data_json);
+    modalCargando();
+    $.post(baseUrl+"ingreso/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle'); 
+      if (response.status){        
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        dataLocalEdit(ingresos,data_json); 
+        let aObjetos=[]
+        aObjetos.push(data_json['id']);
+        aObjetos.push(data_json['item_nombre']);       
+        aObjetos.push(data_json['preciocompra']);       
+        aObjetos.push(data_json['precioventa']);       
+        aObjetos.push(data_json['cantidad']);       
+        aObjetos.push(data_json['fechaingreso']);       
+        aObjetos.push(data_json['fechavencimiento']);       
+        aObjetos.push(data_json['estado']);  
+        datatableRowEdit(data_json['id'],aObjetos);       
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
 function inventarioSalidas(id){
   modalCargando();
   data_json={};
   data_json['id']=id;
-  $.post(baseUrl+"inventario/salidas",data_json,function(data){           
+  $.post(baseUrl+"ingreso/salidas",data_json,function(data){           
     let response=JSON.parse(data);      
     console.log(response);
     $('#modal_cargando').modal('toggle');       
-    if (response.estado){
+    if (response.status){
       let modal=modalInventarioSalidas(response.data);        
       $('#modal_formulario').html(modal);
       $('#modal_formulario').modal('toggle');                      
@@ -230,13 +340,13 @@ function modalInventarioSalidas(data){
   let salio=0;
   for(x in data){
     datos+="<tr>";
-    datos+="<td>"+data[x].SALIDA_ID+"</td>";
-    datos+="<td>"+data[x].FECHA+"</td>";
-    datos+="<td>"+data[x].SALIDA_PRECIO+"</td>";
-    datos+="<td>"+data[x].SALIDA_CANTIDAD+"</td>";
+    datos+="<td>"+data[x].ID+"</td>";
+    datos+="<td>"+data[x].FECHASALIDA+"</td>";
+    datos+="<td>"+data[x].PRECIOVENTA+"</td>";
+    datos+="<td>"+data[x].CANTIDAD+"</td>";
     datos+="<td>"+data[x].TOTAL+"</td>";
     datos+="</tr>";
-    salio+=parseFloat(data[x].SALIDA_CANTIDAD);
+    salio+=parseFloat(data[x].CANTIDAD);
     total+=parseFloat(data[x].TOTAL);
   }    
   let pie='<tr><td colspan="3">Total</td><td>'+salio+'</td><td>'+total+'</td></tr>'
@@ -273,142 +383,6 @@ function modalInventarioSalidas(data){
   return modal;
 }
 
-function inventarioEditar(id){  
-  let modal=modalInventarioEditar(ingresos[id]);  
-  $('#modal_formulario').html(modal);
-  $('#modal_formulario').modal('toggle');
-  $(".fecha").mask("99/99/9999");  
-  $(".fechahora").mask("99/99/9999 99:99");   
-}
-
-function modalInventarioEditar(data){
-  let estado;
-  if(data.INVENTARIO_ESTADO=="ACTIVO"){
-    estado='<option value="ACTIVO">ACTIVO</option><option value="INACTIVO">INACTIVO</option>';
-  }else{
-    estado='<option value="INACTIVO">INACTIVO</option><option value="ACTIVO">ACTIVO</option>';
-  } 
-  let modal=`<div class="modal-dialog modal-lg">
-  <div class="modal-content">
-    <div class="modal-header">
-        <h4 class="modal-title">Editar Ingreso Nro : `+data.INVENTARIO_ID+`</h4>
-      <button type="button" class="close" data-dismiss="modal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <form id="form_inventario_editar">
-        <div class="form-group">
-          <input type="hidden" name="id" value="`+data.INVENTARIO_ID+`">            
-          <input type="hidden" name="ubicacion" value="">            
-          <input type="hidden" id="m_item_id" name="item_id" value="`+data.ITEM_ID+`">            
-          <label for="item_nombre">Item *</label>
-          <input required type="text" class="form-control" list="item_list" id="item_nombre" 
-            name="item_nombre" value="`+data.ITEM_NOMBRE+`" onchange="id_item_modal(this)">
-        </div>
-        <div class="form-group">
-          <label for="precio_compra">Precio Compra *</label>
-          <input required type="text" class="form-control" id="precio_compra" 
-            name="precio_compra" value="`+data.INVENTARIO_PRECIO_COMPRA+`">
-        </div>
-        <div class="form-group">
-          <label for="precio_venta">Precio Venta *</label>
-          <input required type="text" class="form-control" id="precio_venta" 
-            name="precio_venta" value="`+data.INVENTARIO_PRECIO_VENTA+`">
-        </div>
-        <div class="form-group">
-          <label for="lote">Numero de Lote *</label>
-          <input required type="text" class="form-control" id="lote" 
-            name="lote" value="`+data.INVENTARIO_LOTE+`">
-        </div>
-        <div class="form-group">
-          <label for="cantidad">Cantidad</label>
-          <input required type="text" class="form-control" id="cantidad" 
-            name="cantidad" value="`+data.INVENTARIO_CANTIDAD+`">
-        </div>
-        <div class="form-group">
-          <label for="factura">Factura</label>
-          <input type="text" class="form-control" id="factura" 
-          name="factura" value="`+data.INVENTARIO_FACTURA+`">
-        </div>
-        <div class="form-group">
-          <label for="fechaingreso">Fecha Ingreso</label>
-          <input type="text" class="fechahora form-control" id="fechaingreso" name="fechaingreso" value="`+data.INVENTARIO_FECHA_INGRESO+`">
-        </div>
-        <div class="form-group">
-          <label for="fechavencimiento">Fecha Vencimiento</label>
-          <input type="text" class="fecha form-control" id="fechavencimiento" name="fechavencimiento" value="`+data.INVENTARIO_FECHA_VENCIMIENTO+`">
-        </div>
-        <div class="form-group">
-          <label for="estado">Estado </label>    
-          <select class="form-control" id="estado" name="estado">
-            `+estado+`
-          </select>
-        </div>
-      </form>
-    </div>
-    <div class="modal-footer"> 
-      <button type="button" class="btn btn-success" onclick="InventarioEditarGuardar()">Editar</button>       
-      <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
-    </div>
-  </div>
-  </div>`;  
-return modal;
-}
-
-function ingresosEditarData(data){
-  /*Actualiza el Array en el Cliente*/
-  ingresos[data['id']].ITEM_ID=data['item_id'];
-  ingresos[data['id']].ITEM_NOMBRE=data['item_nombre'];
-  ingresos[data['id']].INVENTARIO_PRECIO_COMPRA=data['precio_compra'];
-  ingresos[data['id']].INVENTARIO_PRECIO_VENTA=data['precio_venta'];
-  ingresos[data['id']].INVENTARIO_LOTE=data['lote'];
-  ingresos[data['id']].INVENTARIO_CANTIDAD=data['cantidad'];
-  ingresos[data['id']].INVENTARIO_FACTURA=data['factura'];
-  ingresos[data['id']].INVENTARIO_FECHA_INGRESO=data['fechaingreso'];  
-  ingresos[data['id']].INVENTARIO_FECHA_VENCIMIENTO=data['fechavencimiento'];   
-  ingresos[data['id']].INVENTARIO_UBICACION=data['ubicacion']; 
-  ingresos[data['id']].INVENTARIO_ESTADO=data['estado']; 
-
-  /*Actualizamos la Fila de la Tabla*/
-  let fila=document.getElementById("f-"+data["id"]);       
-  let columna=fila.querySelectorAll("td");
-  columna[0].innerHTML=data['id'];
-  columna[1].innerHTML=data['item_nombre'];
-  columna[2].innerHTML=data['precio_compra'];
-  columna[3].innerHTML=data['precio_venta'];
-  columna[4].innerHTML=data['cantidad'];
-  columna[5].innerHTML=data['fechaingreso'];  
-  columna[6].innerHTML=data['fechavencimiento'];      
-  columna[7].innerHTML=data['estado'];    
-}
-
-function InventarioEditarGuardar(){  
-  if (formValido("form_inventario_editar")){
-    let data=$("#form_inventario_editar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
-    data_json['codigobarra']="";      
-    modalCargando();
-    $.post(baseUrl+"inventario/editar",data_json,function(data){      
-      let response=JSON.parse(data);
-      $('#modal_cargando').modal('toggle'); 
-      if (response.estado){        
-        $('#modal_formulario').html("");
-        $('#modal_formulario').modal('toggle');      
-        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
-        $('#modal_mensaje').html(modal_conten_loader);
-        $('#modal_mensaje').modal('toggle');
-        ingresosEditarData(data_json);        
-      }else{
-        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
-        $('#modal_mensaje').html(modal_conten_loader);
-        $('#modal_mensaje').modal('toggle');      
-      }
-    }); 
-  } 
-}
-
 function id_item_modal(input) {        	 
   list = document.getElementById('item_list').options;
   let m_item_id=document.getElementById('m_item_id');
@@ -435,16 +409,16 @@ function id_item(input) {
 }
 
 exportarIngresosCsv = function() {
-  var exportCvs="ID,ITEM,CANTIDAD,UBICACION,FECHA INGRESO,FECHA FABRICACION,FECHA VENCIMIENTO,ESTADO\r\n";
+  var exportCvs="ID,ITEM,PRECIO COMPRA,PRECIO VENTA,CANTIDAD,FECHA INGRESO,FECHA VENCIMIENTO,ESTADO\r\n";
   for(x in ingresos){
-    exportCvs+=ingresos[x].INVENTARIO_ID+",";
-    exportCvs+=ingresos[x].ITEM_NOMBRE+",";
-    exportCvs+=ingresos[x].INVENTARIO_CANTIDAD+",";
-    exportCvs+=ingresos[x].INVENTARIO_UBICACION+",";
-    exportCvs+=ingresos[x].INVENTARIO_FECHA_INGRESO+",";
-    exportCvs+=ingresos[x].INVENTARIO_FECHA_FABRICACION;
-    exportCvs+=ingresos[x].INVENTARIO_FECHA_VENCIMIENTO;
-    exportCvs+=ingresos[x].INVENTARIO_ESTADO;
+    exportCvs+=ingresos[x].ID+",";
+    exportCvs+=ingresos[x].ITEM+",";
+    exportCvs+=ingresos[x].PRECIOCOMPRA+",";
+    exportCvs+=ingresos[x].PRECIOVENTA+",";
+    exportCvs+=ingresos[x].CANTIDAD+",";   
+    exportCvs+=ingresos[x].FECHAINGRESO+",";    
+    exportCvs+=ingresos[x].FECHAVENCIMIENTO+","; 
+    exportCvs+=ingresos[x].ESTADO;
     exportCvs+= "\r\n";
   }
 
@@ -464,10 +438,10 @@ exportarIngresosPdf=function(){
       <tr>          
         <th>Id</th>
         <th>Item</th>
-        <th>Cantidad</th>
-        <th>Ubicacion</th>
-        <th>F Ingreso</th>
-        <th>F Fabricacion</th>
+        <th>Precio Compra</th>
+        <th>Precio Venta</th>
+        <th>Cantidad</th>        
+        <th>F Ingreso</th>        
         <th>F Vencimiento</th>        
         <th>Estado</th>              
       </tr>
@@ -476,14 +450,14 @@ exportarIngresosPdf=function(){
       
   for(x in ingresos){
     tabla+="<tr>";
-    tabla+="<td>"+ingresos[x].INVENTARIO_ID+"</td>";
-    tabla+="<td>"+ingresos[x].ITEM_NOMBRE+"</td>";
-    tabla+="<td>"+ingresos[x].INVENTARIO_CANTIDAD+"</td>";
-    tabla+="<td>"+ingresos[x].INVENTARIO_UBICACION+"</td>";
-    tabla+="<td>"+ingresos[x].INVENTARIO_FECHA_INGRESO+"</td>";
-    tabla+="<td>"+ingresos[x].INVENTARIO_FECHA_FABRICACION+"</td>";
-    tabla+="<td>"+ingresos[x].INVENTARIO_FECHA_VENCIMIENTO+"</td>";
-    tabla+="<td>"+ingresos[x].INVENTARIO_ESTADO+"</td>";
+    tabla+="<td>"+ingresos[x].ID+"</td>";
+    tabla+="<td>"+ingresos[x].ITEM+"</td>";
+    tabla+="<td>"+ingresos[x].PRECIOCOMPRA+"</td>";
+    tabla+="<td>"+ingresos[x].PRECIOVENTA+"</td>";
+    tabla+="<td>"+ingresos[x].CANTIDAD+"</td>";    
+    tabla+="<td>"+ingresos[x].FECHAINGRESO+"</td>";    
+    tabla+="<td>"+ingresos[x].FECHAVENCIMIENTO+"</td>";
+    tabla+="<td>"+ingresos[x].ESTADO+"</td>";
     tabla+="</tr>";
   }
   tabla+="</tbody></table>";

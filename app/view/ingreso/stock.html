@@ -23,14 +23,14 @@
       </div>
       <div class="col-sm-2">
           <div class="input-group">
-            <select class="form-control" id="item_tipo_id" name="item_tipo_id">
+            <select class="form-control" id="presentacion_id" name="presentacion_id">
               <option>Cargando..!</option>
             </select>
           </div>
       </div>
       <div class="col-sm-2">
           <div class="input-group">
-              <select class="form-control" id="item_categoria_id" name="item_categoria_id">
+              <select class="form-control" id="categoria_id" name="categoria_id">
                 <option>Cargando..!</option>
               </select>
           </div>
@@ -57,7 +57,7 @@
     <div class="table-responsive" id="tabla_http_scroll">
       <table class="table table-hover" id="tabla_http">
         <thead>
-        <th width="50">Id</th>          
+        <th width="100">Ingreso Id</th>          
         <th width="200">Item</th>
         <th width="150">Ingreso</th>        
         <th width="150">Vencimiento</th>                    
@@ -72,50 +72,25 @@
   </div>
 </div>    
 <script type="text/javascript">
+var estados=[];
 function list_items(){
-  $.get(baseUrl+"item/forminventario",function(data){
+  $.get(baseUrl+"ingreso/formeditar",function(data){
     let response=JSON.parse(data); 
-    console.log(response)	
-    let fila;
-    let items=response.items;
-    for (x in items) {	  	  	
-      fila+='<option codigo="'+items[x].ITEM_ID+'" value="'+items[x].ITEM_NOMBRE+'"/>';	  	  
-    }  
-    $("#item_list").html(fila);
+    loadListNew("item_list",response['items'])
+    estados=response['estados'];   
   });
 }
 list_items();
 
+
 function datosFormItemRegistrar(){  
-  $.get(baseUrl+"item/formitemregistrar",function(data){      
-    let response=JSON.parse(data);    
-    console.log(response);
-    let selectProveedor=document.getElementById("proveedor_id");
-    let proveedoresOptions='<option value="">Todos</option>';
-    let proveedores=response.proveedores;    
-    for(x in proveedores){
-      proveedoresOptions+='<option value="'+proveedores[x].PROVEEDOR_ID+'">'+proveedores[x].PROVEEDOR_NOMBRE+'</option>';
-    }    
-    selectProveedor.innerHTML=proveedoresOptions;
-
-    let selectItemTipo=document.getElementById("item_tipo_id");
-    let ItemTipoOptions='<option value="">Todos</option>';
-    let itemtipos=response.itemtipos;    
-    for(x in itemtipos){
-      ItemTipoOptions+='<option value="'+itemtipos[x].ITEM_TIPO_ID+'">'+itemtipos[x].ITEM_TIPO_NOMBRE+'</option>';
-    }    
-    selectItemTipo.innerHTML=ItemTipoOptions;
-
-    let selectItemCategoria=document.getElementById("item_categoria_id");
-    let ItemCategoriaOptions='<option value="">Todos</option>';
-    let itemcategorias=response.itemcategorias;    
-    for(x in itemcategorias){
-      ItemCategoriaOptions+='<option value="'+itemcategorias[x].ITEM_CATEGORIA_ID+'">'+itemcategorias[x].ITEM_CATEGORIA_NOMBRE+'</option>';
-    }    
-    selectItemCategoria.innerHTML=ItemCategoriaOptions;
+  $.get(baseUrl+"item/formeditar",function(data){      
+    let response=JSON.parse(data);   
+    loadSelectSearch("proveedor_id",response['proveedores']); 
+    loadSelectSearch("presentacion_id",response['presentaciones']); 
+    loadSelectSearch("categoria_id",response['categorias']); 
   });     
-}
-
+}  
 datosFormItemRegistrar();
 
 function id_item(input){         	 
@@ -129,28 +104,29 @@ function id_item(input){
 		}     		
 	}
 }
+
 var stocks=[];
 function stockListar(){
   let data={};
   data['item_id']=document.getElementById("item_id").value;
   data['proveedor_id']=document.getElementById("proveedor_id").value;
-  data['item_tipo_id']=document.getElementById("item_tipo_id").value;
-  data['item_categoria_id']=document.getElementById("item_categoria_id").value; 
+  data['presentacion_id']=document.getElementById("presentacion_id").value;
+  data['categoria_id']=document.getElementById("categoria_id").value; 
   tableLoader('tabla_http tbody',6);
-  $.post(baseUrl+"inventario/stock",data,function(data){
+  $.post(baseUrl+"ingreso/stock",data,function(data){
     $("#tabla_http tbody").html("");      
     let response=JSON.parse(data);        
     console.log(response);
-    if (response.estado) {
+    if (response.status) {
       for (x in response['stock']) {
         stocks[response['stock'][x].INVENTARIO_ID]=response['stock'][x];         
         let fila='<tr>';      
-        fila+='<td>'+response['stock'][x].INVENTARIO_ID+'</td>';  
-        fila+='<td>'+response['stock'][x].ITEM_NOMBRE+'</td>';
-        fila+='<td>'+response['stock'][x].FECHA_INGRESO+'</td>';        
-        fila+='<td>'+response['stock'][x].FECHA_VENCIMIENTO+'</td>';          
-        fila+='<td>'+response['stock'][x].INVENTARIO_CANTIDAD+'</td>';        
-        fila+='<td>'+response['stock'][x].INVENTARIO_SALDO+'</td>';                     
+        fila+='<td>'+response['stock'][x].ID+'</td>';  
+        fila+='<td>'+response['stock'][x].ITEM+'</td>';
+        fila+='<td>'+response['stock'][x].FECHAINGRESO+'</td>';        
+        fila+='<td>'+response['stock'][x].FECHAVENCIMIENTO+'</td>';          
+        fila+='<td>'+response['stock'][x].CANTIDAD+'</td>';        
+        fila+='<td>'+response['stock'][x].SALDO+'</td>';                     
         fila+='</tr>';
         $("#tabla_http tbody").append(fila);
       }

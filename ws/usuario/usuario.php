@@ -18,24 +18,24 @@ class usuario
   function loginUsuario(){
     $pdo = BaseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT USUARIO,PASSWORD FROM USUARIO WHERE USUARIO=?";
+    $sql = "SELECT USUARIO,PASSWORD FROM tausuario WHERE USUARIO=?";
     $q = $pdo->prepare($sql);
     $q->execute(array($this->usuario));
-    $data= $q->fetch(PDO::FETCH_ASSOC); 
+    $data= $q->fetch(PDO::FETCH_ASSOC);
     if(password_verify($this->password,$data['PASSWORD'])){
-      $sql = "SELECT a.ID,a.USUARIO,b.EMPLEADO_DNI,TIPO_ID,a.EMPLEADO_ID,
-        CONCAT(b.EMPLEADO_NOMBRES,' ',b.EMPLEADO_APATERNO,' ',b.EMPLEADO_AMATERNO) COLABORADOR,
-        LOWER(c.USUARIO_TIPO_NOMBRE) REDIRECT
-        FROM USUARIO a
-        JOIN EMPLEADO b ON b.EMPLEADO_ID=a.EMPLEADO_ID
-        JOIN USUARIO_TIPO c ON c.USUARIO_TIPO_ID=a.TIPO_ID
+      $sql = "SELECT a.ID,a.USUARIO,a.TIPO_ID,a.EMPLEADO_ID,
+        CONCAT(b.NOMBRES,' ',b.APATERNO,' ',b.AMATERNO) COLABORADOR,
+        LOWER(c.NOMBRE) REDIRECT
+        FROM tausuario a
+        JOIN taempleado b ON b.ID=a.EMPLEADO_ID
+        JOIN gnusuariotipo c ON c.ID=a.TIPO_ID
         WHERE a.USUARIO=?";
       $q = $pdo->prepare($sql);
       $q->execute(array($this->usuario));
       $data= $q->fetch(PDO::FETCH_ASSOC);   
       if(!empty($data)){
         $token="rulman";
-        $sql = "UPDATE USUARIO SET TOKEN=? WHERE ID=?";
+        $sql = "UPDATE tausuario SET TOKEN=? WHERE ID=?";
         $q = $pdo->prepare($sql);
         $q->execute(array($token,$data['ID']));
         $response["status"]=true;
@@ -58,15 +58,15 @@ class usuario
   function formCrear(){
     $pdo = BaseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT USUARIO_TIPO_ID ID,USUARIO_TIPO_NOMBRE NOMBRE FROM USUARIO_TIPO";
+    $sql = "SELECT ID,NOMBRE FROM gnusuariotipo WHERE ESTADO_ID=1 ORDER BY 1";
     $q = $pdo->prepare($sql);
     $q->execute();
     $data['tipos'] = $q->fetchAll(PDO::FETCH_ASSOC); 
     //Colaboradores Sin Usuario      
-    $sql = "SELECT a.EMPLEADO_ID ID,CONCAT(a.EMPLEADO_NOMBRES,' ',a.EMPLEADO_APATERNO,' ',a.EMPLEADO_AMATERNO) NOMBRE 
-      FROM EMPLEADO a
-      LEFT JOIN USUARIO b on b.EMPLEADO_ID=a.EMPLEADO_ID 
-      WHERE b.ID is null";
+    $sql = "SELECT a.ID,CONCAT(a.NOMBRES,' ',a.APATERNO,' ',a.AMATERNO) NOMBRE 
+      FROM taempleado a
+      LEFT JOIN tausuario b on b.EMPLEADO_ID=a.ID 
+      WHERE b.ID is null AND a.ESTADO_ID=1";
     $q = $pdo->prepare($sql);
     $q->execute();
     $data['empleados'] = $q->fetchAll(PDO::FETCH_ASSOC);   
@@ -80,13 +80,13 @@ class usuario
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "SELECT USUARIO FROM USUARIO WHERE USUARIO=?";
+      $sql = "SELECT USUARIO FROM tausuario WHERE USUARIO=?";
       $q = $pdo->prepare($sql);
       $q->execute(array($this->usuario));
       $data= $q->fetch(PDO::FETCH_ASSOC);
       if(empty($data)){
         $password = password_hash($this->password, PASSWORD_DEFAULT);
-        $sql = "INSERT INTO USUARIO VALUES(default,?,?,?,?,?,?)";
+        $sql = "INSERT INTO tausuario VALUES(default,?,?,?,?,?,?)";
         $q = $pdo->prepare($sql);
         $q->execute(array($this->usuario,$password,$this->token,$this->tipo_id,$this->empleado_id,$this->estado_id));                  
         $mensaje['status']=true;
@@ -109,41 +109,48 @@ class usuario
   function formEditar(){
     $pdo = BaseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT USUARIO_TIPO_ID ID,USUARIO_TIPO_NOMBRE NOMBRE FROM USUARIO_TIPO";
+    $sql = "SELECT ID,NOMBRE FROM gnusuariotipo WHERE ESTADO_ID=1 ORDER BY 1";
     $q = $pdo->prepare($sql);
     $q->execute();
     $data['tipos'] = $q->fetchAll(PDO::FETCH_ASSOC); 
     //Colaboradores Sin Usuario      
-    $sql = "SELECT a.EMPLEADO_ID ID,CONCAT(a.EMPLEADO_NOMBRES,' ',a.EMPLEADO_APATERNO,' ',a.EMPLEADO_AMATERNO) NOMBRE 
-      FROM EMPLEADO a
-      LEFT JOIN USUARIO b on b.EMPLEADO_ID=a.EMPLEADO_ID 
-      WHERE b.ID is null";
+    $sql = "SELECT a.ID,CONCAT(a.NOMBRES,' ',a.APATERNO,' ',a.AMATERNO) NOMBRE 
+      FROM taempleado a
+      LEFT JOIN tausuario b on b.EMPLEADO_ID=a.ID 
+      WHERE b.ID is null AND a.ESTADO_ID=1";
     $q = $pdo->prepare($sql);
     $q->execute();
-    $data['empleados'] = $q->fetchAll(PDO::FETCH_ASSOC);   
+    $data['empleados'] = $q->fetchAll(PDO::FETCH_ASSOC);
+
+    $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data['estados'] = $q->fetchAll(PDO::FETCH_ASSOC);    
   
     $data['status']=true;
     BaseDatos::desconectar();
     return $data; 
   }
 
-  function BuscarUsuarios($columna,$valor){
-    if(empty($cadena)){
-      $cadena="";
+  function BuscarUsuarios($columna,$valor,$estados){
+    if(empty($valor)){
+      $cadena="WHERE a.ESTADO_ID IN (".$estados.")";
     }else{
-      $cadena="WHERE ".$columna." like '%".strtoupper($valor)."%' ";
+      $cadena="WHERE ".$columna." like '%".strtoupper($valor)."%' AND a.ESTADO_ID IN (".$estados.")";
     }    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT a.ID,a.TIPO_ID,c.USUARIO_TIPO_NOMBRE PERFIL,a.USUARIO,a.EMPLEADO_ID,
-      CONCAT(b.EMPLEADO_NOMBRES,' ',b.EMPLEADO_APATERNO,' ',b.EMPLEADO_AMATERNO) COLABORADOR,a.ESTADO
-      FROM USUARIO a
-      JOIN EMPLEADO b on b.EMPLEADO_ID=a.EMPLEADO_ID
-      JOIN USUARIO_TIPO c on c.USUARIO_TIPO_ID=a.TIPO_ID ".$cadena;
+    $sql = "SELECT a.ID,a.TIPO_ID,c.NOMBRE PERFIL,a.USUARIO,a.EMPLEADO_ID,
+      CONCAT(b.NOMBRES,' ',b.APATERNO,' ',b.AMATERNO) COLABORADOR,
+      a.ESTADO_ID,d.NOMBRE ESTADO
+      FROM tausuario a
+      JOIN taempleado b on b.ID=a.EMPLEADO_ID
+      JOIN gnusuariotipo c on c.ID=a.TIPO_ID
+      JOIN gnestados d on d.ID=a.ESTADO_ID ".$cadena;    
     $q = $pdo->prepare($sql);
     $q->execute();
     $data = $q->fetchAll(PDO::FETCH_ASSOC);      
-    $mensaje['estado']=true;
+    $mensaje['status']=true;
     $mensaje['data']=$data ;  
     baseDatos::desconectar();
     return $mensaje; 
@@ -154,25 +161,25 @@ class usuario
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "SELECT USUARIO FROM USUARIO WHERE USUARIO=?";
+      $sql = "SELECT USUARIO FROM tausuario WHERE USUARIO=? AND ID!=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->usuario));
-      $data= $q->fetch(PDO::FETCH_ASSOC);
+      $q->execute(array($this->usuario,$this->id));
+      $data= $q->fetch(PDO::FETCH_ASSOC);       
       if(empty($data)){
-        $sql = "UPDATE USUARIO SET TIPO_ID=?,USUARIO=?,EMPLEADO_ID=?,ESTADO=? WHERE ID=?";
+        $sql = "UPDATE tausuario SET TIPO_ID=?,USUARIO=?,EMPLEADO_ID=?,ESTADO_ID=? WHERE ID=?";
         $q = $pdo->prepare($sql);
-        $q->execute(array($this->tipo_id,$this->usuario,$this->empleado_id,$this->estado,$this->id));                   
-        $mensaje['estado']=true;
+        $q->execute(array($this->tipo_id,$this->usuario,$this->empleado_id,$this->estado_id,$this->id));                   
+        $mensaje['status']=true;
         $mensaje['mensaje']='USUARIO EDITADO CORRECTAMENTE'; 
         $pdo->commit();  
       }
       else{
-        $mensaje['estado']=false;
+        $mensaje['status']=false;
         $mensaje['mensaje']="EL USUARIO YA EXISTE";
       }  
       
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -185,15 +192,15 @@ class usuario
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "UPDATE USUARIO SET PASSWORD=? WHERE ID=?";
+      $sql = "UPDATE tausuario SET PASSWORD=? WHERE ID=?";
       $q = $pdo->prepare($sql);
       $password = password_hash($this->usuario, PASSWORD_DEFAULT);
       $q->execute(array($password,$this->id));                   
-      $mensaje['estado']=true;
+      $mensaje['status']=true;
       $mensaje['mensaje']='CONTRASEÑA ACTUALIZADA CORRECTAMENTE'; 
       $pdo->commit();
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -206,15 +213,15 @@ class usuario
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "UPDATE USUARIO SET PASSWORD=? WHERE ID=?";
+      $sql = "UPDATE tausuario SET PASSWORD=? WHERE ID=?";
       $q = $pdo->prepare($sql);
       $password = password_hash($this->password, PASSWORD_DEFAULT);
       $q->execute(array($password,$this->id));                   
-      $mensaje['estado']=true;
+      $mensaje['status']=true;
       $mensaje['mensaje']='SE CAMBIO LA CLAVE CORRECTAMENTE'; 
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -222,30 +229,5 @@ class usuario
     return $mensaje;  
   }
   
-  function listaUsuarios($filtro,$columna,$valor){
-    $filtrosAceptados=['activos','inactivos','todos'];
-    if (in_array($filtro, $filtrosAceptados)) {
-      if ($filtro=="activos") {        
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND ESTADO='ACTIVO'";
-      }elseif($filtro=="inactivos"){        
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND ESTADO='INACTIVO'";
-      }else{
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' ";
-      }
-      $pdo = baseDatos::conectar();
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT ID,PERFIL,USUARIO,NOMBRES,ESTADO FROM USUARIO ".$cadena;
-      $q = $pdo->prepare($sql);
-      $q->execute();
-      $data = $q->fetchAll(PDO::FETCH_ASSOC);      
-      $mensaje['estado']=true;
-      $mensaje['data']=$data ;  
-    }else{
-      $mensaje['estado']=false;
-      $mensaje['mensaje']="SOLO ACEPTA (activos,inactivos y todos)";
-    }
-    baseDatos::desconectar();
-    return $mensaje; 
-  } 
 }
 ?>

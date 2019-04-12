@@ -15,26 +15,39 @@ class empleado
   var $correo;    
   var $imagen;    
   var $telefono;
-  var $estado;
+  var $estado_id;
 
   function crearColaborador(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO EMPLEADO VALUES(default,?,?,?,?,?,?,?,?)";
+      $sql = "INSERT INTO taempleado VALUES(default,?,?,?,?,?,?,?,?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->dni,$this->nombres,$this->apaterno,$this->amaterno,$this->correo,$this->imagen,$this->telefono,$this->estado));                  
-      $mensaje['estado']=true;
+      $q->execute(array($this->dni,$this->nombres,$this->apaterno,$this->amaterno,$this->correo,$this->imagen,$this->telefono,$this->estado_id));                  
+      $mensaje['status']=true;
       $mensaje['mensaje']='COLABORADOR REGISTRADO CON EXITO'; 
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
     $pdo = baseDatos::desconectar();
     return $mensaje;  
+  }
+
+  function formEditar(){
+    $pdo = BaseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data['estados'] = $q->fetchAll(PDO::FETCH_ASSOC);    
+  
+    $data['status']=true;
+    BaseDatos::desconectar();
+    return $data; 
   }
 
   function editarColaborador(){    
@@ -42,22 +55,22 @@ class empleado
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "UPDATE EMPLEADO 
-        SET EMPLEADO_DNI=?,
-        EMPLEADO_NOMBRES=?,
-        EMPLEADO_APATERNO=?,
-        EMPLEADO_AMATERNO=?,
-        EMPLEADO_CORREO=?,
-        EMPLEADO_TELEFONO=?,
-        EMPLEADO_ESTADO=?
-        WHERE EMPLEADO_ID=?";
+      $sql = "UPDATE taempleado 
+        SET DNI=?,
+        NOMBRES=?,
+        APATERNO=?,
+        AMATERNO=?,
+        CORREO=?,
+        TELEFONO=?,
+        ESTADO_ID=?
+        WHERE ID=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->dni,$this->nombres,$this->apaterno,$this->amaterno,$this->correo,$this->telefono,$this->estado,$this->id)); 
-      $mensaje['estado']=true;
+      $q->execute(array($this->dni,$this->nombres,$this->apaterno,$this->amaterno,$this->correo,$this->telefono,$this->estado_id,$this->id)); 
+      $mensaje['status']=true;
       $mensaje['mensaje']='COLABORADOR EDITADO CON EXITO';       
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -65,30 +78,23 @@ class empleado
     return $mensaje;  
   }
 
-  function listaColaboradores($filtro,$columna,$valor){
-    $filtrosAceptados=['activos','inactivos','todos'];
-    if (in_array($filtro, $filtrosAceptados)) {
-      if ($filtro=="activos") {
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND EMPLEADO_ESTADO='ACTIVO'";
-      }elseif($filtro=="inactivos"){        
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND EMPLEADO_ESTADO='INACTIVO'";
-      }else{
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' ";
-      }
-      $pdo = baseDatos::conectar();
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT *FROM EMPLEADO ".$cadena;
-      $q = $pdo->prepare($sql);
-      $q->execute();
-      $data = $q->fetchAll(PDO::FETCH_ASSOC);      
-      $mensaje['estado']=true;
-      $mensaje['data']=$data ;  
+  function buscarColaboradores($columna,$valor,$estados){
+    if(empty($valor)){
+      $cadena="WHERE a.ESTADO_ID IN (".$estados.")";
     }else{
-      $mensaje['estado']=false;
-      $mensaje['mensaje']="SOLO ACEPTA (activos,inactivos y todos)";
-    }
+      $cadena="WHERE ".$columna." like '%".strtoupper($valor)."%' AND a.ESTADO_ID IN (".$estados.")";
+    }   
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT a.*,b.NOMBRE ESTADO FROM taempleado a 
+      JOIN gnestados b on b.ID=a.ESTADO_ID ".$cadena;
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);      
+    $mensaje['status']=true;
+    $mensaje['data']=$data ;  
     baseDatos::desconectar();
     return $mensaje; 
-  } 
+  }  
 }
 ?>

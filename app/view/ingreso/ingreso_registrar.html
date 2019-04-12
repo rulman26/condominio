@@ -36,17 +36,18 @@
 
 <script>
 screenAltura("form-cliente",200);
-var data_item;
+var data_item=[];
 function list_items(){
-  $.get(baseUrl+"item/forminventario",function(data){
+  $.get(baseUrl+"item/formingreso",function(data){
   	let response=JSON.parse(data); 
     console.log(response)	
   	let fila;
     data_item=response.items;
   	for (x in data_item) {	  	  	
-  	  fila+='<option codigo="'+data_item[x].ITEM_ID+'" value="'+data_item[x].ITEM_NOMBRE+'">LAB : '+data_item[x].LABORATORIO_NOMBRE+'</option>';	  	  
+  	  fila+='<option codigo="'+data_item[x].ID+'" value="'+data_item[x].NOMBRE+'">LAB : '+data_item[x].LABORATORIO+'</option>';	
   	}  
   	$("#item_list").html(fila);
+
 	});
 }
 list_items();
@@ -103,52 +104,50 @@ function tableItemRegistrar(boton){
   let filaInputs=$(boton).parents("tr").find("input");  
   let item_id=filaInputs[0].value;
   let item_nombre=filaInputs[1].value;
-  let precio_compra=filaInputs[2].value;
-  let precio_venta=filaInputs[3].value;
+  let preciocompra=filaInputs[2].value;
+  let precioventa=filaInputs[3].value;
   let lote=filaInputs[4].value;  
   let cantidad=filaInputs[5].value;  
   let factura=filaInputs[6].value;  
   let fechaingreso=filaInputs[7].value;  
   let fechavencimiento=filaInputs[8].value;  
   
-  let obj_json={};
-  obj_json['item_id']=item_id;
-  obj_json['item_nombre']=item_nombre;
-  obj_json['precio_compra']=precio_compra;
-  obj_json['precio_venta']=precio_venta;
+  let obj_json={};  
   obj_json['codigobarra']="";
+  obj_json['preciocompra']=preciocompra;
+  obj_json['precioventa']=precioventa;  
   obj_json['lote']=lote;
-  obj_json['cantidad']=cantidad;
-  obj_json['ubicacion']="";
+  obj_json['cantidad']=cantidad;  
   obj_json['factura']=factura;
   obj_json['fechaingreso']=fechaingreso;  
   obj_json['fechavencimiento']=fechavencimiento;
-  obj_json['estado']="ACTIVO";
+  obj_json['item_id']=item_id;
+  obj_json['item_nombre']=item_nombre;  
   console.log(obj_json)  
-  if(item_id!=""&&item_nombre!=""&&precio_compra!=""&&precio_venta!=""&&cantidad!=""&&fechaingreso!=""&&fechavencimiento!=""){
+  if(item_id!=""&&item_nombre!=""&&preciocompra!=""&&precioventa!=""&&cantidad!=""&&fechaingreso!=""&&fechavencimiento!=""){
     modalCargando();
-    $.post(baseUrl+"inventario/crear",obj_json,function(data){      
+    $.post(baseUrl+"ingreso/crear",obj_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle');
-      if (response.estado){
-        let serverInventarioId=response.intentario_id;
+      if (response.status){
+        let serverIngresoId=response.ingreso_id;
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle'); 
         let fila='<td>'+item_nombre+'</td>';          
-          fila+='<td>'+precio_compra+'</td>';
-          fila+='<td>'+precio_venta+'</td>';
+          fila+='<td>'+preciocompra+'</td>';
+          fila+='<td>'+precioventa+'</td>';
           fila+='<td>'+lote+'</td>';
           fila+='<td>'+cantidad+'</td>';
           fila+='<td>'+factura+'</td>';
           fila+='<td>'+fechaingreso+'</td>';          
           fila+='<td>'+fechavencimiento+'</td>';          
           fila+='<td>';
-          fila+='<button onclick="tableItemEditar('+serverInventarioId+','+item_id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pencil-alt"></i></button>';
+          fila+='<button onclick="tableIngresoEditar('+serverIngresoId+','+item_id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pencil-alt"></i></button>';
           fila+='&nbsp';
-          fila+='<button onclick="tableItemEliminar('+serverInventarioId+')" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
+          fila+='<button onclick="tableIngresoEliminar('+serverIngresoId+')" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
           fila+='</td>';
-        $(boton).parents("tr").attr("id","f-"+serverInventarioId);
+        $(boton).parents("tr").attr("id","f-"+serverIngresoId);
         $(boton).parents("tr").html(fila);     
       }else{
         let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
@@ -161,25 +160,27 @@ function tableItemRegistrar(boton){
   } 
 }
 
-function tableItemEditar(id,item_id){
+function tableIngresoEditar(id,item_id){
   let filaData=$("#f-"+id).find("td");
   let data={};
   data["id"]=id;
   data["item_id"]=item_id;
   data["item_nombre"]=filaData[0].innerHTML;
-  data["precio_compra"]=filaData[1].innerHTML;
-  data["precio_venta"]=filaData[2].innerHTML;
+  data["preciocompra"]=filaData[1].innerHTML;
+  data["precioventa"]=filaData[2].innerHTML;
   data["lote"]=filaData[3].innerHTML;
   data["cantidad"]=filaData[4].innerHTML;
   data["factura"]=filaData[5].innerHTML;
   data["fechaingreso"]=filaData[6].innerHTML;  
   data["fechavencimiento"]=filaData[7].innerHTML;  
-  let modal=modalInventarioEditar(data);  
+  let modal=modalIngresoEditar(data);  
   $('#modal_formulario').html(modal);
   $('#modal_formulario').modal('toggle'); 
+  $(".fecha").mask("99/99/9999");
+  $(".fechahora").mask("99/99/9999 99:99");
 }
 
-function modalInventarioEditar(data){ 
+function modalIngresoEditar(data){ 
   let modal=`<div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -187,24 +188,23 @@ function modalInventarioEditar(data){
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="form_inventario_editar">
+        <form id="form_ingreso_editar">
           <div class="form-group">
-            <input type="hidden" name="id" value="`+data.id+`">            
-            <input type="hidden" name="ubicacion" value="">            
+            <input type="hidden" name="id" value="`+data.id+`">                        
             <input type="hidden" id="m_item_id" name="item_id" value="`+data.item_id+`">            
             <label for="item_nombre">Item *</label>
             <input required type="text" class="form-control" list="item_list" id="item_nombre" 
               name="item_nombre" value="`+data.item_nombre+`" onchange="id_item_modal(this)">
           </div>
           <div class="form-group">
-            <label for="precio_compra">Precio Compra *</label>
-            <input required type="text" class="form-control" id="precio_compra" 
-              name="precio_compra" value="`+data.precio_compra+`">
+            <label for="preciocompra">Precio Compra *</label>
+            <input required type="text" class="form-control" id="preciocompra" 
+              name="preciocompra" value="`+data.preciocompra+`">
           </div>
           <div class="form-group">
-            <label for="precio_venta">Precio Venta *</label>
-            <input required type="text" class="form-control" id="precio_venta" 
-              name="precio_venta" value="`+data.precio_venta+`">
+            <label for="precioventa">Precio Venta *</label>
+            <input required type="text" class="form-control" id="precioventa" 
+              name="precioventa" value="`+data.precioventa+`">
           </div>
           <div class="form-group">
             <label for="lote">Lote *</label>
@@ -232,7 +232,7 @@ function modalInventarioEditar(data){
         </form>
       </div>
       <div class="modal-footer"> 
-        <button type="button" class="btn btn-success" onclick="InventarioEditarGuardar()">Editar</button>       
+        <button type="button" class="btn btn-success" onclick="IngresoEditarGuardar()">Editar</button>       
         <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
       </div>
     </div>
@@ -240,36 +240,33 @@ function modalInventarioEditar(data){
   return modal;
 }
 
-function InventarioEditarGuardar(){  
-  if (formValido("form_inventario_editar")){
-    let data=$("#form_inventario_editar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
+function IngresoEditarGuardar(){  
+  if (formValido("form_ingreso_editar")){
+    let data_json=objForm("form_ingreso_editar");
     data_json['codigobarra']="";
-    data_json['estado']="ACTIVO";
+    data_json['estado_id']=1;
     modalCargando();
-    $.post(baseUrl+"inventario/editar",data_json,function(data){            
+    console.log(data_json)
+    $.post(baseUrl+"ingreso/editar",data_json,function(data){            
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle');      
-      if (response.estado){
+      if (response.status){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle');
         let fila='<td>'+data_json.item_nombre+'</td>';          
-          fila+='<td>'+data_json.precio_compra+'</td>';
-          fila+='<td>'+data_json.precio_venta+'</td>';
+          fila+='<td>'+data_json.preciocompra+'</td>';
+          fila+='<td>'+data_json.precioventa+'</td>';
           fila+='<td>'+data_json.lote+'</td>';
           fila+='<td>'+data_json.cantidad+'</td>';
           fila+='<td>'+data_json.factura+'</td>';
           fila+='<td>'+data_json.fechaingreso+'</td>';          
           fila+='<td>'+data_json.fechavencimiento+'</td>';          
           fila+='<td>';
-          fila+='<button onclick="tableItemEditar('+data_json.id+','+data_json.item_id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
-          fila+='<button onclick="tableItemEliminar(this)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
+          fila+='<button onclick="tableIngresoEditar('+data_json.id+','+data_json.item_id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
+          fila+='<button onclick="tableIngresoEliminar(this)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
           fila+='</td>';
         $("#f-"+data_json.id).html(fila);        
       }else{
@@ -281,7 +278,14 @@ function InventarioEditarGuardar(){
   } 
 }
 
-function modalInventarioEliminar(id){
+function tableIngresoEliminar(id){
+  let modal=modalIngresoEliminar(id);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+
+function modalIngresoEliminar(id){
   let modal=`<div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -289,13 +293,13 @@ function modalInventarioEliminar(id){
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="form_inventario_eliminar">
+        <form id="form_ingreso_eliminar">
           <input type="hidden" name="id" value="`+id+`">
         </form>
         <h6>Estas Seguro de Eliminar Inventario..?"</h6>
       </div>
       <div class="modal-footer"> 
-        <button type="button" class="btn btn-success" onclick="InventarioEliminarGuardar()">Si</button>       
+        <button type="button" class="btn btn-success" onclick="IngresoEliminarGuardar()">Si</button>       
         <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
       </div>
     </div>
@@ -303,26 +307,15 @@ function modalInventarioEliminar(id){
   return modal;
 }
 
-function tableItemEliminar(id){
-  let modal=modalInventarioEliminar(id);  
-  $('#modal_formulario').html(modal);
-  $('#modal_formulario').modal('toggle'); 
-}
 
-
-function InventarioEliminarGuardar(){
-  if (formValido("form_inventario_eliminar")){
-    let data=$("#form_inventario_eliminar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
-    console.log(data_json);
+function IngresoEliminarGuardar(){
+  if (formValido("form_ingreso_eliminar")){
+    let data_json=objForm("form_ingreso_eliminar");
     modalCargando();
-    $.post(baseUrl+"inventario/eliminar",data_json,function(data){      
+    $.post(baseUrl+"ingreso/eliminar",data_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle');
-      if (response.estado){
+      if (response.status){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
@@ -360,12 +353,12 @@ function ItemId(fila){
   let datahtml="";
   for (x in data_item){
     datahtml+='<tr ondblclick="modalSeleccionarFilaItems()">';
-    datahtml+='<td>'+data_item[x].ITEM_ID+'</td>';
-    datahtml+='<td>'+data_item[x].ITEM_NOMBRE+'</td>';        
-    datahtml+='<td>'+data_item[x].ITEM_TIPO_NOMBRE+'</td>';    
-    datahtml+='<td>'+data_item[x].ITEM_CATEGORIA_NOMBRE+'</td>';
-    datahtml+='<td>'+data_item[x].LABORATORIO_NOMBRE+'</td>';
-    datahtml+='<td>'+data_item[x].PROVEEDOR_NOMBRE+'</td>';
+    datahtml+='<td>'+data_item[x].ID+'</td>';
+    datahtml+='<td>'+data_item[x].NOMBRE+'</td>';        
+    datahtml+='<td>'+data_item[x].PRESENTACION+'</td>';    
+    datahtml+='<td>'+data_item[x].CATEGORIA+'</td>';
+    datahtml+='<td>'+data_item[x].LABORATORIO+'</td>';
+    datahtml+='<td>'+data_item[x].PROVEEDOR+'</td>';
     datahtml+='<tr>';
   }
   

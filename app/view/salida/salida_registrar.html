@@ -32,31 +32,31 @@
  
 </style>
 <script>
-var data_inventario;
+var data_ingresos;
 function list_inventario(){
-  $.get(baseUrl+"inventario/forminventariosalida",function(data){
-  	let response=JSON.parse(data);     
-    data_inventario=response.inventario;
+  $.get(baseUrl+"ingreso/forminventariosalida",function(data){
+    let response=JSON.parse(data);     
+    data_ingresos=response.ingresos;
     let fila="";    
-  	for (x in data_inventario) {	  	  	
-  	  fila+='<option codigo="'+data_inventario[x].INVENTARIO_ID+'" precio="'+data_inventario[x].INVENTARIO_PRECIO_VENTA+'" value="ID='+data_inventario[x].INVENTARIO_ID+' : '+data_inventario[x].ITEM_NOMBRE+'"> Precio : '+data_inventario[x].INVENTARIO_PRECIO_VENTA+' - FV : '+data_inventario[x].FECHA_VENCIMIENTO+'</option>';	  	  
-  	}  
-  	$("#inventario_list").html(fila);
-	});
+    for (x in data_ingresos) {          
+      fila+='<option codigo="'+data_ingresos[x].ID+'" precio="'+data_ingresos[x].PRECIOVENTA+'" value="ID='+data_ingresos[x].ID+' : '+data_ingresos[x].ITEM+'"> Precio : '+data_ingresos[x].PRECIOVENTA+' - FV : '+data_ingresos[x].FECHAVENCIMIENTO+'</option>';       
+    }  
+    $("#inventario_list").html(fila);
+  });
 }
 list_inventario();
 
-function inventarioAddRow(){ 	  
+function inventarioAddRow(){    
   let fechayhora=fechaHoraActual();  
   let fecha=fechaActual();  
 
   let row='<tr>';
     row+='<td><input class="t_input" readonly value="Sin Id"></td>';  
-    row+='<td><input class="t_input" readonly onclick="InventarioId(this)" placeholder="Seleccionar Ingreso"></td>';    
+    row+='<td><input class="t_input" readonly onclick="IngresoId(this)" placeholder="Seleccionar Ingreso"></td>';    
     row+='<td><input type="number" class="t_input" name="precio" value="0"></td>';   
     row+='<td><input type="number" class="t_input" onchange="calcularVuelto(this)" name="cantidad" min="0" value="0"></td>';   
     row+='<td><input type="number" readonly class="t_input" name="total" value="0"></td>';     
-    row+='<td><input type="text" class="t_input fechahora" name="fechaingreso" value="'+fechayhora+'"></td>';	
+    row+='<td><input type="text" class="t_input fechahora" name="fechaingreso" value="'+fechayhora+'"></td>'; 
     row+='<td>';
     row+='<button onclick="tableSalidaRegistrar(this)" class="btn btn-success btn-sm" data-toggle="tooltip" title="Guardar"><i class="fa fa-plus"></i></button>&nbsp';
     row+='<button onclick="eliminar(this)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button>';
@@ -84,60 +84,57 @@ function calcularVuelto(input){
   }
 }
 
-function id_item(input) {        	 
+function id_item(input) {          
   list = document.getElementById('item_list').options;
-	for(x in list){      		
-		if (list[x].value==input.value) {			
-			let item_id=list[x].getAttribute('codigo');	
+  for(x in list){         
+    if (list[x].value==input.value) {     
+      let item_id=list[x].getAttribute('codigo'); 
       let filainputs=$(input).parents("tr").find("input");      
       filainputs[0].value=item_id;      
-			break;
-		}      		
-	}
+      break;
+    }         
+  }
 }
 
-function id_item_modal(input) {        	 
+function id_item_modal(input) {          
   list = document.getElementById('item_list').options;
   let m_item_id=document.getElementById('m_item_id');
-	for(x in list){      		
-		if (list[x].value==input.value) {			
-			let item_id=list[x].getAttribute('codigo');	      
+  for(x in list){         
+    if (list[x].value==input.value) {     
+      let item_id=list[x].getAttribute('codigo');       
       m_item_id.value=item_id;      
-			break;
-		}      		
-	}
+      break;
+    }         
+  }
 }
 
 function tableSalidaRegistrar(boton){
 
   let filaInputs=$(boton).parents("tr").find("input");  
-  let inventario_id=filaInputs[0].value;
+  let ingreso_id=filaInputs[0].value;
   let item_name=filaInputs[1].value;  
-  let precio=filaInputs[2].value;
+  let precioventa=filaInputs[2].value;
   let cantidad=filaInputs[3].value;
-  let fecha=filaInputs[5].value;
-  let tipo="VENTA";  
-  let estado="ACTIVO";
+  let fecha=filaInputs[5].value;    
 
   let filaSelects=$(boton).parents("tr").find("select");  
   
   let obj_json={};
-  obj_json['inventario_id']=inventario_id;  
-  obj_json['precio']=precio;
+  obj_json['ingreso_id']=ingreso_id;  
+  obj_json['precioventa']=precioventa;
   obj_json['cantidad']=cantidad;
-  obj_json['fecha']=fecha;
-  obj_json['tipo']=tipo;  
-  obj_json['estado']=estado;
+  obj_json['fecha']=fecha;  
+  obj_json['estado_id']=1;
   modalCargando();
-  if(inventario_id!="" || precio!=0 || fecha!="" || tipo!="" || usuario_id!="" || cantidad!=0){
+  if(ingreso_id!="" || precioventa!=0 || fecha!=""|| cantidad!=0){
     $.post(baseUrl+"salida/crear",obj_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle'); 
-      if (response.estado){
+      if (response.status){
         //Recorrer par actualziar        
-        for (x in data_inventario){
-          if(parseInt(data_inventario[x].INVENTARIO_ID)==parseInt(inventario_id)){
-            data_inventario[x].INVENTARIO_SALDO=parseInt(data_inventario[x].INVENTARIO_SALDO)-parseInt(cantidad);
+        for (x in data_ingresos){
+          if(parseInt(data_ingresos[x].ID)==parseInt(ingreso_id)){
+            data_ingresos[x].SALDO=parseInt(data_ingresos[x].SALDO)-parseInt(cantidad);
             break;
           }
         }
@@ -145,11 +142,11 @@ function tableSalidaRegistrar(boton){
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle'); 
-        let fila='<td>'+inventario_id+'</td>';          
+        let fila='<td>'+ingreso_id+'</td>';          
           fila+='<td>'+item_name+'</td>';          
-          fila+='<td>'+precio+'</td>';
+          fila+='<td>'+precioventa+'</td>';
           fila+='<td>'+cantidad+'</td>';
-          fila+='<td>'+(precio*cantidad)+'</td>';
+          fila+='<td>'+(precioventa*cantidad)+'</td>';
           fila+='<td>'+fecha+'</td>';          
           fila+='<td>';
           fila+='<button onclick="tableSalidaEditar('+serverSalidaId+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
@@ -168,6 +165,22 @@ function tableSalidaRegistrar(boton){
   } 
 }
 
+function tableSalidaEditar(id){
+  let filaData=$("#f-"+id).find("td");
+  let data={};
+  data["id"]=id;
+  data["ingreso_id"]=filaData[0].innerHTML;
+  data["item_nombre"]=filaData[1].innerHTML;  
+  data["precioventa"]=filaData[2].innerHTML;
+  data["cantidad"]=filaData[3].innerHTML;
+  data["total"]=filaData[4].innerHTML;
+  data["fecha"]=filaData[5].innerHTML;    
+  let modal=modalSalidaEditar(data);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle');
+  $(".fechahora").mask("99/99/9999 99:99"); 
+}
+
 function modalSalidaEditar(data){  
   let modal=`<div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -178,7 +191,7 @@ function modalSalidaEditar(data){
       <div class="modal-body">
         <form id="form_salida_editar">
           <input type="hidden" name="id" value="`+data.id+`">
-          <input type="hidden" id="m_inventario_id" name="inventario_id" value="`+data.inventario_id+`">        
+          <input type="hidden" id="m_ingreso_id" name="ingreso_id" value="`+data.ingreso_id+`">        
           <div class="form-group">
           <label for="inventario_nombre">Item</label>
           <input required type="text" class="form-control" list="inventario_list" id="inventario_nombre" 
@@ -187,7 +200,7 @@ function modalSalidaEditar(data){
           <div class="form-group">
             <label for="m_precio">Precio</label>
             <input required readonly type="number"  class="form-control" id="m_precio" 
-            name="precio" value="`+data.precio+`">
+            name="precioventa" value="`+data.precioventa+`">
           </div>
           <div class="form-group">
             <label for="cantidad">Cantidad</label>
@@ -215,52 +228,30 @@ function modalSalidaEditar(data){
   return modal;
 }
 
-function tableSalidaEditar(id){
-  let filaData=$("#f-"+id).find("td");
-  let data={};
-  data["id"]=id;
-  data["inventario_id"]=filaData[0].innerHTML;
-  data["item_nombre"]=filaData[1].innerHTML;  
-  data["precio"]=filaData[2].innerHTML;
-  data["cantidad"]=filaData[3].innerHTML;
-  data["total"]=filaData[4].innerHTML;
-  data["fecha"]=filaData[5].innerHTML;    
-  let modal=modalSalidaEditar(data);  
-  $('#modal_formulario').html(modal);
-  $('#modal_formulario').modal('toggle');
-  $(".fechahora").mask("99/99/9999 99:99"); 
-}
-
 function salidaEditarGuardar(){  
   if (formValido("form_salida_editar")){
-    let data=$("#form_salida_editar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }            
-    data_json['tipo']="VENTA";
-    data_json['estado']="ACTIVO";
-    console.log(data_json)
+    let data_json=objForm("form_salida_editar");
+    data_json['estado_id']=1;    
     modalCargando();
     $.post(baseUrl+"salida/editar",data_json,function(data){      
       let response=JSON.parse(data);
       console.log(response)
       $('#modal_cargando').modal('toggle');
-      if (response.estado){
+      if (response.status){
         list_inventario();
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle');
-        let fila='<td>'+data_json.inventario_id+'</td>';          
+        let fila='<td>'+data_json.ingreso_id+'</td>';          
           fila+='<td>'+data_json.inventario_nombre.split(":")[1].trim()+'</td>';          
-          fila+='<td>'+data_json.precio+'</td>';
+          fila+='<td>'+data_json.precioventa+'</td>';
           fila+='<td>'+data_json.cantidad+'</td>';
           fila+='<td>'+data_json.total+'</td>';
           fila+='<td>'+data_json.fecha+'</td>';          
           fila+='<td>';
-          fila+='<button onclick="tableSalidaEditar('+data_json.id+','+data_json.item_id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
+          fila+='<button onclick="tableSalidaEditar('+data_json.id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
           fila+='<button onclick="tableSalidaEliminar(this)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
           fila+='</td>';
         $("#f-"+data_json.id).html(fila);        
@@ -273,19 +264,26 @@ function salidaEditarGuardar(){
   } 
 }
 
-function id_item_modal(input) {        	 
+function id_item_modal(input) {          
   list = document.getElementById('item_list').options;
   let m_item_id=document.getElementById('m_item_id');
-	for(x in list){      		
-		if (list[x].value==input.value) {			
-			let item_id=list[x].getAttribute('codigo');	      
+  for(x in list){         
+    if (list[x].value==input.value) {     
+      let item_id=list[x].getAttribute('codigo');       
       m_item_id.value=item_id;      
-			break;
-		}      		
-	}
+      break;
+    }         
+  }
 }
 
-function modalInventarioEliminar(id){
+function tableSalidaEliminar(id){
+  let modal=modalSalidaEliminar(id);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+
+function modalSalidaEliminar(id){
   let modal=`<div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -293,13 +291,13 @@ function modalInventarioEliminar(id){
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="form_inventario_eliminar">
+        <form id="form_salida_eliminar">
           <input type="hidden" name="id" value="`+id+`">
         </form>
         <h6>Estas Seguro de Eliminar Salida..?"</h6>
       </div>
       <div class="modal-footer"> 
-        <button type="button" class="btn btn-success" onclick="InventarioEliminarGuardar()">Si</button>       
+        <button type="button" class="btn btn-success" onclick="salidaEliminarGuardar()">Si</button>       
         <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
       </div>
     </div>
@@ -307,13 +305,74 @@ function modalInventarioEliminar(id){
   return modal;
 }
 
-function tableSalidaEliminar(id){
-  let modal=modalInventarioEliminar(id);  
-  $('#modal_formulario').html(modal);
-  $('#modal_formulario').modal('toggle'); 
+function salidaEliminarGuardar(){
+  if (formValido("form_salida_eliminar")){
+    let data_json=objForm("form_salida_eliminar");
+    modalCargando();
+    $.post(baseUrl+"salida/eliminar",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle');      
+      if (response.status){
+        list_inventario();
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        $("#f-"+data_json['id']).remove();
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
 }
 
-function modalInventarioId(datahtml){
+
+var modal_item_id=0;
+var modal_item_name="";
+var modal_item_saldo=0;
+var modal_item_precio=0;
+var fila_seleccionada;
+function activarFilaItem(){
+  console.log("activo");
+  $("#tabla_modal_http tbody tr").click(function () {
+    $('.table-primary').removeClass('table-primary');
+    $(this).addClass("table-primary");    
+    let x=$(this).find("td");    
+    modal_item_id=x[0].innerHTML;
+    modal_item_name=x[1].innerHTML;
+    modal_item_saldo=x[3].innerHTML;
+    modal_item_precio=x[4].innerHTML;
+  });
+}
+
+function IngresoId(fila){  
+  let datahtml="";
+  for (x in data_ingresos){
+    datahtml+='<tr ondblclick="modalSeleccionarFila()">';
+    datahtml+='<td>'+data_ingresos[x].ID+'</td>';
+    datahtml+='<td>'+data_ingresos[x].ITEM+'</td>';
+    datahtml+='<td>'+data_ingresos[x].PRESENTACION+'</td>';    
+    datahtml+='<td>'+data_ingresos[x].SALDO+'</td>';
+    datahtml+='<td>'+data_ingresos[x].PRECIOVENTA+'</td>';
+    datahtml+='<td>'+data_ingresos[x].FECHAVENCIMIENTO+'</td>';
+    datahtml+='<td>'+data_ingresos[x].CATEGORIA+'</td>';
+    datahtml+='<td>'+data_ingresos[x].LABORATORIO+'</td>';
+    datahtml+='<td>'+data_ingresos[x].PROVEEDOR+'</td>';
+    datahtml+='<tr>';
+  }
+  
+  let modal=modalIngresoId(datahtml);
+  fila_seleccionada=fila;  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+  activarFilaItem();
+  screenAltura("tabla_modal_http_scroll",370);
+}
+
+function modalIngresoId(datahtml){
   let modal=`<div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
@@ -347,48 +406,6 @@ function modalInventarioId(datahtml){
   return modal;
 }
 
-var modal_item_id=0;
-var modal_item_name="";
-var modal_item_saldo=0;
-var modal_item_precio=0;
-var fila_seleccionada;
-function activarFilaItem(){
-  console.log("activo");
-  $("#tabla_modal_http tbody tr").click(function () {
-    $('.table-primary').removeClass('table-primary');
-    $(this).addClass("table-primary");    
-    let x=$(this).find("td");    
-    modal_item_id=x[0].innerHTML;
-    modal_item_name=x[1].innerHTML;
-    modal_item_saldo=x[3].innerHTML;
-    modal_item_precio=x[4].innerHTML;
-  });
-}
-
-function InventarioId(fila){  
-  let datahtml="";
-  for (x in data_inventario){
-    datahtml+='<tr ondblclick="modalSeleccionarFila()">';
-    datahtml+='<td>'+data_inventario[x].INVENTARIO_ID+'</td>';
-    datahtml+='<td>'+data_inventario[x].ITEM_NOMBRE+'</td>';
-    datahtml+='<td>'+data_inventario[x].ITEM_TIPO_NOMBRE+'</td>';    
-    datahtml+='<td>'+data_inventario[x].INVENTARIO_SALDO+'</td>';
-    datahtml+='<td>'+data_inventario[x].INVENTARIO_PRECIO_VENTA+'</td>';
-    datahtml+='<td>'+data_inventario[x].FECHA_VENCIMIENTO+'</td>';
-    datahtml+='<td>'+data_inventario[x].ITEM_CATEGORIA_NOMBRE+'</td>';
-    datahtml+='<td>'+data_inventario[x].LABORATORIO_NOMBRE+'</td>';
-    datahtml+='<td>'+data_inventario[x].PROVEEDOR_NOMBRE+'</td>';
-    datahtml+='<tr>';
-  }
-  
-  let modal=modalInventarioId(datahtml);
-  fila_seleccionada=fila;  
-  $('#modal_formulario').html(modal);
-  $('#modal_formulario').modal('toggle'); 
-  activarFilaItem();
-  screenAltura("tabla_modal_http_scroll",370);
-}
-
 function modalSeleccionarFila(){
   let selecionado=$("#tabla_modal_http tbody .table-primary").length
   if(selecionado==1){    
@@ -402,33 +419,7 @@ function modalSeleccionarFila(){
     alert("Seleccione al Menos un Item");
   } 
 }
-function InventarioEliminarGuardar(){
-  if (formValido("form_inventario_eliminar")){
-    let data=$("#form_inventario_eliminar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
-    modalCargando();
-    $.post(baseUrl+"salida/eliminar",data_json,function(data){      
-      let response=JSON.parse(data);
-      $('#modal_cargando').modal('toggle');      
-      if (response.estado){
-        list_inventario();
-        $('#modal_formulario').html("");
-        $('#modal_formulario').modal('toggle');      
-        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
-        $('#modal_mensaje').html(modal_conten_loader);
-        $('#modal_mensaje').modal('toggle');
-        $("#f-"+data_json['id']).remove();
-      }else{
-        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
-        $('#modal_mensaje').html(modal_conten_loader);
-        $('#modal_mensaje').modal('toggle');      
-      }
-    }); 
-  } 
-}
+
 
 function montoTotal(input){
   let precio=document.getElementById("m_precio").value;
@@ -441,20 +432,19 @@ function eliminar(boton){
   $(boton).parents("tr").remove();
 }
 
-function id_inventario_modal(input) {
-  console.log("CAmbia")        	 ;
+function id_inventario_modal(input) {      ;
   list = document.getElementById('inventario_list').options;
-  let m_inventario_id=document.getElementById('m_inventario_id');
+  let m_ingreso_id=document.getElementById('m_ingreso_id');
   let precio=document.getElementById('m_precio');
   let cantidad=document.getElementById('cantidad').value;
-	for(x in list){      		
-		if (list[x].value==input.value) {			
-			let item_id=list[x].getAttribute('codigo');	      
-      m_inventario_id.value=item_id;      
-      precio.value=list[x].getAttribute('precio');	
+  for(x in list){         
+    if (list[x].value==input.value) {     
+      let item_id=list[x].getAttribute('codigo');       
+      m_ingreso_id.value=item_id;      
+      precio.value=list[x].getAttribute('precio');  
       montoTotal(cantidad);
-			break;
-		}      		
-	}
+      break;
+    }         
+  }
 }
 </script>

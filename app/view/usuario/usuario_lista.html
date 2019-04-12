@@ -25,7 +25,7 @@
       </div>  
       <div class="col-sm-3">
         <div class="input-group">
-          <button class="btn btn-primary btn-block" onclick="usuarioListar()">Buscar</button>
+          <button class="btn btn-primary btn-block" onclick="usuarioBuscar()">Buscar</button>
         </div>
       </div>
       <div class="col-sm-3" id="div_buscar" style="display: none">
@@ -66,26 +66,16 @@
 <script type="text/javascript">
 
 var perfiles=[];
+var estados=[];
 var colaboradores=[];
 
 function dataFromEditarUsuario(){
   $.get(baseUrl+"usuario/formeditar",function(data){          
     let response=JSON.parse(data);  
-    if(response['status']){
-
-      perfiles=[];
-      let _tipos=response['tipos'];
-      for(x in _tipos){
-        perfiles[_tipos[x].ID]=_tipos[x];
-      }
-
-      colaboradores=[];    
-      let _colaboradores=response['empleados'];
-      console.log(_colaboradores);
-      for(x in _colaboradores){        
-        colaboradores[_colaboradores[x].ID]=_colaboradores[x];
-      }                 
-        
+    if(response.status){
+      perfiles=response['tipos'];
+      estados=response['estados'];
+      colaboradores=response['empleados'];            
     }else{
       alert("Ocurrio un Error En la Conexion");
     }
@@ -97,19 +87,19 @@ dataFromEditarUsuario();
 screenAltura("tabla_http_scroll",340);
 
 var usuarios=[];
-
-function usuarioListar(){
+function usuarioBuscar(){
     document.getElementById("div_buscar").style.display="block";
     let data={};
     data['filtro']=document.getElementById("filtro").value;
     data['input_filtro']=document.getElementById("filtro_input").value;        
+    data['status']="1,2";
     tableLoader('tabla_http tbody',4);
     $.post(baseUrl+"usuario/buscar",data,function(data){
       $("#tabla_http tbody").html("");
       let response=JSON.parse(data);        
-      if (response.estado) {
-        for (x in response['data']) {
-          usuarios[response['data'][x].ID]=response['data'][x];         
+      if (response.status) {
+        usuarios=arrayToObj(response['data'])
+        for (x in response['data']) {          
           let fila='<tr id="f-'+response['data'][x].ID+'">';      
           fila+='<td>'+response['data'][x].PERFIL+'</td>';  
           fila+='<td>'+response['data'][x].USUARIO+'</td>';
@@ -190,13 +180,8 @@ function usuarioEditar(id){
 }
 
 function modalUsuarioEditar(data){
-  let estado;
-  if(data.ESTADO=="ACTIVO"){
-    estado='<option value="ACTIVO">ACTIVO</option><option value="INACTIVO">INACTIVO</option>';
-  }else{
-    estado='<option value="INACTIVO">INACTIVO</option><option value="ACTIVO">ACTIVO</option>';
-  } 
-  let perfil=modalLoadSelect(data.TIPO_ID,perfiles);  
+  let perfil=modalLoadSelect(data.TIPO_ID,perfiles); 
+  let estado=modalLoadSelect(data.ESTADO_ID,estados);   
   modalLoadList("colaboradores_list",colaboradores,data.EMPLEADO_ID,data.COLABORADOR);
   let modal=`<div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -247,7 +232,7 @@ function usuarioEditarGuardar(){
     $.post(baseUrl+"usuario/editar",data_json,function(data){      
       let response=JSON.parse(data);      
       $('#modal_cargando').modal('toggle'); 
-      if (response.estado){
+      if (response.status){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
@@ -317,7 +302,7 @@ function usuarioResetearClaveGuardar(){
     $.post(baseUrl+"usuario/resetear",data_json,function(data){      
       let response=JSON.parse(data);      
       $('#modal_cargando').modal('toggle'); 
-      if (response.estado){        
+      if (response.status){        
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
@@ -333,7 +318,7 @@ function usuarioResetearClaveGuardar(){
 }
 
 exportarUsuariosCsv = function() {
-  var exportCvs="PERFIL,USUARIO,COLABORADOR,ESTADO\r\n";
+  let exportCvs="PERFIL,USUARIO,COLABORADOR,ESTADO\r\n";
   for(x in usuarios){
     exportCvs+=usuarios[x].PERFIL+",";
     exportCvs+=usuarios[x].USUARIO+",";
@@ -343,48 +328,46 @@ exportarUsuariosCsv = function() {
   }
 
   csvString = "data:application/csv," + encodeURIComponent(exportCvs);
-  var x = document.createElement("A");
-  x.setAttribute("href", csvString );
-  x.setAttribute("download","usuarios.csv");
-  document.body.appendChild(x);
-  x.click();
+  let data = document.createElement("A");
+  data.setAttribute("href", csvString );
+  data.setAttribute("download","usuarios.csv");
+  document.body.appendChild(data);
+  data.click();
 }
 
-exportarUsuariosPdf=function(){
-    // CREATE A WINDOW OBJECT.
-        let win = window.open('', '', 'height=700,width=900');
-        let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
-          <thead>
-            <tr>          
-              <th>Perfil</th>
-              <th>Usuario</th>
-              <th>Colaborador</th>              
-              <th>Estado</th>              
-            </tr>
-          </thead>
-          <tbody>`;
-        for(x in usuarios){
-          tabla+="<tr>";
-          tabla+="<td>"+usuarios[x].PERFIL+"</td>";
-          tabla+="<td>"+usuarios[x].USUARIO+"</td>";
-          tabla+="<td>"+usuarios[x].COLABORADOR+"</td>";
-          tabla+="<td>"+usuarios[x].ESTADO+"</td>";          
-          tabla+="</tr>";
-        }
-        tabla+="</tbody></table>";
-        let style = "<style>";                        
-        style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
-        style = style + "</style>";
-        win.document.write('<html><head>');
-        win.document.write('<title>Usuarios</title>');   // <title> FOR PDF HEADER.
-        win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
-        win.document.write('</head>');
-        win.document.write('<body>');
-        win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
-        win.document.write('</body></html>');
-        win.document.close();   // CLOSE THE CURRENT WINDOW.
-        win.print();    // PRINT THE CONTENTS.
+exportarUsuariosPdf=function(){    
+  let win = window.open('', '', 'height=700,width=900');
+  let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+    <thead>
+      <tr>          
+        <th>Perfil</th>
+        <th>Usuario</th>
+        <th>Colaborador</th>              
+        <th>Estado</th>              
+      </tr>
+    </thead>
+    <tbody>`;
+  for(x in usuarios){
+    tabla+="<tr>";
+    tabla+="<td>"+usuarios[x].PERFIL+"</td>";
+    tabla+="<td>"+usuarios[x].USUARIO+"</td>";
+    tabla+="<td>"+usuarios[x].COLABORADOR+"</td>";
+    tabla+="<td>"+usuarios[x].ESTADO+"</td>";          
+    tabla+="</tr>";
+  }
+  tabla+="</tbody></table>";
+  let style = "<style>";                        
+  style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+  style = style + "</style>";
+  win.document.write('<html><head>');
+  win.document.write('<title>Usuarios</title>');   // <title> FOR PDF HEADER.
+  win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+  win.document.write('</head>');
+  win.document.write('<body>');
+  win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+  win.document.write('</body></html>');
+  win.document.close();   // CLOSE THE CURRENT WINDOW.
+  win.print();    // PRINT THE CONTENTS.
 }
-
 
 </script>  

@@ -74,17 +74,17 @@ function gananciaListar(){
     let response=JSON.parse(data);        
     let total=0;
     let fila="";
-    if (response.estado) {
+    if (response.status) {
       for (x in response['data']) {
-        resumen[response['data'][x].SALIDA_ID]=response['data'][x];         
-        fila+='<tr id="f-'+response['data'][x].SALIDA_ID+'">';      
-        fila+='<td>'+response['data'][x].SALIDA_ID+'</td>';  
-        fila+='<td>'+response['data'][x].FECHA+'</td>';  
-        fila+='<td>'+response['data'][x].ITEM_NOMBRE+'</td>';        
+        resumen[response['data'][x].ID]=response['data'][x];         
+        fila+='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].ID+'</td>';  
+        fila+='<td>'+response['data'][x].FECHASALIDA+'</td>';  
+        fila+='<td>'+response['data'][x].ITEM+'</td>';        
         fila+='<td>'+response['data'][x].PRESENTACION+'</td>';        
-        fila+='<td>'+parseFloat(response['data'][x].SALIDA_PRECIO_COMPRA).toFixed(2)+'</td>';        
-        fila+='<td>'+parseFloat(response['data'][x].SALIDA_PRECIO).toFixed(2)+'</td>';
-        fila+='<td>'+response['data'][x].SALIDA_CANTIDAD+'</td>';
+        fila+='<td>'+parseFloat(response['data'][x].PRECIOCOMPRA).toFixed(2)+'</td>';        
+        fila+='<td>'+parseFloat(response['data'][x].PRECIOVENTA).toFixed(2)+'</td>';
+        fila+='<td>'+response['data'][x].CANTIDAD+'</td>';
         fila+='<td>'+response['data'][x].GANANCIA+'</td>';
         fila+='</tr>';        
         total+=parseFloat(response['data'][x].GANANCIA);
@@ -100,15 +100,16 @@ function gananciaListar(){
 }
 
 exportarResumenCsv = function() {
-  var exportCvs="ID,FECHA,PRODUCTO,PRESENTACION,LABORATORIO,PRESENTACION,PRECIO,CANTIDAD,GANANCIA\r\n";
+  var exportCvs="ID,FECHA,PRODUCTO,PRESENTACION,LABORATORIO,PRESENTACION,PRECIO COMPRA,PRECIO VENTA,CANTIDAD,GANANCIA\r\n";
   for(x in resumen){
-    exportCvs+=resumen[x].SALIDA_ID+",";
-    exportCvs+=resumen[x].FECHA+",";
-    exportCvs+=resumen[x].ITEM_NOMBRE+",";
+    exportCvs+=resumen[x].ID+",";
+    exportCvs+=resumen[x].FECHASALIDA+",";
+    exportCvs+=resumen[x].ITEM+",";
     exportCvs+=resumen[x].PRESENTACION+",";
-    exportCvs+=resumen[x].LABORATORIO_NOMBRE+",";    
-    exportCvs+=resumen[x].SALIDA_PRECIO+",";    
-    exportCvs+=resumen[x].SALIDA_CANTIDAD+",";    
+    exportCvs+=resumen[x].LABORATORIO+",";    
+    exportCvs+=resumen[x].PRECIOCOMPRA+",";    
+    exportCvs+=resumen[x].PRECIOVENTA+",";    
+    exportCvs+=resumen[x].CANTIDAD+",";    
     exportCvs+=resumen[x].GANANCIA;
     exportCvs+= "\r\n";
   }
@@ -141,13 +142,13 @@ exportarResumenPdf=function(){
     <tbody>`;
   for(x in resumen){
     tabla+="<tr>";
-    tabla+="<td>"+resumen[x].SALIDA_ID+"</td>";
-    tabla+="<td>"+resumen[x].FECHA+"</td>";
-    tabla+="<td>"+resumen[x].ITEM_NOMBRE+"</td>";
+    tabla+="<td>"+resumen[x].ID+"</td>";
+    tabla+="<td>"+resumen[x].FECHASALIDA+"</td>";
+    tabla+="<td>"+resumen[x].ITEM+"</td>";
     tabla+="<td>"+resumen[x].PRESENTACION+"</td>";
-    tabla+="<td>"+resumen[x].SALIDA_PRECIO_COMPRA+"</td>";
-    tabla+="<td>"+resumen[x].SALIDA_PRECIO+"</td>";
-    tabla+="<td>"+resumen[x].SALIDA_CANTIDAD+"</td>";
+    tabla+="<td>"+resumen[x].PRECIOCOMPRA+"</td>";
+    tabla+="<td>"+resumen[x].PRECIOVENTA+"</td>";
+    tabla+="<td>"+resumen[x].CANTIDAD+"</td>";
     tabla+="<td>"+resumen[x].GANANCIA+"</td>";
     tabla+="</tr>";
   }

@@ -21,22 +21,15 @@
       </select>
     </div>
     <div class="form-group">
-      <label for="item_tipo_id">Presentacion *:</label>
-      <select class="form-control" id="item_tipo_id" name="item_tipo_id">
+      <label for="presentacion_id">Presentacion *:</label>
+      <select class="form-control" id="presentacion_id" name="presentacion_id">
         <option>Cargando..!</option>
       </select>
     </div>
     <div class="form-group">
-      <label for="item_categoria_id">Categoria *</label>
-      <select class="form-control" id="item_categoria_id" name="item_categoria_id">
+      <label for="categoria_id">Categoria *</label>
+      <select class="form-control" id="categoria_id" name="categoria_id">
         <option>Cargando..!</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="estado">Estado *</label>    
-      <select class="form-control" id="estado" name="estado">
-        <option value="ACTIVO">ACTIVO</option>
-        <option value="INACTIVO">INACTIVO</option>
       </select>
     </div>
   </form>
@@ -45,39 +38,13 @@
 
 <script type="text/javascript">  
 function datosFormItemRegistrar(){  
-  $.get(baseUrl+"item/formitemregistrar",function(data){      
-    let response=JSON.parse(data);    
-    let selectLaboratorio=document.getElementById("laboratorio_id");
-    let laboratoriosOptions="";
-    let laboratorios=response.laboratorios;    
-    for(x in laboratorios){
-      laboratoriosOptions+='<option value="'+laboratorios[x].LABORATORIO_ID+'">'+laboratorios[x].LABORATORIO_NOMBRE+'</option>';
-    }    
-    selectLaboratorio.innerHTML=laboratoriosOptions;
-
-    let selectProveedor=document.getElementById("proveedor_id");
-    let proveedoresOptions="";
-    let proveedores=response.proveedores;    
-    for(x in proveedores){
-      proveedoresOptions+='<option value="'+proveedores[x].PROVEEDOR_ID+'">'+proveedores[x].PROVEEDOR_NOMBRE+'</option>';
-    }    
-    selectProveedor.innerHTML=proveedoresOptions;
-
-    let selectItemTipo=document.getElementById("item_tipo_id");
-    let ItemTipoOptions="";
-    let itemtipos=response.itemtipos;    
-    for(x in itemtipos){
-      ItemTipoOptions+='<option value="'+itemtipos[x].ITEM_TIPO_ID+'">'+itemtipos[x].ITEM_TIPO_NOMBRE+'</option>';
-    }    
-    selectItemTipo.innerHTML=ItemTipoOptions;
-
-    let selectItemCategoria=document.getElementById("item_categoria_id");
-    let ItemCategoriaOptions="";
-    let itemcategorias=response.itemcategorias;    
-    for(x in itemcategorias){
-      ItemCategoriaOptions+='<option value="'+itemcategorias[x].ITEM_CATEGORIA_ID+'">'+itemcategorias[x].ITEM_CATEGORIA_NOMBRE+'</option>';
-    }    
-    selectItemCategoria.innerHTML=ItemCategoriaOptions;
+  $.get(baseUrl+"item/formeditar",function(data){      
+    let response=JSON.parse(data);   
+    console.log(response)
+    loadSelectNew("laboratorio_id",response['laboratorios']); 
+    loadSelectNew("proveedor_id",response['proveedores']); 
+    loadSelectNew("presentacion_id",response['presentaciones']); 
+    loadSelectNew("categoria_id",response['categorias']); 
   });     
 }  
 datosFormItemRegistrar();

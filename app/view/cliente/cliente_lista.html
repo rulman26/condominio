@@ -11,9 +11,9 @@
             <span class="input-group-text">Filtro</span>
           </div>
           <select class="form-control" id="filtro">
-            <option value="CLIENTE_NOMBRE">Nombre</option>
-            <option value="CLIENTE_DNI">Dni</option>
-            <option value="CLIENTE_RUC">Ruc</option>
+            <option value="a.NOMBRE">Nombre</option>
+            <option value="a.DNI">Dni</option>
+            <option value="a.RUC">Ruc</option>
           </select>
         </div>
       </div>
@@ -64,19 +64,20 @@ function clienteListar(){
   let data={};
   data['filtro']=document.getElementById("filtro").value;
   data['input_filtro']=document.getElementById("filtro_input").value;  
+  data['status']="1";
   tableLoader('tabla_http tbody',5);
-  $.post(baseUrl+"cliente/filtrar/activos",data,function(data){
+  $.post(baseUrl+"cliente/buscar",data,function(data){
     $("#tabla_http tbody").html("");
     let response=JSON.parse(data);        
-    if (response.estado) {
-      for (x in response['data']) {
-        clientes[response['data'][x].CLIENTE_ID]=response['data'][x];         
-        let fila='<tr id="f-'+response['data'][x].CLIENTE_ID+'">';      
-        fila+='<td>'+response['data'][x].CLIENTE_NOMBRE+'</td>';  
-        fila+='<td>'+response['data'][x].CLIENTE_DIRECCION+'</td>';
-        fila+='<td>'+response['data'][x].CLIENTE_DNI+'</td>';
-        fila+='<td>'+response['data'][x].CLIENTE_RUC+'</td>';
-        fila+='<td>'+response['data'][x].CLIENTE_TELEFONO+'</td>';        
+    if (response.status) {
+      clientes=arrayToObj(response['data'])
+      for (x in response['data']) {        
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].NOMBRE+'</td>';  
+        fila+='<td>'+response['data'][x].DIRECCION+'</td>';
+        fila+='<td>'+response['data'][x].DNI+'</td>';
+        fila+='<td>'+response['data'][x].RUC+'</td>';
+        fila+='<td>'+response['data'][x].TELEFONO+'</td>';        
         fila+='<td style="text-align:center;">';        
         fila+=`<div class="dropdown">
                 <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
@@ -84,11 +85,11 @@ function clienteListar(){
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="clienteLeer(`+response['data'][x].CLIENTE_ID+`)">Ver</a>
+                    onclick="clienteLeer(`+response['data'][x].ID+`)">Ver</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="clienteEditar(`+response['data'][x].CLIENTE_ID+`)">Editar</a>
+                    onclick="clienteEditar(`+response['data'][x].ID+`)">Editar</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="clienteEliminar(`+response['data'][x].CLIENTE_ID+`)">Eliminar</a>
+                    onclick="clienteEliminar(`+response['data'][x].ID+`)">Eliminar</a>
                 </div>
               </div>`;
         fila+='</td>';      
@@ -103,6 +104,12 @@ function clienteListar(){
   });
 }
 
+function clienteLeer(id){  
+  let modal=modalClienteLeer(clientes[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
 function modalClienteLeer(data){
   let modal=`<div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -114,82 +121,32 @@ function modalClienteLeer(data){
         <form>
           <div class="form-group">
             <label for="nombre">Nombres y Apellidos:</label>
-            <input readonly type="text" class="form-control" value="`+data.CLIENTE_NOMBRE+`">
+            <input readonly type="text" class="form-control" value="`+data.NOMBRE+`">
           </div>
           <div class="form-group">
             <label for="direccion">Direccion:</label>
-            <input readonly type="text" class="form-control" value="`+data.CLIENTE_DIRECCION+`">
+            <input readonly type="text" class="form-control" value="`+data.DIRECCION+`">
           </div>
           <div class="form-group">
             <label for="dni">Dni:</label>
-            <input readonly type="text" class="form-control" id="dni" value="`+data.CLIENTE_DNI+`">
+            <input readonly type="text" class="form-control" id="dni" value="`+data.DNI+`">
           </div>
           <div class="form-group">
             <label for="dni">Ruc:</label>
-            <input readonly type="text" class="form-control" id="ruc" value="`+data.CLIENTE_RUC+`">
+            <input readonly type="text" class="form-control" id="ruc" value="`+data.RUC+`">
           </div>
           <div class="form-group">
             <label for="telefono">Telefono:</label>
-            <input readonly type="text" class="form-control" id="telefono" value="`+data.CLIENTE_RUC+`">
+            <input readonly type="text" class="form-control" id="telefono" value="`+data.RUC+`">
           </div>
           <div class="form-group">
             <label for="estado">Estado:</label>    
-            <input readonly type="text" class="form-control" id="estado" value="`+data.CLIENTE_ESTADO+`">
+            <input readonly type="text" class="form-control" id="estado" value="`+data.ESTADO+`">
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-    </div>`;
-  return modal;
-}
-
-function clienteLeer(id){  
-  let modal=modalClienteLeer(clientes[id]);  
-  $('#modal_mensaje').html(modal);
-  $('#modal_mensaje').modal('toggle'); 
-}
-
-function modalClienteEditar(data){
-  let modal=`<div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Editar Cliente</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="form_cliente_editar">
-          <div class="form-group">
-            <input type="hidden" name="id" value="`+data.CLIENTE_ID+`">
-            <input type="hidden" name="estado" value="`+data.CLIENTE_ESTADO+`">
-            <label for="nombre">Nombres y Apellidos:</label>
-            <input required type="text" class="form-control" id="nombre" 
-              name="nombre" value="`+data.CLIENTE_NOMBRE+`">
-          </div>
-          <div class="form-group">
-            <label for="direccion">Direccion:</label>
-            <input required type="text" class="form-control" id="direccion" 
-              name="direccion" value="`+data.CLIENTE_DIRECCION+`">
-          </div>
-          <div class="form-group">
-            <label for="dni">Dni:</label>
-            <input type="number" class="form-control" id="dni" name="dni" value="`+data.CLIENTE_DNI+`">
-          </div>
-          <div class="form-group">
-            <label for="dni">Ruc:</label>
-            <input type="number" class="form-control" id="ruc" name="ruc" value="`+data.CLIENTE_RUC+`">
-          </div>
-          <div class="form-group">
-            <label for="telefono">Telefono:</label>
-            <input type="text" class="form-control" id="telefono" name="telefono" value="`+data.CLIENTE_TELEFONO+`">
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer"> 
-        <button type="button" class="btn btn-success" onclick="clienteEditarGuardar()">Editar</button>       
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
       </div>
     </div>
     </div>`;
@@ -202,42 +159,71 @@ function clienteEditar(id){
   $('#modal_formulario').modal('toggle'); 
 }
 
-function clientesEditarData(data){
-  /*Actualiza el Array en el Cliente*/
-  clientes[data['id']].CLIENTE_NOMBRE=data['nombre'];
-  clientes[data['id']].CLIENTE_DIRECCION=data['direccion'];
-  clientes[data['id']].CLIENTE_DNI=data['dni'];
-  clientes[data['id']].CLIENTE_RUC=data['ruc'];
-  clientes[data['id']].CLIENTE_TELEFONO=data['telefono'];  
-
-  /*Actualizamos la Fila de la Tabla*/
-  let fila=document.getElementById("f-"+data["id"]);       
-  let columna=fila.querySelectorAll("td");
-  columna[0].innerHTML=data['nombre'];
-  columna[1].innerHTML=data['direccion'];
-  columna[2].innerHTML=data['dni'];
-  columna[3].innerHTML=data['ruc'];
-  columna[4].innerHTML=data['telefono'];  
+function modalClienteEditar(data){
+  let modal=`<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Editar Cliente</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_cliente_editar">
+          <div class="form-group">
+            <input type="hidden" name="id" value="`+data.ID+`">
+            <input type="hidden" name="estado_id" value="`+data.ESTADO_ID+`">
+            <label for="nombre">Nombres y Apellidos:</label>
+            <input required type="text" class="form-control" id="nombre" 
+              name="nombre" value="`+data.NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="direccion">Direccion:</label>
+            <input required type="text" class="form-control" id="direccion" 
+              name="direccion" value="`+data.DIRECCION+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Dni:</label>
+            <input type="number" class="form-control" id="dni" name="dni" value="`+data.DNI+`">
+          </div>
+          <div class="form-group">
+            <label for="dni">Ruc:</label>
+            <input type="number" class="form-control" id="ruc" name="ruc" value="`+data.RUC+`">
+          </div>
+          <div class="form-group">
+            <label for="telefono">Telefono:</label>
+            <input type="text" class="form-control" id="telefono" name="telefono" value="`+data.TELEFONO+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-success" onclick="clienteEditarGuardar()">Editar</button>       
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+      </div>
+    </div>
+    </div>`;
+  return modal;
 }
 
 function clienteEditarGuardar(){  
   if (formValido("form_cliente_editar")){
-    let data=$("#form_cliente_editar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
+    let data_json=objForm("form_cliente_editar");
     modalCargando();
     $.post(baseUrl+"cliente/editar",data_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle'); 
-      if (response.estado){        
+      if (response.status){        
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle');
-        clientesEditarData(data_json);        
+        dataLocalEdit(clientes,data_json);
+        let aObjetos=[]
+        aObjetos.push(data_json['nombre']);
+        aObjetos.push(data_json['direccion']);
+        aObjetos.push(data_json['dni']);        
+        aObjetos.push(data_json['ruc']);        
+        aObjetos.push(data_json['telefono']);        
+        datatableRowEdit(data_json['id'],aObjetos);            
       }else{
         let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
@@ -256,7 +242,7 @@ function modalClienteEliminar(data){
       </div>
       <div class="modal-body">
         <form id="form_cliente_eliminar">
-          <input type="hidden" name="id" value="`+data.CLIENTE_ID+`">
+          <input type="hidden" name="id" value="`+data.ID+`">
         </form>
         <h6>Estas Seguro de Eliminar Cliente..?"</h6>
       </div>
@@ -277,16 +263,12 @@ function clienteEliminar(id){
 
 function clienteEliminarGuardar(){
   if (formValido("form_cliente_eliminar")){
-    let data=$("#form_cliente_eliminar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
+    let data_json=objForm("form_cliente_eliminar");
     modalCargando();
     $.post(baseUrl+"cliente/eliminar",data_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle'); 
-      if (response.estado){
+      if (response.status){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        

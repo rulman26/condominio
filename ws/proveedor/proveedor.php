@@ -13,26 +13,39 @@ class proveedor
   var $direccion;
   var $telefono;
   var $email;
-  var $estado;
+  var $estado_id;
 
   function crearProveedor(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO PROVEEDOR VALUES(default,?,?,?,?,?,?)";
+      $sql = "INSERT INTO taproveedor VALUES(default,?,?,?,?,?,?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->ruc,$this->nombre,$this->direccion,$this->telefono,$this->email,$this->estado));
-      $mensaje['estado']=true;
+      $q->execute(array($this->ruc,$this->nombre,$this->direccion,$this->telefono,$this->email,$this->estado_id));
+      $mensaje['status']=true;
       $mensaje['mensaje']='PROVEEDOR REGISTRADO CON EXITO'; 
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
     $pdo = baseDatos::desconectar();
     return $mensaje;  
+  }
+
+  function formEditar(){
+    $pdo = BaseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data['estados'] = $q->fetchAll(PDO::FETCH_ASSOC);    
+  
+    $data['status']=true;
+    BaseDatos::desconectar();
+    return $data; 
   }
 
   function editarProveedor(){    
@@ -40,24 +53,21 @@ class proveedor
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "UPDATE PROVEEDOR 
-        SET PROVEEDOR_RUC=?,
-        PROVEEDOR_NOMBRE=?,
-        PROVEEDOR_DIRECCION=?,
-        PROVEEDOR_TELEFONO=?,
-        PROVEEDOR_EMAIL=?,
-        PROVEEDOR_ESTADO=?
-        WHERE PROVEEDOR_ID=?";
+      $sql = "UPDATE taproveedor 
+        SET RUC=?,
+        NOMBRE=?,
+        DIRECCION=?,
+        TELEFONO=?,
+        EMAIL=?,
+        ESTADO_ID=?
+        WHERE ID=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->ruc,$this->nombre,$this->direccion,$this->telefono,$this->email,$this->estado,$this->id));
-      //Retornamoe el dato actualizado                  
-      $data=$this->leerProveedor();
-      $mensaje['estado']=true;
-      $mensaje['mensaje']='PROVEEDOR EDITADO CON EXITO'; 
-      $mensaje['proveedor']=$data; 
+      $q->execute(array($this->ruc,$this->nombre,$this->direccion,$this->telefono,$this->email,$this->estado_id,$this->id));
+      $mensaje['status']=true;
+      $mensaje['mensaje']='PROVEEDOR EDITADO CON EXITO';       
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -65,55 +75,36 @@ class proveedor
     return $mensaje;  
   }
 
-  function leerProveedor(){    
-    $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "SELECT *FROM PROVEEDOR WHERE PROVEEDOR_ID=?";
-    $q = $pdo->prepare($sql);
-    $q->execute(array($this->id)); 
-    $data = $q->fetch(PDO::FETCH_ASSOC);                     
-    $mensaje['estado']=true;
-    $mensaje['data']=$data;     
-    $pdo = baseDatos::desconectar();
-    return $mensaje;  
-  }
-
   function eliminarProveedor(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "UPDATE PROVEEDOR SET PROVEEDOR_ESTADO='INACTIVO' WHERE  PROVEEDOR_ID=?";
+    $sql = "UPDATE taproveedor SET ESTADO_ID=2 WHERE ID=?";
     $q = $pdo->prepare($sql);
     $q->execute(array($this->id));     
-    $mensaje['estado']=true;
+    $mensaje['status']=true;
     $mensaje['mensaje']='PROVEEDOR ELIMINADO CON EXITO';     
     $pdo = baseDatos::desconectar();
     return $mensaje;  
   }
  
-  function listaProveedores($filtro,$columna,$valor){
-    $filtrosAceptados=['activos','inactivos','todos'];
-    if (in_array($filtro, $filtrosAceptados)) {
-      if ($filtro=="activos") {
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND PROVEEDOR_ESTADO='ACTIVO'";
-      }elseif($filtro=="inactivos"){
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND PROVEEDOR_ESTADO='INACTIVO'";
-      }else{
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' ";
-      }
-      $pdo = baseDatos::conectar();
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT * FROM PROVEEDOR ".$cadena;
-      $q = $pdo->prepare($sql);
-      $q->execute();
-      $data = $q->fetchAll(PDO::FETCH_ASSOC);      
-      $mensaje['estado']=true;
-      $mensaje['data']=$data ;  
+  function buscarProveedores($columna,$valor,$estados){
+    if(empty($valor)){
+      $cadena="WHERE a.ESTADO_ID IN (".$estados.")";
     }else{
-      $mensaje['estado']=false;
-      $mensaje['mensaje']="SOLO ACEPTA (activos,inactivos y todos)";
-    }
+      $cadena="WHERE ".$columna." like '%".strtoupper($valor)."%' AND a.ESTADO_ID IN (".$estados.")";
+    } 
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT a.*,b.NOMBRE ESTADO FROM taproveedor a 
+      JOIN gnestados b on b.ID=a.ESTADO_ID ".$cadena;
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);      
+    $mensaje['status']=true;
+    $mensaje['data']=$data ;  
     baseDatos::desconectar();
     return $mensaje; 
   } 
+  
 }
 ?>

@@ -11,9 +11,9 @@
             <span class="input-group-text">Filtro</span>
           </div>
           <select class="form-control" id="filtro">        
-            <option value="PROVEEDOR_RUC">Ruc</option>
-            <option value="PROVEEDOR_NOMBRE">Razon Social</option>
-            <option value="PROVEEDOR_DIRECCION">Direccion</option>
+            <option value="a.RUC">Ruc</option>
+            <option value="a.NOMBRE">Razon Social</option>
+            <option value="a.DIRECCION">Direccion</option>
           </select>
         </div>
       </div>
@@ -24,7 +24,7 @@
       </div>  
       <div class="col-sm-3">
         <div class="input-group">
-          <button class="btn btn-primary btn-block" onclick="proveedorListar()">Buscar</button>
+          <button class="btn btn-primary btn-block" onclick="proveedorBuscar()">Buscar</button>
         </div>
       </div>
       <div class="col-sm-3" id="div_buscar" style="display: none">
@@ -65,29 +65,40 @@
 </div>
 
 <script type="text/javascript">
-  screenAltura("tabla_http_scroll",280);
-  var proveedores=[];
-  function proveedorListar(){
-  
+var estados=[];
+function dataFromEditarProveedor(){
+  $.get(baseUrl+"proveedor/formeditar",function(data){          
+    let response=JSON.parse(data);  
+    if(response.status){      
+      estados=response['estados'];      
+    }else{
+      alert("Ocurrio un Error En la Conexion");
+    }
+  });
+}
+dataFromEditarProveedor(); 
+screenAltura("tabla_http_scroll",280);
+var proveedores=[];
+function proveedorBuscar(){
   document.getElementById("div_buscar").style.display="block";
-  
   let data={};
   data['filtro']=document.getElementById("filtro").value;
   data['input_filtro']=document.getElementById("filtro_input").value;  
+  data['status']="1,2";
   tableLoader('tabla_http tbody',5);
-  $.post(baseUrl+"proveedor/filtrar/todos",data,function(data){
+  $.post(baseUrl+"proveedor/buscar",data,function(data){
     $("#tabla_http tbody").html("");
     let response=JSON.parse(data);        
-    if (response.estado) {
-      for (x in response['data']) {
-        proveedores[response['data'][x].PROVEEDOR_ID]=response['data'][x];         
-        let fila='<tr id="f-'+response['data'][x].PROVEEDOR_ID+'">';      
-        fila+='<td>'+response['data'][x].PROVEEDOR_RUC+'</td>';  
-        fila+='<td>'+response['data'][x].PROVEEDOR_NOMBRE+'</td>';
-        fila+='<td>'+response['data'][x].PROVEEDOR_DIRECCION+'</td>';        
-        fila+='<td>'+response['data'][x].PROVEEDOR_TELEFONO+'</td>';        
-        fila+='<td>'+response['data'][x].PROVEEDOR_EMAIL+'</td>';        
-        fila+='<td>'+response['data'][x].PROVEEDOR_ESTADO+'</td>';        
+    if (response.status) {
+      proveedores=arrayToObj(response['data'])
+      for (x in response['data']) {        
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].RUC+'</td>';  
+        fila+='<td>'+response['data'][x].NOMBRE+'</td>';
+        fila+='<td>'+response['data'][x].DIRECCION+'</td>';        
+        fila+='<td>'+response['data'][x].TELEFONO+'</td>';        
+        fila+='<td>'+response['data'][x].EMAIL+'</td>';        
+        fila+='<td>'+response['data'][x].ESTADO+'</td>';        
         fila+='<td style="text-align:center;">';        
         fila+=`<div class="dropdown">
                 <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
@@ -95,9 +106,9 @@
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="proveedorLeer(`+response['data'][x].PROVEEDOR_ID+`)">Ver</a>
+                    onclick="proveedorLeer(`+response['data'][x].ID+`)">Ver</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="proveedorEditar(`+response['data'][x].PROVEEDOR_ID+`)">Editar</a>                  
+                    onclick="proveedorEditar(`+response['data'][x].ID+`)">Editar</a>                  
                 </div>
               </div>`;
         fila+='</td>';      
@@ -112,6 +123,14 @@
   });
 }
 
+function proveedorLeer(id){
+  console.log(proveedores[id]);
+  let modal=modalProveedorLeer(proveedores[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+
 function modalProveedorLeer(data){
   let modal=`<div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -123,28 +142,28 @@ function modalProveedorLeer(data){
         <form>
           <div class="form-group">
             <label>Ruc:</label>
-            <input readonly type="text" class="form-control" id="ruc" value="`+data.PROVEEDOR_RUC+`">
+            <input readonly type="text" class="form-control" id="ruc" value="`+data.RUC+`">
           </div>
           <div class="form-group">
             <label>Razon Social:</label>
-            <input readonly type="text" class="form-control" value="`+data.PROVEEDOR_NOMBRE+`">
+            <input readonly type="text" class="form-control" value="`+data.NOMBRE+`">
           </div>
           <div class="form-group">
             <label>Direccion:</label>
-            <input readonly type="text" class="form-control" value="`+data.PROVEEDOR_DIRECCION+`">
+            <input readonly type="text" class="form-control" value="`+data.DIRECCION+`">
           </div>
           
           <div class="form-group">
             <label>Telefono:</label>
-            <input readonly type="text" class="form-control" value="`+data.PROVEEDOR_TELEFONO+`">
+            <input readonly type="text" class="form-control" value="`+data.TELEFONO+`">
           </div>
           <div class="form-group">
             <label>Telefono:</label>
-            <input readonly type="text" class="form-control" value="`+data.PROVEEDOR_EMAIL+`">
+            <input readonly type="text" class="form-control" value="`+data.EMAIL+`">
           </div>
           <div class="form-group">
             <label>Estado:</label>    
-            <input readonly type="text" class="form-control" value="`+data.PROVEEDOR_ESTADO+`">
+            <input readonly type="text" class="form-control" value="`+data.ESTADO+`">
           </div>
         </form>
       </div>
@@ -156,21 +175,15 @@ function modalProveedorLeer(data){
   return modal;
 }
 
-function proveedorLeer(id){
+function proveedorEditar(id){
   console.log(proveedores[id]);
-  let modal=modalProveedorLeer(proveedores[id]);  
-  $('#modal_mensaje').html(modal);
-  $('#modal_mensaje').modal('toggle'); 
+  let modal=modalProveedorEditar(proveedores[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
 }
 
-function modalProveedorEditar(data){
-  let estado;
-  if(data.PROVEEDOR_ESTADO=="ACTIVO"){
-    estado='<option value="ACTIVO">ACTIVO</option><option value="INACTIVO">INACTIVO</option>';
-  }else{
-    estado='<option value="INACTIVO">INACTIVO</option><option value="ACTIVO">ACTIVO</option>';
-  } 
-  
+function modalProveedorEditar(data){  
+  let estado=modalLoadSelect(data.ESTADO_ID,estados);
   let modal=`<div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -179,33 +192,32 @@ function modalProveedorEditar(data){
       </div>
       <div class="modal-body">
         <form id="form_proveedor_editar">
+          <input type="hidden" name="id" value="`+data.ID+`">
           <div class="form-group">
-            <label for="ruc">Ruc:</label>
-            <input type="number" class="form-control" id="ruc" name="ruc" value="`+data.PROVEEDOR_RUC+`">
+            <label for="ruc">Ruc *</label>
+            <input type="number" class="form-control" id="ruc" name="ruc" value="`+data.RUC+`">
           </div>
-          <div class="form-group">
-            <input type="hidden" name="id" value="`+data.PROVEEDOR_ID+`">
-            <input type="hidden" name="estado" value="`+data.PROVEEDOR_ESTADO+`">
-            <label for="nombre">Nombres y Apellidos:</label>
+          <div class="form-group">            
+            <label for="nombre">Razon Social *</label>
             <input required type="text" class="form-control" id="nombre" 
-              name="nombre" value="`+data.PROVEEDOR_NOMBRE+`">
+              name="nombre" value="`+data.NOMBRE+`">
           </div>
           <div class="form-group">
-            <label for="direccion">Direccion:</label>
+            <label for="direccion">Direccion *</label>
             <input required type="text" class="form-control" id="direccion" 
-              name="direccion" value="`+data.PROVEEDOR_DIRECCION+`">
+              name="direccion" value="`+data.DIRECCION+`">
           </div>
           <div class="form-group">
-            <label for="telefono">Telefono:</label>
-            <input type="text" class="form-control" id="telefono" name="telefono" value="`+data.PROVEEDOR_TELEFONO+`">
+            <label for="telefono">Telefono </label>
+            <input type="text" class="form-control" id="telefono" name="telefono" value="`+data.TELEFONO+`">
           </div>
           <div class="form-group">
-            <label for="email">Dni:</label>
-            <input type="text" class="form-control" id="email" name="email" value="`+data.PROVEEDOR_EMAIL+`">
+            <label for="email">Email </label>
+            <input type="text" class="form-control" id="email" name="email" value="`+data.EMAIL+`">
           </div>
           <div class="form-group">
-            <label for="estado">Estado:</label>    
-            <select class="form-control" id="estado" name="estado">
+            <label for="estado_id">Estado *</label>    
+            <select class="form-control" id="estado_id" name="estado_id" nameSelect="estado">
               `+estado+`
             </select>
           </div>
@@ -220,53 +232,28 @@ function modalProveedorEditar(data){
   return modal;
 }
 
-function proveedorEditar(id){
-  console.log(proveedores[id]);
-  let modal=modalProveedorEditar(proveedores[id]);  
-  $('#modal_formulario').html(modal);
-  $('#modal_formulario').modal('toggle'); 
-}
-
-function proveedorEditarData(data){
-  /*Actualiza el Array en el Cliente*/
-  console.log("Cabiar");
-  console.log(data);  
-  proveedores[data['id']].PROVEEDOR_RUC=data['ruc'];
-  proveedores[data['id']].PROVEEDOR_NOMBRE=data['nombre'];
-  proveedores[data['id']].PROVEEDOR_DIRECCION=data['direccion'];
-  proveedores[data['id']].PROVEEDOR_TELEFONO=data['telefono'];
-  proveedores[data['id']].PROVEEDOR_EMAIL=data['email'];  
-  proveedores[data['id']].PROVEEDOR_ESTADO=data['estado'];  
-
-  /*Actualizamos la Fila de la Tabla*/
-  let fila=document.getElementById("f-"+data["id"]);       
-  let columna=fila.querySelectorAll("td");
-  columna[0].innerHTML=data['ruc'];
-  columna[1].innerHTML=data['nombre'];
-  columna[2].innerHTML=data['direccion'];
-  columna[3].innerHTML=data['telefono'];
-  columna[4].innerHTML=data['email'];  
-  columna[5].innerHTML=data['estado'];  
-}
-
 function proveedorEditarGuardar(){  
   if (formValido("form_proveedor_editar")){
-    let data=$("#form_proveedor_editar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
+    let data_json=objForm("form_proveedor_editar");    
     modalCargando();
     $.post(baseUrl+"proveedor/editar",data_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle'); 
-      if (response.estado){
+      if (response.status){
         $('#modal_formulario').html("");
         $('#modal_formulario').modal('toggle');      
         let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
         $('#modal_mensaje').modal('toggle');
-        proveedorEditarData(data_json);        
+        dataLocalEdit(proveedores,data_json); 
+        let aObjetos=[]
+        aObjetos.push(data_json['ruc']);
+        aObjetos.push(data_json['nombre']);
+        aObjetos.push(data_json['direccion']);
+        aObjetos.push(data_json['telefono']);
+        aObjetos.push(data_json['email']);
+        aObjetos.push(data_json['estado']);
+        datatableRowEdit(data_json['id'],aObjetos);        
       }else{
         let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
@@ -276,121 +263,63 @@ function proveedorEditarGuardar(){
   } 
 }
 
-function modalProveedorEliminar(data){
-  let modal=`<div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Eliminar Proveedor</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="form_proveedor_eliminar">
-          <input type="hidden" name="id" value="`+data.PROVEEDOR_ID+`">
-        </form>
-        <h6>Estas Seguro de Eliminar Proveedor..?"</h6>
-      </div>
-      <div class="modal-footer"> 
-        <button type="button" class="btn btn-success" onclick="clienteProveedorGuardar()">Si</button>       
-        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
-      </div>
-    </div>
-    </div>`;
-  return modal;
-}
-
-function proveedorEliminar(id){
-  console.log(proveedores[id]);
-  let modal=modalProveedorEliminar(proveedores[id]);  
-  $('#modal_formulario').html(modal);
-  $('#modal_formulario').modal('toggle'); 
-}
-
-
-function clienteProveedorGuardar(){
-  if (formValido("form_proveedor_eliminar")){
-    let data=$("#form_proveedor_eliminar").serializeArray();
-    let data_json={}
-    for (x in data){    
-      data_json[data[x].name]=data[x].value
-    }
-    console.log(data_json);
-
-    $.post(baseUrl+"proveedor/eliminar",data_json,function(data){      
-      let response=JSON.parse(data);
-      console.log(response)
-      if (response.estado){
-        $('#modal_formulario').html("");
-        $('#modal_formulario').modal('toggle');      
-        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
-        $('#modal_mensaje').html(modal_conten_loader);
-        $('#modal_mensaje').modal('toggle');
-        $("#f-"+data_json['id']).remove();
-      }else{
-        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
-        $('#modal_mensaje').html(modal_conten_loader);
-        $('#modal_mensaje').modal('toggle');      
-      }
-    }); 
-  } 
-}
 
 exportarProveedoresCsv = function() {
-  var exportCvs="RUC,RAZON SOCIAL,DIRECCION,TELEFONO,EMAIL,ESTADO\r\n";
+  let exportCvs="RUC,RAZON SOCIAL,DIRECCION,TELEFONO,EMAIL,ESTADO\r\n";
   for(x in proveedores){
-    exportCvs+=proveedores[x].PROVEEDOR_RUC+",";
-    exportCvs+=proveedores[x].PROVEEDOR_NOMBRE+",";
-    exportCvs+=proveedores[x].PROVEEDOR_DIRECCION+",";
-    exportCvs+=proveedores[x].PROVEEDOR_TELEFONO+",";
-    exportCvs+=proveedores[x].PROVEEDOR_EMAIL+",";
-    exportCvs+=proveedores[x].PROVEEDOR_ESTADO;
+    exportCvs+=proveedores[x].RUC+",";
+    exportCvs+=proveedores[x].NOMBRE+",";
+    exportCvs+=proveedores[x].DIRECCION+",";
+    exportCvs+=proveedores[x].TELEFONO+",";
+    exportCvs+=proveedores[x].EMAIL+",";
+    exportCvs+=proveedores[x].ESTADO;
     exportCvs+= "\r\n";
   }
 
   csvString = "data:application/csv," + encodeURIComponent(exportCvs);
-  var x = document.createElement("A");
-  x.setAttribute("href", csvString );
-  x.setAttribute("download","proveedores.csv");
-  document.body.appendChild(x);
-  x.click();
+  let data = document.createElement("A");
+  data.setAttribute("href", csvString );
+  data.setAttribute("download","proveedores.csv");
+  document.body.appendChild(data);
+  data.click();
 }
 
-exportarProveedoresPdf=function(){
-   // CREATE A WINDOW OBJECT.
-        let win = window.open('', '', 'height=700,width=900');
-        let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
-          <thead>
-            <tr>          
-              <th>Ruc</th>
-              <th>Razon Social</th>
-              <th>Direccion</th>
-              <th>Telefono</th>
-              <th>Email</th>
-              <th>Estado</th>              
-            </tr>
-          </thead>
-          <tbody>`;
-        for(x in proveedores){
-          tabla+="<tr>";
-          tabla+="<td>"+proveedores[x].PROVEEDOR_RUC+"</td>";
-          tabla+="<td>"+proveedores[x].PROVEEDOR_NOMBRE+"</td>";
-          tabla+="<td>"+proveedores[x].PROVEEDOR_DIRECCION+"</td>";
-          tabla+="<td>"+proveedores[x].PROVEEDOR_TELEFONO+"</td>";
-          tabla+="<td>"+proveedores[x].PROVEEDOR_EMAIL+"</td>";
-          tabla+="<td>"+proveedores[x].PROVEEDOR_ESTADO+"</td>";
-          tabla+="</tr>";
-        }
-        tabla+="</tbody></table>";
-        let style = "<style>";                        
-        style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
-        style = style + "</style>";
-        win.document.write('<html><head>');
-        win.document.write('<title>Proveedores</title>');   // <title> FOR PDF HEADER.
-        win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
-        win.document.write('</head>');
-        win.document.write('<body>');
-        win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
-        win.document.write('</body></html>');
-        win.document.close();   // CLOSE THE CURRENT WINDOW.
-        win.print();    // PRINT THE CONTENTS.
+exportarProveedoresPdf=function(){   
+  let win = window.open('', '', 'height=700,width=900');
+  let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+    <thead>
+      <tr>          
+        <th>Ruc</th>
+        <th>Razon Social</th>
+        <th>Direccion</th>
+        <th>Telefono</th>
+        <th>Email</th>
+        <th>Estado</th>              
+      </tr>
+    </thead>
+    <tbody>`;
+  for(x in proveedores){
+    tabla+="<tr>";
+    tabla+="<td>"+proveedores[x].RUC+"</td>";
+    tabla+="<td>"+proveedores[x].NOMBRE+"</td>";
+    tabla+="<td>"+proveedores[x].DIRECCION+"</td>";
+    tabla+="<td>"+proveedores[x].TELEFONO+"</td>";
+    tabla+="<td>"+proveedores[x].EMAIL+"</td>";
+    tabla+="<td>"+proveedores[x].ESTADO+"</td>";
+    tabla+="</tr>";
+  }
+  tabla+="</tbody></table>";
+  let style = "<style>";                        
+  style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+  style = style + "</style>";
+  win.document.write('<html><head>');
+  win.document.write('<title>Proveedores</title>');   // <title> FOR PDF HEADER.
+  win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+  win.document.write('</head>');
+  win.document.write('<body>');
+  win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+  win.document.write('</body></html>');
+  win.document.close();   // CLOSE THE CURRENT WINDOW.
+  win.print();    // PRINT THE CONTENTS.
 }
 </script>  

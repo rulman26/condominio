@@ -1,10 +1,6 @@
 <?php
 require '../conn.php';
 
-/**
- * Clase Usuario
- */
-
 class cliente 
 {
   var $id;  	
@@ -13,21 +9,21 @@ class cliente
   var $dni;
   var $ruc;    
   var $telefono;
-  var $estado;
+  var $estado_id;
 
   function crearCliente(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO CLIENTE VALUES(default,?,?,?,?,?,?)";
+      $sql = "INSERT INTO tacliente VALUES(default,?,?,?,?,?,?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->nombre,$this->direccion,$this->dni,$this->ruc,$this->telefono,$this->estado));                  
-      $mensaje['estado']=true;
+      $q->execute(array($this->nombre,$this->direccion,$this->dni,$this->ruc,$this->telefono,$this->estado_id));
+      $mensaje['status']=true;
       $mensaje['mensaje']='CLIENTE REGISTRADO CON EXITO'; 
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -35,29 +31,39 @@ class cliente
     return $mensaje;  
   }
 
+  function formEditar(){
+    $pdo = BaseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data['estados'] = $q->fetchAll(PDO::FETCH_ASSOC);    
+  
+    $data['status']=true;
+    BaseDatos::desconectar();
+    return $data; 
+  }
+
   function editarCliente(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "UPDATE CLIENTE 
-        SET CLIENTE_NOMBRE=?,
-        CLIENTE_DIRECCION=?,
-        CLIENTE_DNI=?,
-        CLIENTE_RUC=?,
-        CLIENTE_TELEFONO=?,
-        CLIENTE_ESTADO=?
-        WHERE CLIENTE_ID=?";
+      $sql = "UPDATE tacliente 
+        SET NOMBRE=?,
+        DIRECCION=?,
+        DNI=?,
+        RUC=?,
+        TELEFONO=?,
+        ESTADO_ID=?
+        WHERE ID=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->nombre,$this->direccion,$this->dni,$this->ruc,$this->telefono,$this->estado,$this->id)); 
-      //Retornamoe el dato actualizado                  
-      //$data=$this->leerCliente();
-      $mensaje['estado']=true;
-      $mensaje['mensaje']='CLIENTE EDITADO CON EXITO'; 
-      //$mensaje['cliente']=$data; 
+      $q->execute(array($this->nombre,$this->direccion,$this->dni,$this->ruc,$this->telefono,$this->estado_id,$this->id)); 
+      $mensaje['status']=true;
+      $mensaje['mensaje']='CLIENTE EDITADO CON EXITO';       
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -72,7 +78,7 @@ class cliente
     $q = $pdo->prepare($sql);
     $q->execute(array($this->id)); 
     $data = $q->fetch(PDO::FETCH_ASSOC);                     
-    $mensaje['estado']=true;
+    $mensaje['status']=true;
     $mensaje['data']=$data;     
     $pdo = baseDatos::desconectar();
     return $mensaje;  
@@ -81,37 +87,31 @@ class cliente
   function eliminarCliente(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "UPDATE CLIENTE SET CLIENTE_ESTADO='INACTIVO' WHERE  CLIENTE_ID=?";
+    $sql = "UPDATE tacliente SET ESTADO_ID=2 WHERE  ID=?";
     $q = $pdo->prepare($sql);
     $q->execute(array($this->id));     
-    $mensaje['estado']=true;
+    $mensaje['status']=true;
     $mensaje['mensaje']='CLIENTE ELIMINADO CON EXITO';     
     $pdo = baseDatos::desconectar();
     return $mensaje;  
   }
 
-  function listaClientes($filtro,$columna,$valor){
-    $filtrosAceptados=['activos','inactivos','todos'];
-    if (in_array($filtro, $filtrosAceptados)) {
-      if ($filtro=="activos") {
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND CLIENTE_ESTADO='ACTIVO'";
-      }elseif($filtro=="inactivos"){        
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' AND CLIENTE_ESTADO='INACTIVO'";
-      }else{
-        $cadena="WHERE UPPER(".$columna.") like '%".strtoupper($valor)."%' ";
-      }
-      $pdo = baseDatos::conectar();
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT *FROM CLIENTE ".$cadena;
-      $q = $pdo->prepare($sql);
-      $q->execute();
-      $data = $q->fetchAll(PDO::FETCH_ASSOC);      
-      $mensaje['estado']=true;
-      $mensaje['data']=$data ;  
+  
+  function buscarClientes($columna,$valor,$estados){
+    if(empty($valor)){
+      $cadena="WHERE a.ESTADO_ID IN (".$estados.")";
     }else{
-      $mensaje['estado']=false;
-      $mensaje['mensaje']="SOLO ACEPTA (activos,inactivos y todos)";
-    }
+      $cadena="WHERE ".$columna." like '%".strtoupper($valor)."%' AND a.ESTADO_ID IN (".$estados.")";
+    }      
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT a.*,b.NOMBRE ESTADO FROM tacliente a
+      JOIN gnestados b on b.ID=a.ESTADO_ID ".$cadena;
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);      
+    $mensaje['status']=true;
+    $mensaje['data']=$data ;  
     baseDatos::desconectar();
     return $mensaje; 
   } 

@@ -13,22 +13,48 @@ class item
   var $unidades;
   var $laboratorio_id;
   var $proveedor_id;    
-  var $item_tipo_id;
-  var $item_categoria_id;
-  var $estado;
+  var $presentacion_id;
+  var $categoria_id;
+  var $fecha_creacion;
+  var $usuario_id;
+  var $estado_id;
 
-  function getItem()
-  {
-    $arrayItem=[];
-    $arrayItem["id"]=$this->id;
-    $arrayItem["codigo"]=$this->codigo;
-    $arrayItem["nombre"]=$this->nombre;
-    $arrayItem["unidades"]=$this->unidades;
-    $arrayItem["proveedor_id"]=$this->proveedor_id;
-    $arrayItem["item_tipo_id"]=$this->item_tipo_id;
-    $arrayItem["item_categoria_id"]=$this->item_categoria_id;
-    $arrayItem["estado"]=$this->estado;
-    return $arrayItem;
+  function formEditar(){    
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  
+    $sql = "SELECT ID,NOMBRE FROM talaboratorio WHERE ESTADO_ID=1";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['laboratorios']=$data;
+
+    $sql = "SELECT ID,NOMBRE FROM taproveedor WHERE ESTADO_ID=1";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['proveedores']=$data;
+
+    $sql = "SELECT ID,NOMBRE FROM gnitempresentacion WHERE ESTADO_ID=1";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['presentaciones']=$data;
+
+    $sql = "SELECT ID,NOMBRE FROM gnitemcategoria WHERE ESTADO_ID=1";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['categorias']=$data;
+
+    $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['estados']=$data;
+
+    $mensaje['status']=true;     
+    $pdo = baseDatos::desconectar();
+    return $mensaje;  
   }
 
   function crearItem(){    
@@ -36,9 +62,9 @@ class item
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO ITEM VALUES(default,?,?,?,?,?,?,?,?)";
+      $sql = "INSERT INTO taitem VALUES(default,?,?,?,?,?,?,?,now(),?,?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->codigo,$this->nombre,$this->unidades,$this->laboratorio_id,$this->proveedor_id,$this->item_tipo_id,$this->item_categoria_id,$this->estado));                  
+      $q->execute(array($this->codigo,$this->nombre,$this->unidades,$this->laboratorio_id,$this->proveedor_id,$this->presentacion_id,$this->categoria_id,$this->usuario_id,$this->estado_id));                  
       $mensaje['estado']=true;
       $mensaje['mensaje']='ITEM REGISTRADO CON EXITO'; 
       $pdo->commit();  
@@ -56,101 +82,27 @@ class item
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "UPDATE ITEM 
-        SET ITEM_CODIGO=?,
-        ITEM_NOMBRE=?,        
-        ITEM_UNIDADES=?,
+      $sql = "UPDATE taitem 
+        SET CODIGO=?,
+        NOMBRE=?,        
+        UNIDADES=?,
         LABORATORIO_ID=?,
         PROVEEDOR_ID=?,
-        ITEM_TIPO_ID=?,
-        ITEM_CATEGORIA_ID=?,
-        ITEM_ESTADO=?
-        WHERE ITEM_ID=?";
+        PRESENTACION_ID=?,
+        CATEGORIA_ID=?,
+        ESTADO_ID=?
+        WHERE ID=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($this->codigo,$this->nombre,$this->unidades,$this->laboratorio_id,$this->proveedor_id,$this->item_tipo_id,$this->item_categoria_id,$this->estado,$this->id)); 
-      //Retornamoe el dato actualizado                  
-      $mensaje['estado']=true;
+      $q->execute(array($this->codigo,$this->nombre,$this->unidades,$this->laboratorio_id,$this->proveedor_id,$this->presentacion_id,$this->categoria_id,$this->estado_id,$this->id)); 
+      $mensaje['status']=true;
       $mensaje['mensaje']='ITEM EDITADO CON EXITO'; 
       
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
-    $pdo = baseDatos::desconectar();
-    return $mensaje;  
-  }
-
-  function leerItem(){    
-    $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "SELECT IT.ITEM_ID,IT.ITEM_CODIGO,IT.ITEM_NOMBRE,IT.ITEM_PRECIO_COMPRA,IT.ITEM_PRECIO_VENTA,
-      IT.ITEM_GRAMOS,IT.ITEM_TIPO_ID,ITP.ITEM_TIPO_NOMBRE,IT.ITEM_CATEGORIA_ID,
-      ITC.ITEM_CATEGORIA_NOMBRE,IT.ITEM_ESTADO
-      FROM ITEM IT 
-      JOIN PROVEEDOR PRO ON PRO.PROVEEDOR_ID=IT.PROVEEDOR_ID
-      JOIN ITEM_TIPO ITP ON ITP.ITEM_TIPO_ID=IT.ITEM_TIPO_ID
-      JOIN ITEM_CATEGORIA ITC ON ITC.ITEM_CATEGORIA_ID=IT.ITEM_CATEGORIA_ID 
-      WHERE IT.ITEM_ID=?";
-    $q = $pdo->prepare($sql);
-    $q->execute(array($this->id)); 
-    $data = $q->fetch(PDO::FETCH_ASSOC);                     
-    $mensaje['estado']=true;
-    $mensaje['data']=$data;     
-    $pdo = baseDatos::desconectar();
-    return $mensaje;  
-  }
-
-  function formItemRegistrar(){    
-    $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  
-    $sql = "SELECT LABORATORIO_ID,LABORATORIO_NOMBRE FROM LABORATORIO WHERE LABORATORIO_ESTADO='ACTIVO'";
-    $q = $pdo->prepare($sql);
-    $q->execute(); 
-    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
-    $mensaje['laboratorios']=$data;
-
-    $sql = "SELECT PROVEEDOR_ID,PROVEEDOR_RUC,PROVEEDOR_NOMBRE FROM PROVEEDOR WHERE PROVEEDOR_ESTADO='ACTIVO'";
-    $q = $pdo->prepare($sql);
-    $q->execute(); 
-    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
-    $mensaje['proveedores']=$data;
-
-    $sql = "SELECT ITEM_TIPO_ID,ITEM_TIPO_NOMBRE FROM ITEM_TIPO WHERE ITEM_TIPO_ESTADO='ACTIVO'";
-    $q = $pdo->prepare($sql);
-    $q->execute(); 
-    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
-    $mensaje['itemtipos']=$data;
-
-    $sql = "SELECT ITEM_CATEGORIA_ID,ITEM_CATEGORIA_NOMBRE FROM ITEM_CATEGORIA WHERE ITEM_CATEGORIA_ESTADO='ACTIVO'";
-    $q = $pdo->prepare($sql);
-    $q->execute(); 
-    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
-    $mensaje['itemcategorias']=$data;
-
-    $mensaje['estado']=true;     
-    $pdo = baseDatos::desconectar();
-    return $mensaje;  
-  }
-
-  function formItemInventario(){    
-    $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "SELECT ITM.ITEM_ID,ITM.ITEM_NOMBRE,
-      ITMTIPO.ITEM_TIPO_NOMBRE,ITMCATEGORIA.ITEM_CATEGORIA_NOMBRE,
-      LAB.LABORATORIO_NOMBRE,PRO.PROVEEDOR_NOMBRE
-      FROM ITEM  ITM
-      JOIN LABORATORIO LAB ON LAB.LABORATORIO_ID=ITM.LABORATORIO_ID
-      JOIN ITEM_TIPO ITMTIPO ON ITMTIPO.ITEM_TIPO_ID=ITM.ITEM_TIPO_ID
-      JOIN ITEM_CATEGORIA ITMCATEGORIA ON ITMCATEGORIA.ITEM_CATEGORIA_ID=ITM.ITEM_CATEGORIA_ID
-      JOIN PROVEEDOR PRO ON PRO.PROVEEDOR_ID=ITM.PROVEEDOR_ID
-      WHERE ITEM_ESTADO='ACTIVO'";
-    $q = $pdo->prepare($sql);
-    $q->execute(); 
-    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
-    $mensaje['items']=$data;
-    $mensaje['estado']=true;     
     $pdo = baseDatos::desconectar();
     return $mensaje;  
   }
@@ -158,74 +110,69 @@ class item
   function eliminarItem(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "UPDATE ITEM SET ITEM_ESTADO='INACTIVO' WHERE  ITEM_ID=?";
+    $sql = "UPDATE taitem SET ESTADO_ID=2 WHERE  ID=?";
     $q = $pdo->prepare($sql);
     $q->execute(array($this->id));     
-    $mensaje['estado']=true;
+    $mensaje['status']=true;
     $mensaje['mensaje']='ITEM ELIMINADO CON EXITO';     
     $pdo = baseDatos::desconectar();
     return $mensaje;  
   }
- 
-  function listaItems($filtro,$columna,$valor){
-    $filtrosAceptados=['activos','inactivos','todos'];    
-    if (in_array($filtro, $filtrosAceptados)) {
-      if(empty($valor)){
-        $cadena="";
-      }else{
-        if($columna=="ITEM_CODIGO" or $columna=="ITEM_NOMBRE"){          
-          $cadena="WHERE UPPER(IT.".$columna.") like '%".strtoupper($valor)."%'";
-        }else{
-          $cadena="WHERE IT.".$columna."=".$valor;
-        }
-      }
-      if ($filtro=="activos") {        
-        $cadena.=" AND IT.ITEM_ESTADO='ACTIVO'";
-      }elseif($filtro=="inactivos"){
-        $cadena.=" AND IT.ITEM_ESTADO='INACTIVO'";
-      }else{
-        $cadena.="";
-      }
-      $pdo = baseDatos::conectar();
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT IT.ITEM_ID,IT.ITEM_CODIGO,IT.ITEM_NOMBRE,
-        IT.ITEM_UNIDADES,IT.LABORATORIO_ID,LAB.LABORATORIO_NOMBRE,
-        IT.PROVEEDOR_ID,PRO.PROVEEDOR_NOMBRE,
-        IT.ITEM_TIPO_ID,ITP.ITEM_TIPO_NOMBRE,IT.ITEM_CATEGORIA_ID,
-        ITC.ITEM_CATEGORIA_NOMBRE,IT.ITEM_ESTADO
-        FROM ITEM IT 
-        JOIN LABORATORIO LAB ON LAB.LABORATORIO_ID=IT.LABORATORIO_ID
-        JOIN PROVEEDOR PRO ON PRO.PROVEEDOR_ID=IT.PROVEEDOR_ID
-        JOIN ITEM_TIPO ITP ON ITP.ITEM_TIPO_ID=IT.ITEM_TIPO_ID
-        JOIN ITEM_CATEGORIA ITC ON ITC.ITEM_CATEGORIA_ID=IT.ITEM_CATEGORIA_ID ".$cadena;        
-      $q = $pdo->prepare($sql);
-      $q->execute();
-      $data = $q->fetchAll(PDO::FETCH_ASSOC);      
-      $mensaje['estado']=true;
-      $mensaje['data']=$data;
-      $mensaje['sql']=$sql;   
+
+  function buscarItems($columna,$valor,$estados){
+    if(empty($valor)){
+      $cadena="WHERE a.ESTADO_ID IN (".$estados.")";
     }else{
-      $mensaje['estado']=false;
-      $mensaje['mensaje']="SOLO ACEPTA (activos,inactivos y todos)";
-    }
+      $cadena="WHERE ".$columna." like '%".strtoupper($valor)."%' AND a.ESTADO_ID IN (".$estados.")";
+    } 
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT a.ID,a.CODIGO,a.NOMBRE,a.UNIDADES,a.PRESENTACION_ID,b.NOMBRE PRESENTACION,
+      a.CATEGORIA_ID,c.NOMBRE CATEGORIA,a.LABORATORIO_ID,d.NOMBRE LABORATORIO,
+      a.PROVEEDOR_ID,e.NOMBRE PROVEEDOR,a.ESTADO_ID,f.NOMBRE ESTADO
+      FROM taitem a
+      JOIN gnitempresentacion b on b.ID=a.PRESENTACION_ID        
+      JOIN gnitemcategoria c on c.ID=a.CATEGORIA_ID
+      JOIN talaboratorio d on d.ID=a.LABORATORIO_ID
+      JOIN taproveedor e on e.ID=a.PROVEEDOR_ID
+      JOIN gnestados f ON f.ID=a.ESTADO_ID ".$cadena;
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);      
+    $mensaje['status']=true;
+    $mensaje['data']=$data ;  
     baseDatos::desconectar();
     return $mensaje; 
-  }
+  } 
 
   /*TABLAS GENERICAS QUE PERMITEN CARGAR DATAS*/ 
-  function crearItemTipo($nombre,$estado){    
+  function formEditarPresentacion(){    
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  
+    $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['estados']=$data;
+
+    $mensaje['status']=true;     
+    $pdo = baseDatos::desconectar();
+    return $mensaje;  
+  }
+
+  function crearItemPresentacion($nombre){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO ITEM_TIPO VALUES(default,?,?)";
+      $sql = "INSERT INTO gnitempresentacion VALUES(default,?,?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($nombre,$estado));                  
-      $mensaje['estado']=true;
+      $q->execute(array($nombre,1));                  
+      $mensaje['status']=true;
       $mensaje['mensaje']='ITEM TIPO REGISTRADO CON EXITO'; 
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -233,38 +180,22 @@ class item
     return $mensaje;  
   }
 
-  function leerItemTipo($id){    
-    $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "SELECT * FROM ITEM_TIPO WHERE ITEM_TIPO_ID=?";
-    $q = $pdo->prepare($sql);
-    $q->execute(array($id)); 
-    $data = $q->fetch(PDO::FETCH_ASSOC);                     
-    $mensaje['estado']=true;
-    $mensaje['data']=$data;     
-    $pdo = baseDatos::desconectar();
-    return $mensaje;  
-  }
-
-  function editarItemTipo($nombre,$estado,$id){    
+  function editaItemPresentacion($nombre,$estado_id,$id){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "UPDATE ITEM_TIPO 
-        SET ITEM_TIPO_NOMBRE=?,        
-        ITEM_TIPO_ESTADO=?
-        WHERE ITEM_TIPO_ID=?";
+      $sql = "UPDATE gnitempresentacion 
+        SET NOMBRE=?,        
+        ESTADO_ID=?
+        WHERE ID=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($nombre,$estado,$id)); 
-      //Retornamoe el dato actualizado                  
-      $data=$this->leerItemTipo($id);
-      $mensaje['estado']=true;
-      $mensaje['mensaje']='ITEM TIPO EDITADO CON EXITO'; 
-      $mensaje['item']=$data; 
+      $q->execute(array($nombre,$estado_id,$id));      
+      $mensaje['status']=true;
+      $mensaje['mensaje']='ITEM TIPO EDITADO CON EXITO';       
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -272,74 +203,57 @@ class item
     return $mensaje;  
   }
 
-  function eliminarItemTipo($id){    
+  function buscarItemPresentaciones($valor,$estados){
+    if(empty($valor)){
+      $cadena="WHERE a.ESTADO_ID IN (".$estados.")";
+    }else{
+      $cadena="WHERE a.NOMBRE like '%".strtoupper($valor)."%' AND a.ESTADO_ID IN (".$estados.")";
+    } 
     $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "UPDATE ITEM_TIPO SET ITEM_TIPO_ESTADO='INACTIVO' WHERE  ITEM_TIPO_ID=?";
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT a.ID,a.NOMBRE,a.ESTADO_ID,b.NOMBRE ESTADO
+      FROM gnitempresentacion a
+      JOIN gnestados b on b.ID=a.ESTADO_ID ".$cadena;
     $q = $pdo->prepare($sql);
-    $q->execute(array($id));     
-    $mensaje['estado']=true;
-    $mensaje['mensaje']='ITEM TIPO ELIMINADO CON EXITO';     
+    $q->execute();
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);      
+    $mensaje['status']=true;
+    $mensaje['data']=$data ;  
+    baseDatos::desconectar();
+    return $mensaje; 
+  } 
+
+  /*CATEGORIA DE ITEMS*/
+  function formEditarCategoria(){    
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  
+    $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['estados']=$data;
+
+    $mensaje['status']=true;     
     $pdo = baseDatos::desconectar();
     return $mensaje;  
   }
 
-  function listaItemTipos($filtro){
-    $filtrosAceptados=['activos','inactivos','todos'];
-    if (in_array($filtro, $filtrosAceptados)) {
-      if ($filtro=="activos") {
-        $cadena="WHERE ITEM_TIPO_ESTADO='ACTIVO'";
-      }elseif($filtro=="inactivos"){
-        $cadena="WHERE ITEM_TIPO_ESTADO='INACTIVO'";
-      }else{
-        $cadena="";
-      }
-      $pdo = baseDatos::conectar();
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT *FROM ITEM_TIPO ".$cadena;        
-      $q = $pdo->prepare($sql);
-      $q->execute();
-      $data = $q->fetchAll(PDO::FETCH_ASSOC);      
-      $mensaje['estado']=true;
-      $mensaje['data']=$data;  
-    }else{
-      $mensaje['estado']=false;
-      $mensaje['mensaje']="SOLO ACEPTA (activos,inactivos y todos)";
-    }
-    baseDatos::desconectar();
-    return $mensaje; 
-  }
-
-  /*CATEGORIA DE ITEMS*/
-  function crearItemCategoria($nombre,$estado){    
+  function crearItemCategoria($nombre){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "INSERT INTO ITEM_CATEGORIA VALUES(default,?,?)";
+      $sql = "INSERT INTO gnitemcategoria VALUES(default,?,?)";
       $q = $pdo->prepare($sql);
-      $q->execute(array($nombre,$estado));                  
-      $mensaje['estado']=true;
+      $q->execute(array($nombre,1));                  
+      $mensaje['status']=true;
       $mensaje['mensaje']='ITEM CATEGORIA REGISTRADO CON EXITO'; 
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
-    $pdo = baseDatos::desconectar();
-    return $mensaje;  
-  }
-
-  function leerItemCategoria($id){    
-    $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "SELECT * FROM ITEM_CATEGORIA WHERE ITEM_CATEGORIA_ID=?";
-    $q = $pdo->prepare($sql);
-    $q->execute(array($id)); 
-    $data = $q->fetch(PDO::FETCH_ASSOC);                     
-    $mensaje['estado']=true;
-    $mensaje['data']=$data;     
     $pdo = baseDatos::desconectar();
     return $mensaje;  
   }
@@ -349,20 +263,17 @@ class item
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "UPDATE ITEM_CATEGORIA 
-        SET ITEM_CATEGORIA_NOMBRE=?,        
-        ITEM_CATEGORIA_ESTADO=?
-        WHERE ITEM_CATEGORIA_ID=?";
+      $sql = "UPDATE gnitemcategoria 
+        SET NOMBRE=?,        
+        ESTADO_ID=?
+        WHERE ID=?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($nombre,$estado,$id)); 
-      //Retornamoe el dato actualizado                  
-      $data=$this->leerItemCategoria($id);
-      $mensaje['estado']=true;
-      $mensaje['mensaje']='ITEM CATEGORIA EDITADO CON EXITO'; 
-      $mensaje['item']=$data; 
+      $q->execute(array($nombre,$estado,$id));             
+      $mensaje['status']=true;
+      $mensaje['mensaje']='ITEM CATEGORIA EDITADO CON EXITO';       
       $pdo->commit();  
     }catch(PDOException $e) { 
-      $mensaje['estado']=false;
+      $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
     }
@@ -370,42 +281,43 @@ class item
     return $mensaje;  
   }
 
-  function eliminarItemCategoria($id){    
-    $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "UPDATE ITEM_CATEGORIA SET ITEM_CATEGORIA_ESTADO='INACTIVO' WHERE  ITEM_CATEGORIA_ID=?";
-    $q = $pdo->prepare($sql);
-    $q->execute(array($id));     
-    $mensaje['estado']=true;
-    $mensaje['mensaje']='ITEM CATEGORIA ELIMINADO CON EXITO';     
-    $pdo = baseDatos::desconectar();
-    return $mensaje;  
-  }
-
-  function listaItemCategorias($filtro){
-    $filtrosAceptados=['activos','inactivos','todos'];
-    if (in_array($filtro, $filtrosAceptados)) {
-      if ($filtro=="activos") {
-        $cadena="WHERE ITEM_CATEGORIA_ESTADO='ACTIVO'";
-      }elseif($filtro=="inactivos"){
-        $cadena="WHERE ITEM_CATEGORIA_ESTADO='INACTIVO'";
-      }else{
-        $cadena="";
-      }
-      $pdo = baseDatos::conectar();
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT * FROM ITEM_CATEGORIA ".$cadena;        
-      $q = $pdo->prepare($sql);
-      $q->execute();
-      $data = $q->fetchAll(PDO::FETCH_ASSOC);      
-      $mensaje['estado']=true;
-      $mensaje['data']=$data;  
+  function buscarItemCategorias($valor,$estados){
+    if(empty($valor)){
+      $cadena="WHERE a.ESTADO_ID IN (".$estados.")";
     }else{
-      $mensaje['estado']=false;
-      $mensaje['mensaje']="SOLO ACEPTA (activos,inactivos y todos)";
-    }
+      $cadena="WHERE a.NOMBRE like '%".strtoupper($valor)."%' AND a.ESTADO_ID IN (".$estados.")";
+    } 
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "SELECT a.ID,a.NOMBRE,a.ESTADO_ID,b.NOMBRE ESTADO
+      FROM gnitemcategoria a
+      JOIN gnestados b on b.ID=a.ESTADO_ID ".$cadena;
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);      
+    $mensaje['status']=true;
+    $mensaje['data']=$data ;  
     baseDatos::desconectar();
     return $mensaje; 
+  } 
+  /*PROVEENDO SERVICIOS*/
+  function formItemIngreso(){    
+    $pdo = baseDatos::conectar();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
+    $sql = "SELECT a.ID,a.NOMBRE,b.NOMBRE LABORATORIO,c.NOMBRE PROVEEDOR,d.NOMBRE PRESENTACION,e.NOMBRE CATEGORIA
+      FROM taitem a 
+      JOIN talaboratorio b on b.ID=a.LABORATORIO_ID
+      JOIN taproveedor c on c.ID=a.PROVEEDOR_ID
+      JOIN gnitempresentacion d on d.ID=a.PRESENTACION_ID
+      JOIN gnitemcategoria e on e.ID=a.CATEGORIA_ID
+      WHERE a.ESTADO_ID=1";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['items']=$data;
+    $mensaje['status']=true;     
+    $pdo = baseDatos::desconectar();
+    return $mensaje;  
   }
 }
 ?>

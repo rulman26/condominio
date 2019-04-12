@@ -102,31 +102,35 @@
               <a onclick="cargar_vista('../../view/item/item_administrar.html')">Administrar Productos</a>
             </li>
             <li>
-              <a onclick="cargar_vista('../../view/item/item_tipo_administrar.html')">Buscar Presentacion</a>
+              <a onclick="cargar_vista('../../view/item/presentacion_administrar.html')">Administrar Presentaciones</a>
             </li>
             <li>
-              <a onclick="cargar_vista('../../view/item/item_categoria_administrar.html')">Buscar Categoria</a>
+              <a onclick="cargar_vista('../../view/item/categoria_administrar.html')">Administrar Categorias</a>
             </li>                         
           </ul>
         </li>
         <li>
-          <a href="#homeInventario" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-notes-medical"></i> Inventario</a>
-          <ul class="collapse list-unstyled" id="homeInventario">
+          <a href="#homeIngreso" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-notes-medical"></i> Ingresos</a>
+          <ul class="collapse list-unstyled" id="homeIngreso">
             <li>
-              <a onclick="cargar_vista('../../view/inventario/inventario_ingreso.html')">Registrar Ingreso</a>
+              <a onclick="cargar_vista('../../view/ingreso/ingreso_registrar.html')">Registrar Ingreso</a>
             </li>
             <li>
-              <a onclick="cargar_vista('../../view/inventario/inventario_buscar.html')">Buscar Ingresos</a>
-            </li>
-            <li>
-              <a onclick="cargar_vista('../../view/inventario/inventario_salida.html')">Registrar Salida</a>
+              <a onclick="cargar_vista('../../view/ingreso/ingreso_buscar.html')">Buscar Ingresos</a>
             </li> 
             <li>
-              <a onclick="cargar_vista('../../view/inventario/salida_buscar.html')">Buscar Salidas</a>
-            </li>
+              <a onclick="cargar_vista('../../view/ingreso/stock.html')">Stock</a>
+            </li>                     
+          </ul>
+        </li>
+        <li>
+          <a href="#homeSalida" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-notes-medical"></i> Salidas</a>
+          <ul class="collapse list-unstyled" id="homeSalida">
+              <a onclick="cargar_vista('../../view/salida/salida_registrar.html')">Registrar Salida</a>
+            </li> 
             <li>
-                <a onclick="cargar_vista('../../view/inventario/stock.html')">Stock</a>
-            </li>                        
+              <a onclick="cargar_vista('../../view/salida/salida_buscar.html')">Buscar Salidas</a>
+            </li>            
           </ul>
         </li>
         <li>
@@ -157,18 +161,22 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="nav navbar-nav ml-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="#"> rferro <i class="fas fa-user"></i></a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Salir <i class="fas fa-sign-out-alt"></i></a>
-              </li>
+              <div class="dropdown dropleft float-right">
+                  <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                      <i class="fas fa-user"></i> <span id="tk_user">zzzz</span>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="javascript:void(0)" onclick='usuarioResetearClave()'><i class="fas fa-key"></i> Cambiar de Clave</a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick='SalirApp()'><i class="fas fa-sign-out-alt"></i> Salir</a>
+                  </div>
+                </div>
             </ul>
           </div>
         </div>
       </nav>
       <!-- Menu Superior -->  
       <div class="container-fluid" id="contenido">
+        <h3 id="mjsBienvenida"></h3>  
         <center style="margin-top: 50px"><img src="../../img/farmacia.png"></center>          
       </div>  
       <!-- Menu Superior -->
@@ -193,118 +201,139 @@
 </html>
 
 <script type="text/javascript">
-  var baseUrl="http://rulo-farmacia.herokuapp.com/ws/";
-  //var baseUrl="http://localhost/rulo-farmacia/ws/";
-  $(document).ready(function () {
-    $('#sidebarCollapse').on('click', function () {
-      $('#sidebar').toggleClass('active');
-      $(this).toggleClass('active');
-    });
-    $('#sidebar ul li ul li a').on('click', function () {
-      $('#sidebar ul li ul li a').removeClass('a_activo')
-      $(this).addClass('a_activo');
-    });
+
+function userActive(){
+  if(parseInt(sessionStorage.getItem("perfil"))!=4){
+    SalirApp();
+  }
+}
+userActive();
+
+document.getElementById("mjsBienvenida").innerHTML="BIENVENIDO : "+sessionStorage.getItem("colaborador");
+document.getElementById("tk_user").innerHTML=sessionStorage.getItem("usuario");
+//var baseUrl="http://rulo-farmacia.herokuapp.com/ws/";
+var baseUrl="http://localhost/rulotec/ws/";
+$(document).ready(function () {
+  $('#sidebarCollapse').on('click', function () {
+    $('#sidebar').toggleClass('active');
+    $(this).toggleClass('active');
   });
-
-  function cargar_vista(pagina)
-  {
-    document.getElementById("modal_formulario").innerHTML="";
-    document.getElementById("modal_mensaje").innerHTML="";
-    if ($('#modal_formulario').hasClass('in')) {
-      $('#modal_formulario').modal('toggle');   
+  $('#sidebar ul li ul li a').on('click', function () {
+    $('#sidebar ul li ul li a').removeClass('a_activo')
+    $(this).addClass('a_activo');
+  });
+  $.ajaxSetup(    
+    {
+    cache: false,  
+    headers: {'Authorization':sessionStorage.getItem("tk")}
     }
-    if ($('#modal_mensaje').hasClass('in')) {
-      $('#modal_mensaje').modal('toggle');   
+  );
+});
+
+function SalirApp(){  
+  sessionStorage.clear();
+  window.location.href = "../../";
+}
+
+function cargar_vista(pagina)
+{
+  document.getElementById("modal_formulario").innerHTML="";
+  document.getElementById("modal_mensaje").innerHTML="";
+  if ($('#modal_formulario').hasClass('in')) {
+    $('#modal_formulario').modal('toggle');   
+  }
+  if ($('#modal_mensaje').hasClass('in')) {
+    $('#modal_mensaje').modal('toggle');   
+  }
+  //document.getElementById("contenido").innerHTML="<center><img src='../img/cargando.gif'></center>";
+  $.get(pagina, function(htmlexterno){ $("#contenido").html(htmlexterno); });
+}
+
+function formValido(formId){
+  let valido=true;
+  let form=document.getElementById(formId);
+  for(let i=0; i < form.elements.length; i++){
+    form.elements[i].style.borderColor=''; 
+    form.elements[i].title='';        
+    if(form.elements[i].value === '' && form.elements[i].hasAttribute('required')){
+      form.elements[i].style.borderColor='red';   
+      let msj=form.elements[i].placeholder;     
+      form.elements[i].title='*COMPLETAR : '+msj;
+      form.elements[i].placeholder='*COMPLETAR : '+msj;        
+      valido=false; 
     }
-   //document.getElementById("contenido").innerHTML="<center><img src='../img/cargando.gif'></center>";
-   $.get(pagina, function(htmlexterno){ $("#contenido").html(htmlexterno); });
   }
+  return valido;
+}
 
-  function formValido(formId){
-    let valido=true;
-    let form=document.getElementById(formId);
-    for(let i=0; i < form.elements.length; i++){
-      form.elements[i].style.borderColor=''; 
-      form.elements[i].title='';        
-      if(form.elements[i].value === '' && form.elements[i].hasAttribute('required')){
-        form.elements[i].style.borderColor='red';   
-        let msj=form.elements[i].placeholder;     
-        form.elements[i].title='*COMPLETAR : '+msj;
-        form.elements[i].placeholder='*COMPLETAR : '+msj;        
-        valido=false; 
-      }
-    }
-    return valido;
-  }
+function modalRespuestaOk(header,content,long){
+  modal=`<div class="modal-dialog `+long+`">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4 class="modal-title">`+header+`</h4>
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">`+content+`
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+    </div>
+    </div>
+    </div>
+  </div>`;
+  return modal;
+}
 
-  function modalRespuestaOk(header,content,long){
-    modal=`<div class="modal-dialog `+long+`">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">`+header+`</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-      <div class="modal-body">`+content+`
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
-      </div>
-      </div>
-      </div>
-    </div>`;
-    return modal;
-  }
+function modalCargando(){  
+  console.log("Carga");          
+  modal=`
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div style="text-align: center;color: blue;">  
+      <img src="../../img/ajax-loader.gif">  
+      <h5>Cargando..!</h5>              
+    </div>
+  </div>`;
+  $('#modal_cargando').html(modal);
+  $('#modal_cargando').modal('toggle');  
+}
 
-  function modalCargando(){  
-    console.log("Carga");          
-    modal=`
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-      <div style="text-align: center;color: blue;">  
-        <img src="img/ajax-loader.gif">  
-        <h5>Cargando..!</h5>              
-      </div>
-    </div>`;
-    $('#modal_cargando').html(modal);
-    $('#modal_cargando').modal('toggle');  
-  }
+function modalRespuestaError(header,content,long){
+  modal=`<div class="modal-dialog `+long+`">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4 class="modal-title">`+header+`</h4>
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">`+content+`
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+    </div>
+    </div>
+    </div>
+  </div>`;
+  return modal;
+}
 
-  function modalRespuestaError(header,content,long){
-    modal=`<div class="modal-dialog `+long+`">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">`+header+`</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-      <div class="modal-body">`+content+`
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
-      </div>
-      </div>
-      </div>
-    </div>`;
-    return modal;
-  }
+function screenAltura(id,reducir)
+{
+  var altura=window.screen.height-reducir;
+  document.getElementById(id).style.height =altura+"px";
+}
 
-  function screenAltura(id,reducir)
-  {
-    var altura=window.screen.height-reducir;
-    document.getElementById(id).style.height =altura+"px";
-  }
-
-  function BuscarFilaTabla(tablaId,inputId){
-  var tableReg = document.getElementById(tablaId);
-  var searchText = document.getElementById(inputId).value.toLowerCase();
-  var cellsOfRow="";
-  var found=false;
-  var compareWith="";
+function BuscarFilaTabla(tablaId,inputId){
+  let tableReg = document.getElementById(tablaId);
+  let searchText = document.getElementById(inputId).value.toLowerCase();
+  let cellsOfRow="";
+  let found=false;
+  let compareWith="";
   // Recorremos todas las filas con contenido de la tabla
-  for (var i = 1; i < tableReg.rows.length; i++)
+  for (let i = 1; i < tableReg.rows.length; i++)
   {
     cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
     found = false;
     // Recorremos todas las celdas
-    for (var j = 0; j < cellsOfRow.length && !found; j++)
+    for (let j = 0; j < cellsOfRow.length && !found; j++)
     {
       compareWith = cellsOfRow[j].innerHTML.toLowerCase();
       // Buscamos el texto en el contenido de la celda
@@ -366,6 +395,14 @@ function datatableRowEdit(id,arreglo){
   }
 }
 
+function arrayToObj(datos){
+  let data=[];
+  for(x in datos){        
+    data[datos[x].ID]=datos[x];
+  }
+  return data;
+}
+
 function objForm(id)
 { 
   let data_json={}
@@ -373,35 +410,11 @@ function objForm(id)
   for (x in data){    
     data_json[data[x].name]=data[x].value
   }
-  let selects=$("#form_usuario_editar select");
+  let selects=$("#"+id+" select");
   for (var i = 0; i < selects.length; i++) {      
     data_json[selects[i].getAttribute('nameSelect')]=selects[i].selectedOptions[0].text
   }
   return data_json;
-}
-
-function modalLoadSelect(id,datos){
-  let select='<option value="'+id+'">'+datos[id].NOMBRE+'</option>';  
-  for(x in datos){
-    if(datos[x].ID!==id){
-        select+='<option value="'+datos[x].ID+'">'+datos[x].NOMBRE+'</option>';
-    }    
-  }
-  return select;
-}
-
-function modalLoadList(idList,datos,id,valor){
-  document.getElementById(idList).innerHTML="";
-  let list='<option codigo="'+id+'" value="'+valor+'"/>';
-  for(x in datos){            
-    list+='<option codigo="'+datos[x].ID+'" value="'+datos[x].NOMBRE+'"/>';	  	  
-  }    
-  document.getElementById(idList).innerHTML=list;
-}
-
-function SalirApp(){  
-  sessionStorage.clear();
-  window.location.href = "../../";
 }
 
 function usuarioResetearClave(){  
@@ -477,5 +490,58 @@ function modalUsuarioCambiarClaveGuardar(){
 
 function tableLoader(idTableBody,col,img){
   $("#"+idTableBody).html('<td colspan="'+col+'" class="table-loader-td"><img class="table-loader" src="../../img/cargando_modal.gif" /><td>');
+}
+/*FUNCIONES A MODIFICAR*/
+function loadSelectNew(idSelect,datos){ 
+  let select='';   
+  for(x in datos){    
+    select+='<option value="'+datos[x].ID+'">'+datos[x].NOMBRE+'</option>';
+  }
+  document.getElementById(idSelect).innerHTML=select;
+}
+
+function loadSelectSearch(idSelect,datos){ 
+  let select='<option value="">Todos</option>';   
+  for(x in datos){    
+    select+='<option value="'+datos[x].ID+'">'+datos[x].NOMBRE+'</option>';
+  }
+  document.getElementById(idSelect).innerHTML=select;
+}
+
+function loadSelectString(datos){ 
+  let select='';   
+  for(x in datos){    
+    select+='<option value="'+datos[x].ID+'">'+datos[x].NOMBRE+'</option>';
+  }
+  return select;
+}
+
+function loadListNew(idList,datos){    
+  let list='';
+  for(x in datos){            
+    list+='<option codigo="'+datos[x].ID+'" value="'+datos[x].NOMBRE+'"/>';       
+  }    
+  document.getElementById(idList).innerHTML=list;
+}
+
+function modalLoadSelect(id,datosArray){  
+  let select='';
+  for(x in datosArray){    
+    if(datosArray[x].ID==id){
+      select+='<option selected value="'+datosArray[x].ID+'">'+datosArray[x].NOMBRE+'</option>';
+    }else{
+      select+='<option value="'+datosArray[x].ID+'">'+datosArray[x].NOMBRE+'</option>';
+    }    
+  }
+  return select;
+}
+
+function modalLoadList(idList,datos,id,valor){
+  document.getElementById(idList).innerHTML="";
+  let list='<option codigo="'+id+'" value="'+valor+'"/>';
+  for(x in datos){            
+    list+='<option codigo="'+datos[x].ID+'" value="'+datos[x].NOMBRE+'"/>';       
+  }    
+  document.getElementById(idList).innerHTML=list;
 }
 </script>

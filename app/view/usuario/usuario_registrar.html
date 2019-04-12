@@ -9,9 +9,9 @@
     <div class="form-group">
       <label for="tipo_id">Tipo *</label>
       <select class="form-control" name="tipo_id" id="tipo_id">        
+        <option>Cargando..!</option>
       </select>
     </div>
-
     <div class="form-group">
         <label for="empleado">Colaborador *</label>
         <input required type="hidden" name="empleado_id" id="empleado_id">  
@@ -31,19 +31,9 @@
 function dataFromNuevoUsuario(){
   $.get(baseUrl+"usuario/formcrear",function(data){          
     let response=JSON.parse(data);    
-    if(response['status']){
-      let tipoOptions="";
-      let tipos=response['tipos'];
-      for(x in tipos){      
-        tipoOptions+='<option value="'+tipos[x].ID+'">'+tipos[x].NOMBRE+'</option>';
-      }    
-      document.getElementById("tipo_id").innerHTML=tipoOptions;
-      let listEmpleados="";
-      let colaboradores=response['empleados'];
-      for(x in colaboradores){            
-        listEmpleados+='<option codigo="'+colaboradores[x].ID+'" value="'+colaboradores[x].NOMBRE+'"/>';	  	  
-      }    
-      document.getElementById("colaboradores_list").innerHTML=listEmpleados;   
+    if(response.status){
+      loadSelectNew("tipo_id",response['tipos']);
+      loadListNew("colaboradores_list",response['empleados']); 
     }else{
       alert("Ocurrio un Error En la Conexion");
     }
