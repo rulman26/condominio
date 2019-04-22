@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Rulo Tec</title>
+  <title>Rul Ware</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
@@ -16,12 +16,33 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
   <link rel="icon" href="../../img/favicon.ico" type="image/x-icon"/>
 </head>
+<style>
+.modal-footer {
+  padding: 2px;
+}
+.modal-header {
+  padding: 2px;
+}
+.modal-title{
+  color:#000;
+  font-size: 18px;
+  font-weight: normal;
+  margin-left: 10px;
+}
+.menu_icon {
+    width: 30px;
+    margin-left: 5px;
+}
+label{
+  font-size: 15px;
+}
+</style>
 <body>
   <div class="wrapper">
     <!-- Sidebar Holder -->
     <nav id="sidebar">
       <div class="sidebar-header">        
-        <a href="./"><img src="../../img/rulotec.png" width="180px;"></a>
+        <a href="./"><img src="../../img/rulware.png" width="180px;"></a>
       </div>
       <ul class="list-unstyled components">   
         <li >
@@ -162,7 +183,7 @@
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="nav navbar-nav ml-auto">
               <div class="dropdown dropleft float-right">
-                  <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                  <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown">
                       <i class="fas fa-user"></i> <span id="tk_user">zzzz</span>
                   </button>
                   <div class="dropdown-menu">
@@ -275,9 +296,6 @@ function modalRespuestaOk(header,content,long){
     </div>
     <div class="modal-body">`+content+`
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
-    </div>
     </div>
     </div>
   </div>`;
@@ -305,9 +323,6 @@ function modalRespuestaError(header,content,long){
       <button type="button" class="close" data-dismiss="modal">&times;</button>
     </div>
     <div class="modal-body">`+content+`
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
     </div>
     </div>
     </div>

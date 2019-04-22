@@ -35,11 +35,9 @@
 							</div>
 							<input id="pwd" type="password" name="" class="form-control input_pass" value="" placeholder="Contraseña">
 						</div>
+            <button type="submit" onclick="login()" class="btn login_btn" id="btn_login">Login</button>
 					</form>
-				</div>
-				<div class="d-flex justify-content-center mt-3 login_container">
-					<button type="submit" onclick="login()" name="button" class="btn login_btn">Login</button>
-				</div>
+				</div>									
 				<div class="mt-4">					
 					<div class="d-flex justify-content-center links">
 						<a href="mailto:webmaster@example.com">Olvidaste Tu Contraseña?</a>
@@ -143,9 +141,10 @@ function login()
     data['usuario']=user;
     data['password']=window.btoa(pwd);    
     let ruta=url+'usuario/login';
+    document.getElementById("btn_login").setAttribute("disabled","disabled");
+    document.getElementById("btn_login").innerHTML='<span class="spinner-border spinner-border-sm"></span> Cargando..';
     $.post(ruta,data, function(data_server) {                    
-      let response=JSON.parse(data_server);                    
-      console.log(response)
+      let response=JSON.parse(data_server);                          
       if (response['status']){
         sessionStorage.setItem("usuario",response['data']['USUARIO']);
         sessionStorage.setItem("perfil",response['data']['TIPO_ID']);
@@ -154,6 +153,7 @@ function login()
         window.location.href = "public/"+response['redirect'];
       }else{
         alert(response['mensaje']);
+        location.reload();
       } 
     });
   }

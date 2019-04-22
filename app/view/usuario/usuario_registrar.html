@@ -8,23 +8,22 @@
   <form id="form_usuario_registrar"> 
     <div class="form-group">
       <label for="tipo_id">Tipo *</label>
-      <select class="form-control" name="tipo_id" id="tipo_id">        
+      <select class="form-control form-control-sm" name="tipo_id" id="tipo_id">        
         <option>Cargando..!</option>
       </select>
     </div>
     <div class="form-group">
         <label for="empleado">Colaborador *</label>
         <input required type="hidden" name="empleado_id" id="empleado_id">  
-        <input required class="form-control" list="colaboradores_list" id="empleado" onchange="colaborador_list_id(this)" placeholder="Ingresar Datos del Colaborador">      
+        <input required class="form-control form-control-sm" list="colaboradores_list" id="empleado" onchange="colaborador_list_id(this)" placeholder="Ingresar Datos del Colaborador">      
         </select>
     </div>
-
     <div class="form-group">
       <label for="usuario">Usuario *</label>
-      <input required type="text" class="form-control" id="usuario" name="usuario" placeholder="Ingresar Usuario">
+      <input required type="text" class="form-control form-control-sm" id="usuario" name="usuario" placeholder="Ingresar Usuario">
     </div>
   </form>
-  <button  class="btn btn-primary btn-block" onclick="formUsuarioRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
+  <button  class="btn btn-primary btn-sm btn-block" onclick="formUsuarioRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
 </div>
 <script type="text/javascript">
 
