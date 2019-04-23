@@ -6,34 +6,34 @@
   <form id="form_item_registrar">    
     <div class="form-group">
       <label for="nombre">Nombre *</label>
-      <input required type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresar Nombre">
+      <input required type="text" class="form-control form-control-sm" id="nombre" name="nombre" placeholder="Ingresar Nombre">
     </div>
     <div class="form-group">
       <label for="laboratorio_id">Laboratorio *</label>    
-      <select class="form-control" id="laboratorio_id" name="laboratorio_id">
+      <select class="form-control form-control-sm" id="laboratorio_id" name="laboratorio_id">
         <option>Cargando..!</option>
       </select>
     </div>   
     <div class="form-group">
       <label for="proveedor_id">Proveedor *:</label>    
-      <select class="form-control" id="proveedor_id" name="proveedor_id">
+      <select class="form-control form-control-sm" id="proveedor_id" name="proveedor_id">
         <option>Cargando..!</option>
       </select>
     </div>
     <div class="form-group">
       <label for="presentacion_id">Presentacion *:</label>
-      <select class="form-control" id="presentacion_id" name="presentacion_id">
+      <select class="form-control form-control-sm" id="presentacion_id" name="presentacion_id">
         <option>Cargando..!</option>
       </select>
     </div>
     <div class="form-group">
       <label for="categoria_id">Categoria *</label>
-      <select class="form-control" id="categoria_id" name="categoria_id">
+      <select class="form-control form-control-sm" id="categoria_id" name="categoria_id">
         <option>Cargando..!</option>
       </select>
     </div>
   </form>
-  <button class="btn btn-primary btn-block" onclick="formItemRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
+  <button class="btn btn-primary btn-sm btn-block" onclick="formItemRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
 </div>
 
 <script type="text/javascript">  
@@ -70,7 +70,5 @@ function formItemRegistrar(){
       }
     }); 
   } 
-  
 }
-
 </script>

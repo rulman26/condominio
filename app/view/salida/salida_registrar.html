@@ -5,7 +5,7 @@
   <datalist id="inventario_list">
   </datalist>
   <div class="table-responsive" id="tabla_http_scroll">
-    <table class="table" id="tabla_http">
+    <table class="table table-sm" id="tabla_http">
       <thead>
         <tr>        
           <th width="100">Nro Ingreso</th> 
@@ -32,6 +32,8 @@
  
 </style>
 <script>
+screenAltura("form-cliente",200);
+screenAltura("tabla_http_scroll",290);  
 var data_ingresos;
 function list_inventario(){
   $.get(baseUrl+"ingreso/forminventariosalida",function(data){
@@ -126,7 +128,7 @@ function tableSalidaRegistrar(boton){
   obj_json['fecha']=fecha;  
   obj_json['estado_id']=1;
   modalCargando();
-  if(ingreso_id!="" || precioventa!=0 || fecha!=""|| cantidad!=0){
+  if(ingreso_id!=""&&precioventa!=0&&fecha!=""&&cantidad!=0){
     $.post(baseUrl+"salida/crear",obj_json,function(data){      
       let response=JSON.parse(data);
       $('#modal_cargando').modal('toggle'); 
@@ -182,10 +184,10 @@ function tableSalidaEditar(id){
 }
 
 function modalSalidaEditar(data){  
-  let modal=`<div class="modal-dialog modal-lg">
+  let modal=`<div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Editar Salida</h4>
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-pencil-alt"></i> Editar Salida</p>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
@@ -194,34 +196,34 @@ function modalSalidaEditar(data){
           <input type="hidden" id="m_ingreso_id" name="ingreso_id" value="`+data.ingreso_id+`">        
           <div class="form-group">
           <label for="inventario_nombre">Item</label>
-          <input required type="text" class="form-control" list="inventario_list" id="inventario_nombre" 
+          <input required type="text" class="form-control form-control-sm" list="inventario_list" id="inventario_nombre" 
               name="inventario_nombre" value="ID=`+data.id+" : "+data.item_nombre+`" onchange="id_inventario_modal(this)">
           </div>
           <div class="form-group">
             <label for="m_precio">Precio</label>
-            <input required readonly type="number"  class="form-control" id="m_precio" 
+            <input required readonly type="number"  class="form-control form-control-sm" id="m_precio" 
             name="precioventa" value="`+data.precioventa+`">
           </div>
           <div class="form-group">
             <label for="cantidad">Cantidad</label>
-            <input type="number" class="form-control" id="cantidad" 
+            <input type="number" class="form-control form-control-sm" id="cantidad" 
             name="cantidad" value="`+data.cantidad+`" onchange="montoTotal(this.value)">
           </div>
           <div class="form-group">
             <label for="total">Total</label>
-            <input type="number" readonly class="form-control" id="total" 
+            <input type="number" readonly class="form-control form-control-sm" id="total" 
             name="total" value="`+data.total+`">
           </div>
           <div class="form-group">
             <label for="fecha">Fecha Ingreso:</label>
-            <input type="text" class="form-control fechahora" id="fecha" 
+            <input type="text" class="form-control form-control-sm fechahora" id="fecha" 
             name="fecha" value="`+data.fecha+`">
           </div>
         </form>
       </div>
-      <div class="modal-footer"> 
-        <button type="button" class="btn btn-success" onclick="salidaEditarGuardar()">Editar</button>       
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-info btn-sm"" onclick="salidaEditarGuardar()"><i class="fas fa-pencil-alt"></i> Editar</button>       
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>  
       </div>
     </div>
     </div>`;
@@ -252,7 +254,7 @@ function salidaEditarGuardar(){
           fila+='<td>'+data_json.fecha+'</td>';          
           fila+='<td>';
           fila+='<button onclick="tableSalidaEditar('+data_json.id+')" class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar"><i class="fas fa-pen"></i></button>&nbsp';
-          fila+='<button onclick="tableSalidaEliminar(this)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
+          fila+='<button onclick="tableSalidaEliminar('+data_json.id+')" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></button></td>';
           fila+='</td>';
         $("#f-"+data_json.id).html(fila);        
       }else{
@@ -286,8 +288,8 @@ function tableSalidaEliminar(id){
 function modalSalidaEliminar(id){
   let modal=`<div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Eliminar Inventario</h4>
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-trash-alt"></i> Eliminar Salida</p>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
@@ -296,9 +298,9 @@ function modalSalidaEliminar(id){
         </form>
         <h6>Estas Seguro de Eliminar Salida..?"</h6>
       </div>
-      <div class="modal-footer"> 
-        <button type="button" class="btn btn-success" onclick="salidaEliminarGuardar()">Si</button>       
-        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>        
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-info btn-sm" onclick="salidaEliminarGuardar()"><i class="fas fa-trash-alt"></i> Si</button>       
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> No</button>  
       </div>
     </div>
     </div>`;
@@ -380,9 +382,9 @@ function modalIngresoId(datahtml){
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
-        <input type="text" class="form-control" id="txt_modal_buscar" onkeyup="BuscarFilaTabla('tabla_modal_http','txt_modal_buscar')" placeholder="Buscar Item">
+        <input type="text" class="form-control form-control-sm" id="txt_modal_buscar" onkeyup="BuscarFilaTabla('tabla_modal_http','txt_modal_buscar')" placeholder="Buscar Item">
         <div class="table-responsive" id="tabla_modal_http_scroll">
-        <table class="table" id="tabla_modal_http">
+        <table class="table table-sm" id="tabla_modal_http">
             <thead>
                 <tr>
                 <th width="50">Id</th> 

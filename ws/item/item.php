@@ -192,7 +192,7 @@ class item
       $q = $pdo->prepare($sql);
       $q->execute(array($nombre,$estado_id,$id));      
       $mensaje['status']=true;
-      $mensaje['mensaje']='ITEM TIPO EDITADO CON EXITO';       
+      $mensaje['mensaje']='PRESENTACION EDITADA CON EXITO';       
       $pdo->commit();  
     }catch(PDOException $e) { 
       $mensaje['status']=false;

@@ -147,6 +147,7 @@ label{
         <li>
           <a href="#homeSalida" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-notes-medical"></i> Salidas</a>
           <ul class="collapse list-unstyled" id="homeSalida">
+            <li>
               <a onclick="cargar_vista('../../view/salida/salida_registrar.html')">Registrar Salida</a>
             </li> 
             <li>

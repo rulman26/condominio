@@ -180,9 +180,9 @@ class ingreso
     $cadena="WHERE ".$fecha." BETWEEN STR_TO_DATE('".$inicio." 00:00:00','%d/%m/%Y %H:%i:%s') "; 
     $cadena.="AND STR_TO_DATE('".$final." 23:59:59','%d/%m/%Y %H:%i:%s') ";    
     if(!empty($item_id)){
-      $cadena.="AND a.ITEM_ID=".$item_id;
+      $cadena.=" AND a.ITEM_ID=".$item_id;
     }
-    $cadena="AND a.ESTADO_ID IN (".$estados.")";
+    $cadena.=" AND a.ESTADO_ID IN (".$estados.")";
 
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -193,10 +193,11 @@ class ingreso
       FROM taingreso a 
       JOIN taitem b on b.id=a.ITEM_ID
       JOIN gnestados c on c.ID=a.ESTADO_ID  ".$cadena;
+    $mensaje['sql']=$item_id;  
     $q = $pdo->prepare($sql);
     $q->execute();
     $data = $q->fetchAll(PDO::FETCH_ASSOC);      
-    $mensaje['status']=true;
+    $mensaje['status']=true;    
     $mensaje['data']=$data ;  
    
     baseDatos::desconectar();
