@@ -14,7 +14,7 @@
   <script src="../../lib/js/mask.js"> </script>
   <!-- Font Awesome JS -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
-  <link rel="icon" href="../../img/favicon.ico" type="image/x-icon"/>
+  <link rel="icon" href="../../img/icono.ico" type="image/x-icon"/>
 </head>
 <style>
 .modal-footer {
@@ -42,7 +42,7 @@ label{
     <!-- Sidebar Holder -->
     <nav id="sidebar">
       <div class="sidebar-header">        
-        <a href="./"><img src="../../img/rulware.png" width="180px;"></a>
+        <a href="./"><img src="../../img/stockfar.png" width="180px;"></a>
       </div>
       <ul class="list-unstyled components">   
         <li >
@@ -140,6 +140,9 @@ label{
               <a onclick="cargar_vista('../../view/ingreso/ingreso_buscar.html')">Buscar Ingresos</a>
             </li> 
             <li>
+              <a onclick="cargar_vista('../../view/ingreso/ingreso_administrar.html')">Administrar Ingresos</a>
+            </li> 
+            <li>
               <a onclick="cargar_vista('../../view/ingreso/stock.html')">Stock</a>
             </li>                     
           </ul>
@@ -152,7 +155,10 @@ label{
             </li> 
             <li>
               <a onclick="cargar_vista('../../view/salida/salida_buscar.html')">Buscar Salidas</a>
-            </li>            
+            </li>
+            <li>
+              <a onclick="cargar_vista('../../view/salida/salida_administrar.html')">Administrar Salidas</a>
+            </li>           
           </ul>
         </li>
         <li>
@@ -197,9 +203,44 @@ label{
         </div>
       </nav>
       <!-- Menu Superior -->  
+      <style>
+        p,h6{
+          color:#FFF;
+        }
+      </style>
       <div class="container-fluid" id="contenido">
-        <h3 id="mjsBienvenida"></h3>  
-        <center style="margin-top: 50px"><img src="../../img/farmacia.png"></center>          
+        <center><h3 id="mjsBienvenida"></h3></center>
+        <div class="container">          
+          <div class="card-columns">
+            <div class="card bg-danger"> 
+              <div class="card-header text-center" style="color:#FFF">Productos a Vencer</div>               
+              <div class="card-body" id="card_vence">                
+                <p class="card-text">20/05/2019 - Paracetamol 500mg</p>
+                <p class="card-text">23/05/2019 - Paracetamol 300mg</p>
+                <p class="card-text">25/05/2019 - Paracetamol 100mg</p>
+                <a href="#" class="btn btn-warning">Ver Mas</a>
+              </div>              
+            </div>
+            <div class="card bg-info">
+              <div class="card-header text-center" style="color:#FFF">Ingresos</div>               
+              <div class="card-body" id="card_ingreso">                 
+                <p class="card-text">Paracetamol 500mg - 10 und</p>
+                <p class="card-text">Paracetamol 300mg - 10 und</p>
+                <p class="card-text">Paracetamol 100mg - 10 und</p>
+                <a href="#" class="btn btn-warning">Ver Mas</a>
+              </div>              
+            </div>
+            <div class="card bg-success">
+              <div class="card-header text-center" style="color:#FFF">Salidas</div>               
+              <div class="card-body" id="card_salida">                
+                <p class="card-text">Paracetamol 500mg - 5 und</p>
+                <p class="card-text">Paracetamol 300mg - 8 und</p>
+                <p class="card-text">Paracetamol 100mg - 1 und</p>
+                <a href="#" class="btn btn-warning">Ver Mas</a>
+              </div>              
+            </div>
+          </div>
+        </div>
       </div>  
       <!-- Menu Superior -->
     </div>

@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="logo.svg">
+   sodipodi:docname="ruloware.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.1100741"
-     inkscape:cx="558.37999"
-     inkscape:cy="847.55618"
+     inkscape:zoom="0.39247046"
+     inkscape:cx="604.69422"
+     inkscape:cy="974.09317"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -46,7 +46,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -623,5 +623,37 @@
        inkscape:export-filename="/var/www/html/rulotec/app/img/rulware.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
+    <path
+       style="fill:#03a9f4;fill-opacity:1;stroke:none"
+       d="m -0.91591374,609.21375 27.68574974,0 0.16096,-27.84671 c 16.63492,-7.46951 31.8268,-6.64159 46.035597,-0.16096 l 0.16097,27.8467 14.1648,0 c 3.20444,25.62756 -22.52989,21.4852 -39.081367,31.1156 -10.38466,6.04227 -23.14593,24.02646 -8.24194,47.67611 -5.33138,-0.5821 -9.42079,-1.80758 -13.03806,-4.10458 l -0.16096,-28.00766 -28.1686397,-0.4829 c -6.28006,-14.91579 -6.11414,-30.26133 0.48288996,-46.0356 z"
+       id="path3226-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccsccccc"
+       inkscape:export-filename="/var/www/html/rulotec/app/img/stockfar.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:#8bc34a;fill-opacity:1;stroke:none"
+       d="m 41.578486,684.46425 c -11.387,-19.39143 -2.30495,-39.12963 18.58821,-45.05155 16.042977,-4.54719 35.686657,-7.39004 39.862464,-30.44804 6.7015,12.19383 10.23223,26.332 -0.503767,46.60662 l -26.559,0 0.32193,28.49056 c -16.014077,5.4108 -25.700837,4.21577 -26.550757,-0.5643 -1.22345,-6.88086 0.56079,-13.68152 6.10747,-19.35864 3.94104,-4.0337 9.924347,-8.36073 15.470707,-11.46926 10.30065,-5.77314 23.59768,-10.01078 26.69034,-15.473 -1.6318,1.87177 -5.79554,3.81565 -8.39967,4.98914 -23.46433,10.57365 -40.542807,14.33397 -45.027927,42.27847 z"
+       id="path3228-6"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="csccccssscsc"
+       inkscape:export-filename="/var/www/html/rulotec/app/img/stockfar.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       sodipodi:linespacing="125%"
+       id="use3920-3-5-22-3-7-7"
+       y="671.19153"
+       x="112.81616"
+       style="font-size:120.880867px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#03a9f4;fill-opacity:1;stroke:none;font-family:Moderan;-inkscape-font-specification:Moderan"
+       xml:space="preserve"
+       inkscape:export-filename="/var/www/html/rulotec/app/img/stockfar.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         y="671.19153"
+         x="112.81616"
+         id="tspan3936-5-3-8-6-5-5"
+         sodipodi:role="line">Stockfar</tspan></text>
   </g>
 </svg>

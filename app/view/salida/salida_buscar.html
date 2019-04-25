@@ -6,12 +6,12 @@
   <div class="container-fluid">    
     <datalist id="item_list">
     </datalist>
-    <datalist id="inventario_list">
-      </datalist>
+    <datalist id="ingreso_list">
+    </datalist>
     <div class="row">
       <div class="col-md-2">
         <div class="input-group">
-          <select class="form-control" id="filtro">
+          <select class="form-control form-control-sm" id="filtro">
             <option value="a.FECHA">Fecha Salida</option>
             <option value="a.FECHACREACION">Fecha Creacion</option>        
           </select>
@@ -19,30 +19,30 @@
       </div>
       <div class="col-md-2">
         <div class="input-group">      
-          <input type="text" class="fecha form-control" id="inicio" placeholder="Fecha Inicio" >
+          <input type="text" class="fecha form-control form-control-sm" id="inicio" placeholder="Fecha Inicio" >
         </div>
       </div>  
       <div class="col-sm-2">
         <div class="input-group">
-          <input type="text" class="fecha form-control" id="final" placeholder="Fecha Final">
+          <input type="text" class="fecha form-control form-control-sm" id="final" placeholder="Fecha Final">
         </div>
       </div>
       
       <div class="col-md-2">
         <div class="input-group">
           <input type="hidden" id="item_id" name="item_id">            
-          <input required type="text" class="form-control" list="item_list" id="item_nombre" 
+          <input required type="text" class="form-control form-control-sm" list="item_list" id="item_nombre" 
             name="item_nombre" onchange="id_item(this)" placeholder="Nombre Item">
         </div>
       </div>
       <div class="col-sm-2">
           <div class="input-group">
-            <button class="btn btn-primary btn-block" onclick="salidaBuscar()">Buscar</button>
+            <button class="btn btn-primary btn-sm btn-block" onclick="salidaBuscar()"><i class="fas fa-search"></i> Buscar</button>
           </div>
       </div>
       <div class="col-sm-2" id="div_buscar" style="display: none">
         <div class="input-group">
-          <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')" placeholder="Filtar Datos">
+          <input type="text" class="form-control form-control-sm" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')" placeholder="Filtar Datos">
           <div class="input-group-prepend">        
             <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
             <div class="dropdown-menu">
@@ -55,18 +55,17 @@
     </div>
 
     <div class="table-responsive" id="tabla_http_scroll">
-      <table class="table table-hover" id="tabla_http">
+      <table class="table table-hover table-sm" id="tabla_http">
         <thead>
-        <tr>
-          <th width="50">Id</th>          
-          <th width="200">Items</th>
-          <th width="100">Precio</th>
-          <th width="100">Cantidad</th>
-          <th width="100">Total</th>              
-          <th width="180">Fecha</th>          
-          <th width="100">Estado</th>          
-          <th width="100">Accion</th>          
-        </tr>
+          <tr>
+            <th width="50">Id</th>          
+            <th width="200">Producto</th>
+            <th width="100">Precio</th>
+            <th width="100">Cantidad</th>
+            <th width="100">Total</th>              
+            <th width="180">Fecha</th>                              
+            <th width="100">Accion</th>          
+          </tr>
         </thead>
         <tbody>
         </tbody>
@@ -76,24 +75,17 @@
 </div>    
 <script type="text/javascript">
 var estados=[];
-function list_items(){
-  $.get(baseUrl+"ingreso/formeditar",function(data){
-    let response=JSON.parse(data); 
-    loadListNew("item_list",response['items'])
-    estados=response['estados'];   
-  });
-}
-list_items();
-
 function list_inventario(){
   $.get(baseUrl+"ingreso/forminventariosalida",function(data){
-  	let response=JSON.parse(data);     
-    data_inventario=response.inventario;
+  	let response=JSON.parse(data); 
+    console.log(response);
+    estados=response.estados;
+    let data_ingresos=response.ingresos;
     let fila="";    
-  	for (x in data_inventario) {	  	  	
-  	  fila+='<option codigo="'+data_inventario[x].INVENTARIO_ID+'" precio="'+data_inventario[x].ITEM_PRECIO_VENTA+'" value="'+data_inventario[x].ITEM_NOMBRE+'"> Precio : '+data_inventario[x].ITEM_PRECIO_VENTA+' - FV : '+data_inventario[x].FECHA_VENCIMIENTO+'</option>';	  	  
+  	for (x in data_ingresos) {	  	  	
+  	  fila+='<option codigo="'+data_ingresos[x].ID+'" precio="'+data_ingresos[x].PRECIOVENTA+'" value="ID='+data_ingresos[x].ID+' : '+data_ingresos[x].ITEM+'"> Precio : '+data_ingresos[x].PRECIOVENTA+' - FV : '+data_ingresos[x].FECHAVENCIMIENTO+'</option>';
   	}  
-  	$("#inventario_list").html(fila);
+  	$("#ingreso_list").html(fila);
 	});
 }
 list_inventario();
@@ -111,7 +103,7 @@ function salidaBuscar(){
   data['inicio']=document.getElementById("inicio").value;
   data['final']=document.getElementById("final").value;
   data['item_id']=document.getElementById("item_id").value;  
-  data['status']="1,2";  
+  data['status']="1";  
   tableLoader('tabla_http tbody',7);
   $.post(baseUrl+"salida/buscar",data,function(data){
     $("#tabla_http tbody").html("");      
@@ -126,18 +118,19 @@ function salidaBuscar(){
         fila+='<td>'+response['data'][x].PRECIOVENTA+'</td>';
         fila+='<td>'+response['data'][x].CANTIDAD+'</td>';
         fila+='<td>'+response['data'][x].TOTAL+'</td>';          
-        fila+='<td>'+response['data'][x].FECHASALIDA+'</td>';        
-        fila+='<td>'+response['data'][x].ESTADO+'</td>';        
+        fila+='<td>'+response['data'][x].FECHASALIDA+'</td>';                
         fila+='<td style="text-align:center;">';        
         fila+=`<div class="dropdown">
-                <button type="button" class="btn btn-primary" data-toggle="dropdown" data-boundary="window">
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
                   <i class="fas fa-cog"></i>
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="javascript:void(0)" 
                     onclick="salidaLeer(`+response['data'][x].ID+`)">Ver</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="salidaEditar(`+response['data'][x].ID+`)">Editar</a>                    
+                    onclick="salidaEditar(`+response['data'][x].ID+`)">Editar</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="salidaEliminar(`+response['data'][x].ID+`)">Eliminar</a>                    
                 </div>
               </div>`;
         fila+='</td>';      
@@ -159,46 +152,39 @@ function salidaLeer(id){
 }
 
 function modalSalidaLeer(data){    
-  let modal=`<div class="modal-dialog modal-lg">
+  let modal=`<div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Datos Salida</h4>
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-save"></i> Salida Nro : `+data.ID+`</p>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
         <form>
           <div class="form-group">
             <label for="nombre">Codigo Ingreso</label>
-            <input readonly type="text" class="form-control" value="`+data.INGRESO_ID+`">
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.INGRESO_ID+`">
           </div>
           <div class="form-group">
             <label for="direccion">Item</label>
-            <input readonly type="text" class="form-control" value="`+data.ITEM+`">
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.ITEM+`">
           </div>
           <div class="form-group">
             <label for="precio">Precio</label>
-            <input readonly type="text" class="form-control" id="precio" value="`+data.PRECIOVENTA+`">
+            <input readonly type="text" class="form-control form-control-sm" id="precio" value="`+data.PRECIOVENTA+`">
           </div>
           <div class="form-group">
             <label for="cantidad">Cantidad</label>
-            <input readonly type="text" class="form-control" id="cantidad" value="`+data.CANTIDAD+`">
+            <input readonly type="text" class="form-control form-control-sm" id="cantidad" value="`+data.CANTIDAD+`">
           </div>
           <div class="form-group">
             <label for="dni">Total </label>
-            <input readonly type="text" class="form-control" id="ruc" value="`+data.TOTAL+`">
+            <input readonly type="text" class="form-control form-control-sm" id="ruc" value="`+data.TOTAL+`">
           </div>
           <div class="form-group">
             <label for="telefono">Fecha</label>
-            <input readonly type="text" class="form-control" id="telefono" value="`+data.FECHASALIDA+`">
-          </div>
-          <div class="form-group">
-            <label for="estado">Estado </label>    
-            <input readonly type="text" class="form-control" id="estado" value="`+data.ESTADO+`">
+            <input readonly type="text" class="form-control form-control-sm" id="telefono" value="`+data.FECHASALIDA+`">
           </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
       </div>
     </div>
     </div>`;
@@ -215,52 +201,47 @@ function salidaEditar(id){
 
 function modalSalidaEditar(data){
   let estado=modalLoadSelect(data.ESTADO_ID,estados);  
-  let modal=`<div class="modal-dialog modal-lg">
+  let modal=`<div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Editar Salida</h4>
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-pencil-alt"></i> Editar Salida Nro : `+data.ID+`</p>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
         <form id="form_salida_editar">
           <input type="hidden" name="id" value="`+data.ID+`">
+          <input type="hidden" name="estado_id" value="`+data.ESTADO_ID+`">
           <input type="hidden" id="m_ingreso_id" name="ingreso_id" value="`+data.INGRESO_ID+`">        
           <div class="form-group">
-          <label for="inventario_nombre">Item</label>
-          <input required type="text" class="form-control" list="inventario_list" id="inventario_nombre" 
-              name="inventario_nombre" value="`+data.ITEM+`" onchange="id_inventario_modal(this)">
+          <label for="inventario_nombre">Ingreso *</label>
+          <input required type="text" class="form-control form-control-sm" list="ingreso_list" id="inventario_nombre" 
+              name="inventario_nombre" value="ID=`+data.INGRESO_ID+" : "+data.ITEM+`" onchange="id_ingreso_modal(this)">
           </div>
           <div class="form-group">
-            <label for="m_precio">Precio</label>
-            <input required readonly type="number"  class="form-control" id="m_precio" 
+            <label for="m_precio">Precio *</label>
+            <input required readonly type="number"  class="form-control form-control-sm" id="m_precio" 
             name="precioventa" value="`+data.PRECIOVENTA+`">
           </div>
           <div class="form-group">
-            <label for="cantidad">Cantidad</label>
-            <input type="number" class="form-control" id="cantidad" 
+            <label for="cantidad">Cantidad *</label>
+            <input type="number" class="form-control form-control-sm" id="cantidad" 
             name="cantidad" value="`+data.CANTIDAD+`" onchange="montoTotal(this.value)">
           </div>
           <div class="form-group">
-            <label for="total">Total</label>
-            <input type="number" readonly class="form-control" id="total" 
+            <label for="total">Total *</label>
+            <input type="number" readonly class="form-control form-control-sm" id="total" 
             name="total" value="`+data.TOTAL+`">
           </div>
           <div class="form-group">
-            <label for="fecha">Fecha Ingreso:</label>
-            <input type="text" class="form-control fechahora" id="fecha" 
+            <label for="fecha">Fecha Salida *</label>
+            <input type="text" class="fechahora form-control form-control-sm" id="fecha" 
             name="fecha" value="`+data.FECHASALIDA+`">
-          </div>
-          <div class="form-group">
-            <label for="estado_id">Estado </label>    
-            <select class="form-control" id="estado_id" name="estado_id" nameSelect="estado">
-              `+estado+`
-            </select>
-          </div>
+          </div>          
         </form>
       </div>
-      <div class="modal-footer"> 
-        <button type="button" class="btn btn-success" onclick="salidaEditarGuardar()">Editar</button>       
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>        
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-info btn-sm" onclick="salidaEditarGuardar()"><i class="fas fa-pencil-alt"></i> Editar</button>       
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>  
       </div>
     </div>
     </div>`;
@@ -284,13 +265,63 @@ function salidaEditarGuardar(){
         dataLocalEdit(salidas,data_json); 
         let aObjetos=[]
         aObjetos.push(data_json['id']);
-        aObjetos.push(data_json['inventario_nombre']);                   
+        aObjetos.push(data_json['inventario_nombre'].split(":")[1].trim());                   
         aObjetos.push(data_json['precioventa']);       
         aObjetos.push(data_json['cantidad']);       
         aObjetos.push(data_json['total']);       
-        aObjetos.push(data_json['fecha']);       
-        aObjetos.push(data_json['estado']);  
+        aObjetos.push(data_json['fecha']);                 
         datatableRowEdit(data_json['id'],aObjetos);       
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+function salidaEliminar(id){  
+  let modal=modalSalidaEliminar(salidas[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function modalSalidaEliminar(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-trash-alt"></i> Eliminar Salida</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_salida_eliminar">
+          <input type="hidden" name="id" value="`+data.ID+`">
+        </form>
+        <h6>Estas Seguro de Eliminar Item..?"</h6>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-info btn-sm" onclick="salidaEliminarGuardar()"><i class="fas fa-trash-alt"></i> Si</button>
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> No</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function salidaEliminarGuardar(){
+  if (formValido("form_salida_eliminar")){
+    let data_json=objForm("form_salida_eliminar");
+    modalCargando();
+    $.post(baseUrl+"salida/eliminar",data_json,function(data){      
+      let response=JSON.parse(data);      
+      $('#modal_cargando').modal('toggle'); 
+      if (response.status){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        $("#f-"+data_json['id']).remove();
       }else{
         let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
         $('#modal_mensaje').html(modal_conten_loader);
@@ -335,8 +366,9 @@ function eliminar(boton){
   $(boton).parents("tr").remove();
 }
 
-function id_inventario_modal(input) {        	 
-  list = document.getElementById('inventario_list').options;
+function id_ingreso_modal(input) {
+  console.log("xxxxxxxxxx");
+  list = document.getElementById('ingreso_list').options;
   let m_ingreso_id=document.getElementById('m_ingreso_id');
   let precio=document.getElementById('m_precio');
   let cantidad=document.getElementById('cantidad').value;

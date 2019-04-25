@@ -8,15 +8,15 @@
       <div class="col-md-3">
         <div class="input-group">
           <div class="input-group-prepend">
-            <span class="input-group-text">Filtro</span>
+            <span class="input-group-text form-control-sm">Filtro</span>
           </div>
-          <input type="date" class="form-control" id="fecha">
+          <input type="date" class="form-control form-control-sm" id="fecha">
         </div>
       </div>
     
       <div class="col-sm-3">
         <div class="input-group">
-          <button class="btn btn-primary btn-block" onclick="gananciaListar()">Buscar</button>
+          <button class="btn btn-primary btn-sm btn-block" onclick="gananciaListar()"><i class="fas fa-list"></i> Generar Reporte</button>
         </div>
       </div>
       <div class="col-sm-3" id="div_buscar" style="display: none">
@@ -24,13 +24,13 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fas fa-search"></i></span>
           </div>
-          <input type="text" class="form-control" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+          <input type="text" class="form-control form-control-sm" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
           
           <div class="input-group-prepend">        
             <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarResumenCsv()">Exportar CVS</a>
-              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarResumenPdf()">Exportar PDF</a>          
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarGananciaCsv()">Exportar CVS</a>
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarGananciaPdf()">Exportar PDF</a>          
             </div>
           </div>
         </div>
@@ -38,17 +38,17 @@
     </div>
       
     <div class="table-responsive" id="tabla_http_scroll">
-      <table class="table table-hover" id="tabla_http">
+      <table class="table table-hover table-sm" id="tabla_http">
         <thead>
           <tr>          
-            <th width="50">ID</th>
-            <th width="150">FECHA</th>
-            <th width="180">ITEM</th>          
-            <th width="120">PRESENTACION</th>          
-            <th width="80">COMPRA</th>          
-            <th width="80">VENTA</th>
-            <th width="100">CANTIDAD</th>          
-            <th width="100">TOTAL</th>                    
+            <th width="50">Id</th>
+            <th width="150">Fecha</th>
+            <th width="180">Producto</th>          
+            <th width="120">Presentacion</th>          
+            <th width="80">Compre</th>          
+            <th width="80">Vendi</th>
+            <th width="100">Cantidad</th>          
+            <th width="100">Total</th>                    
           </tr>
         </thead>
         <tbody>
@@ -58,48 +58,54 @@
   </div>    
 </div>      
 <script type="text/javascript">
-screenAltura("tabla_http_scroll",280);
+screenAltura("tabla_http_scroll",340);
 var resumen=[];
 var fecha;
-function gananciaListar(){
-  document.getElementById("div_buscar").style.display="block";
+function gananciaListar(){  
   let data={};
   let fecha_chrome=document.getElementById("fecha").value;  
   let Fecha=fecha_chrome.split("-");
   fecha=Fecha[2]+'/'+Fecha[1]+'/'+Fecha[0];  
-  data['fecha']=fecha;  
-  tableLoader('tabla_http tbody',7);
-  $.post(baseUrl+"salida/resumen",data,function(data){
-    $("#tabla_http tbody").html("");
-    let response=JSON.parse(data);        
-    let total=0;
-    let fila="";
-    if (response.status) {
-      for (x in response['data']) {
-        resumen[response['data'][x].ID]=response['data'][x];         
-        fila+='<tr id="f-'+response['data'][x].ID+'">';      
-        fila+='<td>'+response['data'][x].ID+'</td>';  
-        fila+='<td>'+response['data'][x].FECHASALIDA+'</td>';  
-        fila+='<td>'+response['data'][x].ITEM+'</td>';        
-        fila+='<td>'+response['data'][x].PRESENTACION+'</td>';        
-        fila+='<td>'+parseFloat(response['data'][x].PRECIOCOMPRA).toFixed(2)+'</td>';        
-        fila+='<td>'+parseFloat(response['data'][x].PRECIOVENTA).toFixed(2)+'</td>';
-        fila+='<td>'+response['data'][x].CANTIDAD+'</td>';
-        fila+='<td>'+response['data'][x].GANANCIA+'</td>';
-        fila+='</tr>';        
-        total+=parseFloat(response['data'][x].GANANCIA);
-      }
-      fila+='<tr><td colspan="7" >TOTAL</td><td>'+total.toFixed(2)+'</td></tr>';
-      $("#tabla_http tbody").append(fila);
-    }else{
-      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
-      $('#modal_mensaje').html(modal_conten_loader);
-      $('#modal_mensaje').modal('toggle'); 
-    } 
-  });
+  data['fecha']=fecha; 
+  if(fecha_chrome!=""){
+    tableLoader('tabla_http tbody',7);
+    $.post(baseUrl+"salida/resumen",data,function(data){
+      document.getElementById("div_buscar").style.display="block";
+      $("#tabla_http tbody").html("");
+      let response=JSON.parse(data);        
+      let total=0;
+      let fila="";
+      if (response.status) {
+        for (x in response['data']) {
+          resumen[response['data'][x].ID]=response['data'][x];         
+          fila+='<tr id="f-'+response['data'][x].ID+'">';      
+          fila+='<td>'+response['data'][x].ID+'</td>';  
+          fila+='<td>'+response['data'][x].FECHASALIDA+'</td>';  
+          fila+='<td>'+response['data'][x].ITEM+'</td>';        
+          fila+='<td>'+response['data'][x].PRESENTACION+'</td>';        
+          fila+='<td>'+response['data'][x].PRECIOCOMPRA+'</td>';        
+          fila+='<td>'+response['data'][x].PRECIOVENTA+'</td>';
+          fila+='<td>'+response['data'][x].CANTIDAD+'</td>';
+          fila+='<td>'+response['data'][x].GANANCIA+'</td>';
+          fila+='</tr>';        
+          total+=parseFloat(response['data'][x].GANANCIA);
+        }
+        fila+='<tr><td colspan="7" >GANANCIA TOTAL</td><td>'+total.toFixed(2)+'</td></tr>';
+        $("#tabla_http tbody").append(fila);
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle'); 
+      } 
+    });
+  }
+  else{
+    alert("Seleccionar la Fecha");
+  }     
+  
 }
 
-exportarResumenCsv = function() {
+exportarGananciaCsv = function() {
   var exportCvs="ID,FECHA,PRODUCTO,PRESENTACION,LABORATORIO,PRESENTACION,PRECIO COMPRA,PRECIO VENTA,CANTIDAD,GANANCIA\r\n";
   for(x in resumen){
     exportCvs+=resumen[x].ID+",";
@@ -122,10 +128,9 @@ exportarResumenCsv = function() {
   x.click();
 }
 
-exportarResumenPdf=function(){
-
+exportarGananciaPdf=function(){
   let win = window.open('', '', 'height=700,width=900');
-  let tabla="<center><h3>Resumen de Ventas "+fecha+"</h3><center>";
+  let tabla="<center><h3>Resumen de Ganancias "+fecha+"</h3><center>";
   tabla+=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
     <thead>
       <tr>          
@@ -140,6 +145,7 @@ exportarResumenPdf=function(){
       </tr>
     </thead>
     <tbody>`;
+  let ganancia=0;  
   for(x in resumen){
     tabla+="<tr>";
     tabla+="<td>"+resumen[x].ID+"</td>";
@@ -151,7 +157,9 @@ exportarResumenPdf=function(){
     tabla+="<td>"+resumen[x].CANTIDAD+"</td>";
     tabla+="<td>"+resumen[x].GANANCIA+"</td>";
     tabla+="</tr>";
+    ganancia+=parseFloat(resumen[x].GANANCIA);
   }
+  tabla+='<tr><td colspan="7"> TOTAL GANANCIA</td><td>'+ganancia.toFixed(2)+'</td></tr>'
   tabla+="</tbody></table>";
   let style = "<style>";                        
   style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        

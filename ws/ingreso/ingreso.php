@@ -244,6 +244,13 @@ class ingreso
     $q->execute(); 
     $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
     $mensaje['ingresos']=$data;
+
+    $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['estados']=$data;
+    
     $mensaje['status']=true;     
     $pdo = baseDatos::desconectar();
     return $mensaje;  

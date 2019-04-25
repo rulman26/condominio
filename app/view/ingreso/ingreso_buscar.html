@@ -54,20 +54,20 @@
 
     <div class="table-responsive" id="tabla_http_scroll">
       <table class="table table-hover table-sm" id="tabla_http">
-          <thead>
-          <th width="50">Id</th>          
-          <th width="200">Nombre</th>
-          <th width="60">P C</th>
-          <th width="60">P V</th>
-          <th width="90">Cantidad</th>
-          <th width="150">Ingreso</th>              
-          <th width="120">Vencimiento</th>          
-          <th width="100">Estado</th>          
-          <th width="100">Accion</th>          
+        <thead>
+          <tr>
+            <th width="50">Id</th>          
+            <th width="200">Producto</th>
+            <th width="60">P C</th>
+            <th width="60">P V</th>
+            <th width="90">Cantidad</th>
+            <th width="150">Ingreso</th>              
+            <th width="120">Vencimiento</th>                              
+            <th width="100">Accion</th>          
           </tr>
-          </thead>
-          <tbody>
-          </tbody>
+        </thead>
+        <tbody>
+        </tbody>
       </table>
     </div>
   </div>
@@ -96,7 +96,7 @@ function ingresoBuscar(){
   data['inicio']=document.getElementById("inicio").value;
   data['final']=document.getElementById("final").value;
   data['item_id']=document.getElementById("item_id").value;  
-  data['status']="1,2";  
+  data['status']="1";  
   tableLoader('tabla_http tbody',8);
   $.post(baseUrl+"ingreso/buscar",data,function(data){
     $("#tabla_http tbody").html("");      
@@ -111,8 +111,7 @@ function ingresoBuscar(){
         fila+='<td>'+response['data'][x].PRECIOVENTA+'</td>';
         fila+='<td>'+response['data'][x].CANTIDAD+'</td>';
         fila+='<td>'+response['data'][x].FECHAINGRESO+'</td>';          
-        fila+='<td>'+response['data'][x].FECHAVENCIMIENTO+'</td>';        
-        fila+='<td>'+response['data'][x].ESTADO+'</td>';        
+        fila+='<td>'+response['data'][x].FECHAVENCIMIENTO+'</td>';                
         fila+='<td style="text-align:center;">';        
         fila+=`<div class="dropdown">
                 <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
@@ -123,6 +122,8 @@ function ingresoBuscar(){
                     onclick="ingresoLeer(`+response['data'][x].ID+`)">Ver</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
                     onclick="ingresoEditar(`+response['data'][x].ID+`)">Editar</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="ingresoEliminar(`+response['data'][x].ID+`)">Eliminar</a>  
                   <a class="dropdown-item" href="javascript:void(0)" 
                     onclick="inventarioSalidas(`+response['data'][x].ID+`)">Salidas</a>  
                 </div>
@@ -172,10 +173,6 @@ function modalIngresoLeer(data){
                 <label>Numero de Lote</label>
                 <input readonly type="text" class="form-control form-control-sm" value="`+data.LOTE+`">
               </div>
-              <div class="form-group">
-                <label>Estado </label>    
-                <input readonly type="text" class="form-control form-control-sm" value="`+data.ESTADO+`">
-              </div>
             </div>
             <div class="col-sm-6"> 
               <div class="form-group">
@@ -211,8 +208,8 @@ function ingresoEditar(id){
   $(".fechahora").mask("99/99/9999 99:99");   
 }
 
-function modalIngresoEditar(data){  
-  let estado=modalLoadSelect(data.ESTADO_ID,estados); 
+function modalIngresoEditar(data){ 
+  console.log(data.ESTADO_ID);
   let modal=`<div class="modal-dialog modal-lg">
   <div class="modal-content">
     <div class="modal-header">        
@@ -222,7 +219,8 @@ function modalIngresoEditar(data){
     <div class="modal-body">
       <form id="form_ingreso_editar">
         <input type="hidden" name="id" value="`+data.ID+`">            
-        <input type="hidden" name="ubicacion" value="">            
+        <input type="hidden" name="ubicacion" value="">
+        <input type="hidden" name="estado_id" value="`+data.ESTADO_ID+`">           
         <input type="hidden" id="m_item_id" name="item_id" value="`+data.ITEM_ID+`">            
         <div class="row">
           <div class="col-sm-6"> 
@@ -268,12 +266,6 @@ function modalIngresoEditar(data){
               <input type="text" class="fecha form-control form-control-sm" id="fechavencimiento" 
                 name="fechavencimiento" value="`+data.FECHAVENCIMIENTO+`">
             </div>
-            <div class="form-group">
-              <label for="estado_id">Estado </label>    
-              <select class="form-control form-control-sm" id="estado_id" name="estado_id" nameSelect="estado">
-                `+estado+`
-              </select>
-            </div>
           </div>
         </div>  
       </form>
@@ -313,8 +305,7 @@ function InventarioEditarGuardar(){
         aObjetos.push(data_json['precioventa']);       
         aObjetos.push(data_json['cantidad']);       
         aObjetos.push(data_json['fechaingreso']);       
-        aObjetos.push(data_json['fechavencimiento']);       
-        aObjetos.push(data_json['estado']);  
+        aObjetos.push(data_json['fechavencimiento']);               
         datatableRowEdit(data_json['id'],aObjetos);       
       }else{
         let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
@@ -364,7 +355,7 @@ function modalInventarioSalidas(data){
   let modal=`<div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">        
-        <p class="modal-title"><i class="fas fa-pencil-alt"></i> Salidas</p>
+        <p class="modal-title"><i class="fas fa-list-ul"></i> Salidas</p>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
@@ -389,6 +380,57 @@ function modalInventarioSalidas(data){
     </div>
     </div>`;
   return modal;
+}
+
+function ingresoEliminar(id){  
+  let modal=modalIngresoEliminar(ingresos[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function modalIngresoEliminar(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-trash-alt"></i> Eliminar Ingreso</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_ingreso_eliminar">
+          <input type="hidden" name="id" value="`+data.ID+`">
+        </form>
+        <h6>Estas Seguro de Eliminar Item..?"</h6>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-info btn-sm" onclick="ingresoEliminarGuardar()"><i class="fas fa-trash-alt"></i> Si</button>
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> No</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function ingresoEliminarGuardar(){
+  if (formValido("form_ingreso_eliminar")){
+    let data_json=objForm("form_ingreso_eliminar");
+    modalCargando();
+    $.post(baseUrl+"ingreso/eliminar",data_json,function(data){      
+      let response=JSON.parse(data);      
+      $('#modal_cargando').modal('toggle'); 
+      if (response.status){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        $("#f-"+data_json['id']).remove();
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
 }
 
 function id_item_modal(input) {        	 
@@ -417,7 +459,7 @@ function id_item(input) {
 }
 
 exportarIngresosCsv = function() {
-  var exportCvs="ID,ITEM,PRECIO COMPRA,PRECIO VENTA,CANTIDAD,FECHA INGRESO,FECHA VENCIMIENTO,ESTADO\r\n";
+  var exportCvs="ID,ITEM,PRECIO COMPRA,PRECIO VENTA,CANTIDAD,FECHA INGRESO,FECHA VENCIMIENTO\r\n";
   for(x in ingresos){
     exportCvs+=ingresos[x].ID+",";
     exportCvs+=ingresos[x].ITEM+",";
@@ -425,8 +467,7 @@ exportarIngresosCsv = function() {
     exportCvs+=ingresos[x].PRECIOVENTA+",";
     exportCvs+=ingresos[x].CANTIDAD+",";   
     exportCvs+=ingresos[x].FECHAINGRESO+",";    
-    exportCvs+=ingresos[x].FECHAVENCIMIENTO+","; 
-    exportCvs+=ingresos[x].ESTADO;
+    exportCvs+=ingresos[x].FECHAVENCIMIENTO;     
     exportCvs+= "\r\n";
   }
 
@@ -450,8 +491,7 @@ exportarIngresosPdf=function(){
         <th>Precio Venta</th>
         <th>Cantidad</th>        
         <th>F Ingreso</th>        
-        <th>F Vencimiento</th>        
-        <th>Estado</th>              
+        <th>F Vencimiento</th>                            
       </tr>
     </thead>
     <tbody>`;
@@ -464,8 +504,7 @@ exportarIngresosPdf=function(){
     tabla+="<td>"+ingresos[x].PRECIOVENTA+"</td>";
     tabla+="<td>"+ingresos[x].CANTIDAD+"</td>";    
     tabla+="<td>"+ingresos[x].FECHAINGRESO+"</td>";    
-    tabla+="<td>"+ingresos[x].FECHAVENCIMIENTO+"</td>";
-    tabla+="<td>"+ingresos[x].ESTADO+"</td>";
+    tabla+="<td>"+ingresos[x].FECHAVENCIMIENTO+"</td>";    
     tabla+="</tr>";
   }
   tabla+="</tbody></table>";
