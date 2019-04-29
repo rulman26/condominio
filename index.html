@@ -4,18 +4,19 @@
   <title>Stockfar</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
-  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
   <link rel="icon" href="app/img/icono.ico" type="image/x-icon"/>
 </head>
-<style>body{
-  font-family: 'Montserrat', sans-serif;
-}
+<body>
+<style>
+  body{
+    font-family: 'Ubuntu', sans-serif;
+  }
 ::-webkit-scrollbar {    
     width: 5px;
     height: 5px;
@@ -31,129 +32,214 @@
     background:#666;
     border-radius: 5px;
 }
-
-.navbar-light .navbar-nav .nav-link {
-  color: var(--cyan);
-  font-size: 20px;
-}
-
-.carousel-inner img {
-      width: 100%;
-      height: 100%;
-  }
 </style>
-<body style="height:1500px">
-  <nav class="navbar navbar-expand-md bg-light navbar-light fixed-top">
-    <!-- Brand -->
-    <a class="navbar-brand" href="#"><img src="app/img/stockfar.png" width="200"></a>
-  
-    <!-- Toggler/collapsibe Button -->
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-  
-    <!-- Navbar links -->
-    <div class="collapse navbar-collapse" id="collapsibleNavbar">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="#">Producto</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Demo</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Precio</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Contactar</a>
-        </li>  
-      </ul>
-    </div> 
-  </nav>
-  <div class="container">
-    <div id="demo" class="carousel slide" data-ride="carousel">
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">  
+  <a class="navbar-brand" href="#"><img src="app/img/stockfar.png" width="150"></a>
 
-        <!-- Indicators -->
-        <ul class="carousel-indicators">
-          <li data-target="#demo" data-slide-to="0" class="active"></li>
-          <li data-target="#demo" data-slide-to="1"></li>
-          <li data-target="#demo" data-slide-to="2"></li>
-        </ul>
-        
-        <!-- The slideshow -->
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img src="app/img/img_1.png" alt="Los Angeles" width="1100" height="800">
-          </div>
-          <div class="carousel-item">
-            <img src="app/img/img_2.png" alt="Chicago" width="1100" height="800">
-          </div>
-          <div class="carousel-item">
-            <img src="app/img/img_3.png" alt="New York" width="1100" height="800">
-          </div>
-        </div>
-        
-        <!-- Left and right controls -->
-        <a class="carousel-control-prev" href="#demo" data-slide="prev">
-          <span class="carousel-control-prev-icon"></span>
-        </a>
-        <a class="carousel-control-next" href="#demo" data-slide="next">
-          <span class="carousel-control-next-icon"></span>
-        </a>
-    </div>  
+  <!-- Toggler/collapsibe Button -->
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">  
+    <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#inicio">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#producto">Producto</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#demos">Demos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#precios">Precios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#contactos">Contacto</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="app">Ingresar</a>
+        </li>
+      </ul>
   </div>
-  <div class="container-fluid">
-    <p>
-      Stockfar es el sistema informático desarrollado especificamente para administrar
-      su farmacia o botica de manera ágil y eficáz, ahorrandole una valiosa cantidad de tiempo.
-      Es un sistema que no necesita ser adaptado a la comercialización de medicamentos porque 
-      ha sido desarrollado única y exclusivamente para la forma de trabajo de su oficina farmacéutica,
-      esto hace que su uso sea sencillo y rápido.
-    </p>
-    <p>
-      Stockfar es moderno, totalmente visual y ha sido diseñado para ser ejecutado en todos los Ordenadores
-      y Dispositivos Mobiles con acceso a internet.
-      No necesita computadoras con configuraciones muy complejas. 
-      No requiere la instalación de costosos programas adicionales para funcionar.
-    </p>
-    <p>
-      Stockfar tiene la capacidad de controlar los ingresos y salidas de su productos asi como las ventas realizadas.
-      Stockfar es económico, no importa cuantas computadoras tenga en su establecimiento,
-      Usted solo pagará por el Servicio de Manera mensual, no requiere adquisicion de algun servidor ya que todos
-      los datos son almacenados en Servidores Remotos.
-    </p>
-  </div>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-sm-4">
-        <div class="card">          
-          <div class="card-body">
-            <h4 class="card-title">Información</h4>
-            <p class="card-text">Stockfar viene con una base de datos de Presentaciones y Categorias de los productos a Registrar</p>
-            <a href="#" class="btn btn-primary">Leer Mas</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-4">
-        <div class="card">          
-          <div class="card-body">
-            <h4 class="card-title">Compatibilidad</h4>
-            <p class="card-text">Stockfar esta diseñado en la experienca del usuario y es compatible con todas los Ordenadores y Dispositivos Moviles con acceso a Internet. </p>            
-            <a href="#" class="btn btn-primary">Leer Mas</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-4">
-        <div class="card">          
-          <div class="card-body">
-            <h4 class="card-title">Observatorio</h4>
-            <p class="card-text">Stockfar le permite generar reportes de Usuarios, Colaboradores, Clientes, Productos(medicamentos),
-              Ingresos, Salidas,Stock, Ventas y Ganancias en excel con solo un click. Esto le ahorrará una valiosa cantidad de tiempo. </p>
-            <a href="#" class="btn btn-primary">Leer Mas</a>  
-          </div>
-        </div>
+</nav>
+
+<div id="inicio" class="container-fluid" style="padding-top:70px;padding-bottom:20px;background: #212121;">
+  <div class="row justify-content-center align-items-center" style="padding: 10px;">
+      <img src="app/img/presentacion.png"  class="img-fluid">   
+  </div>  
+</div>
+<div id="producto" class="container-fluid" style="padding-top:70px;padding-bottom:70px;background-color: #00BCD4;color: #FFF;">
+  <h1>Procucto</h1>
+  <p>
+    Stockfar es el sistema informático desarrollado especificamente para administrar
+    su farmacia o botica de manera ágil y eficáz, ahorrandole una valiosa cantidad de tiempo.
+    Es un sistema que no necesita ser adaptado a la comercialización de medicamentos porque 
+    ha sido desarrollado única y exclusivamente para la forma de trabajo de su oficina farmacéutica,
+    esto hace que su uso sea sencillo y rápido.
+  </p>
+  <p>
+    Stockfar es moderno, totalmente visual y ha sido diseñado para ser ejecutado en todos los Ordenadores
+    y Dispositivos Mobiles con acceso a internet.
+    No necesita computadoras con configuraciones muy complejas. 
+    No requiere la instalación de costosos programas adicionales para funcionar.
+  </p>
+  <p>
+    Stockfar tiene la capacidad de controlar los ingresos y salidas de su productos asi como las ventas realizadas.
+    Stockfar es económico, no importa cuantas computadoras tenga en su establecimiento,
+    Usted solo pagará por el Servicio de Manera mensual, no requiere adquisicion de algun servidor ya que todos
+    los datos son almacenados en Servidores Remotos.
+  </p>
+  <div class="card-group">
+    <div class="card bg-primary">
+      <div class="card-body text-center">
+        <h4 class="card-title">¿Cómo funciona?</h4>
+        <p class="card-text">
+          No existe una ruta estricta al desarrollar soluciones para las organizaciones, esto es una de las características que nos hace diferentes, la flexibilidad, sin embargo, si seguimos patrones que nos permiten identificar qué modelo de servicio se adapta más a su necesidad específica, sea una solución puntual o un área específica (TI).</p>
       </div>
     </div>
+    <div class="card bg-secondary">
+      <div class="card-body text-center">
+        <h4 class="card-title">Reunión inicial</h4>
+        <p class="card-text">
+          Todo empieza con una conversación, sea física o virtual en la que podamos conocerlos y entender el negocio y sus necesidades iniciales, los puntos de dolor que podemos ayudar a solucionar, lo que necesitan implementar o la gestión de la demanda.</p>
+      </div>
+    </div>
+    <div class="card bg-success">
+      <div class="card-body text-center">
+        <h4 class="card-title">Sus necesidades</h4>
+        <p class="card-text">
+          Nuestro equipo comercial junto a un equipo de especialistas analizan la información brindada en la reunión realizando investigaciones complementarias para definir la solución y bajo qué modelo (fábrica / proyecto) y sobre que marco (ágil / tradicional) se podría ejecutar para elaborar una estimación.</p>
+      </div>
+    </div>
+    <div class="card bg-danger">
+      <div class="card-body text-center">
+        <h4 class="card-title">Inicio del servicio</h4>
+        <p class="card-text">
+          Dependiendo de la solución, modelo y marco de trabajo seleccionado se realiza una presentación de nuestra propuesta o estimación para profundizar más sobre la alternativa seleccionada (alcance, tiempos y equipo necesario) para lograr acuerdos que nos lleven al inicio del servicio.</p>
+      </div>
+    </div> 
   </div>
+</div>
+<style>
+/* Make the image fully responsive */
+.carousel-inner img {
+    width: 100%;
+    height: 100%;
+}
+</style>
+<div id="demos" class="container-fluid" style="padding-top:70px;padding-bottom:70px;background-color: #3F51B5;color: #FFF;">
+  <h1>Demos</h1>
+  <div id="demo" class="container carousel slide" data-ride="carousel">
+    <!-- Indicators -->
+    <ul class="carousel-indicators">
+      <li data-target="#demo" data-slide-to="0" class="active"></li>
+      <li data-target="#demo" data-slide-to="1"></li>
+      <li data-target="#demo" data-slide-to="2"></li>
+    </ul>
+  
+    <!-- The slideshow -->
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="app/img/fondo_login.png" class="rounded" alt="Login">
+      </div>
+      <div class="carousel-item">
+        <img src="app/img/fondo_app.png" class="rounded" alt="Aplicativo">
+      </div>
+      <div class="carousel-item">
+        <img src="app/img/fondo_stock.png"  class="rounded" alt="Stock">
+      </div>
+    </div>
+  
+    <!-- Left and right controls -->
+    <a class="carousel-control-prev" href="#demo" data-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </a>
+    <a class="carousel-control-next" href="#demo" data-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </a>
+  
+  </div>
+</div>
+<div id="precios" class="container-fluid" style="padding-top:70px;padding-bottom:70px;background-color: #673AB7;color: #FFF;">
+  <h1>Precios</h1>
+  <h3>Por lanzamiento los precios estan sujetos a un descuento del 50% en sus 2 primeros meses.</h3>
+  <div class="card-deck">
+    <div class="card bg-info">
+      <div class="card-header"><h3>Pequeña Empresa</h3></div>
+      <div class="card-body">        
+        <h5 class="card-title text-center">Desde S/.199 mensual </h5>
+        <p class="card-text"><i class="fas fa-check"></i> Sucursales 1.</p>
+        <p class="card-text"><i class="fas fa-check"></i> 1 GB Espacio en Disco.</p>
+        <p class="card-text"><i class="fas fa-check"></i> 200 GB Transferencia Mensual.</p>        
+        <p class="card-text"><i class="fas fa-check"></i> Hosting rápido, confiable y soporte técnico con el mejor costo por beneficio del mercado.</p>
+        <p class="card-text"><i class="fas fa-check"></i> Soporte Técnico Profesional a través de escritorio Remoto 24 horas.</p>
+        <p class="card-text"><i class="fas fa-check"></i> Servidores Monitoreados todos los días, las 24 horas.</p>
+        <p class="card-text"><i class="fas fa-check"></i> Backup Semanal realizado en Servidores Externos.</p>        
+      </div>
+    </div>
+    <div class="card bg-secondary">
+      <div class="card-header"><h3>Mediana Empresa</h3></div>
+      <div class="card-body">
+        <h5 class="card-title text-center">Desde S/.299 mensual </h5>
+        <p class="card-text"><i class="fas fa-check"></i> Sucursales 1-10.</p>
+        <p class="card-text"><i class="fas fa-check"></i> 2 GB Espacio en Disco.</p>
+        <p class="card-text"><i class="fas fa-check"></i> 500 GB Transferencia Mensual.</p>   
+        <p class="card-text"><i class="fas fa-check"></i> Hosting Especializado para Empresas que requieran servicios de valor agregado y una atención diferenciada.</p>
+        <p class="card-text"><i class="fas fa-check"></i> Soporte Técnico Profesional a través de escritorio Remoto 24 horas.</p>
+        <p class="card-text"><i class="fas fa-check"></i> Servidores Monitoreados todos los días, las 24 horas.</p>
+        <p class="card-text"><i class="fas fa-check"></i> Backup Semanal realizado en Servidores Externos.</p>        
+      </div>
+    </div>
+    <div class="card bg-success">
+      <div class="card-header"><h3>Grande Empresa</h3></div>
+      <div class="card-body">
+        <h5 class="card-title text-center" >Desde S/.499 mensual </h5>
+        <p class="card-text"><i class="fas fa-check"></i> Sucursales 1-100.</p>
+        <p class="card-text"><i class="fas fa-check"></i> 5 GB Espacio en Disco.</p>
+        <p class="card-text"><i class="fas fa-check"></i> 1000 GB Transferencia Mensual.</p> 
+        <p class="card-text"><i class="fas fa-check"></i> Servidores Virtuales y Dedicados para una administración total, alta disponibilidad y recursos garantizados.</p>
+        <p class="card-text"><i class="fas fa-check"></i> Soporte Técnico Profesional a través de escritorio Remoto 24 horas.</p>
+        <p class="card-text"><i class="fas fa-check"></i> Servidores Monitoreados todos los días, las 24 horas.</p>
+        <p class="card-text"><i class="fas fa-check"></i> Backup Semanal realizado en Servidores Externos.</p>        
+      </div>
+    </div> 
+  </div>
+</div>
+<div id="contactos" class="container-fluid" style="padding-top:70px;padding-bottom:70px;">
+  
+    <div class="container">
+        <h1>Contactar</h1>
+        <p>Si desea el DEMO de Stockfar haga <a href="/demo">click aquí</a></p>        
+        <p>Para comunicarse telefonicamente con el programador, Sr. Rulman Ferro, llamar al movil +51 992755752</p>
+        <p>Para información adicional por correo por favor sírvase contactarme a través del siguiente formulario:       </p>
+        <form>
+          <div class="form-group">
+            <label for="nombre">Nombre y Apellidos *</label>
+            <input type="text" class="form-control" id="nombre" placeholder="Ingresa Nombre y Apellidos" name="nombre" required>            
+          </div>
+          <div class="form-group">
+            <label for="email">Direccion de Email *</label>
+            <input type="email" class="form-control" id="email" placeholder="Ingresar Email" name="email" required>            
+          </div>
+          <div class="form-group">
+            <label for="telefono">Telefono </label>
+            <input type="text" class="form-control" id="telefono" placeholder="Ingresar Telefono" name="telefono" required>            
+          </div>
+          <div class="form-group">
+            <label for="comentario">Comentario * </label>
+            <textarea class="form-control" id="comentario" name="comentario" requerid></textarea>            
+          </div>
+          <button type="submit" class="btn btn-primary">Enviar Consulta</button>
+        </form>
+      </div>
+</div>
+
+<script>
+$(document).ready(function(){
+  $('body').scrollspy({target: ".navbar", offset: 50});   
+});
+</script>
+
 </body>
 </html>

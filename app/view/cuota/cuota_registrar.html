@@ -1,0 +1,134 @@
+<div class="form-cliente" id="form-cliente"> 
+  <div class="form-cabecera">
+    <h4>Calcular Cuota de Departamentos</h4>
+  </div> 
+  <hr> 
+  <form id="form_cuota_registrar">
+    <div class="form-group">
+      <label for="bloque_id">Bloque *</label>
+      <select class="form-control form-control-sm" id="bloque_id" name="bloque_id">
+        <option>Cargando..!</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="periodo">Periodo *</label>
+      <select class="form-control form-control-sm" id="periodo" name="periodo" onchange="gastosProgramarCuota(this.value)">
+        <option >Seleccione</option>
+        <option value="04/2019">04/2019</option>
+        <option value="05/2019">05/2019</option>
+        <option value="06/2019">06/2019</option>
+        <option value="07/2019">07/2019</option>
+        <option value="08/2019">08/2019</option>
+        <option value="09/2019">09/2019</option>
+        <option value="10/2019">10/2019</option>
+        <option value="11/2019">11/2019</option>
+        <option value="12/2019">12/2019</option>
+      </select>
+    </div>
+    <div class="table-responsive" id="tabla_http_scroll">
+      <table class="table table-hover table-sm" id="tabla_http">
+        <thead>
+          <tr>                 
+            <th width="150">Periodo</th>            
+            <th width="150">Servicio</th>          
+            <th width="150">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+    <div class="form-group">
+      <label for="total">Monto *</label>
+      <input readonly required type="number" class="form-control form-control-sm" id="total" name="total" value="0">
+    </div>
+    <div class="form-group">
+      <label for="cantidad">Cantidad a Dividir *</label>
+      <input required type="text" class="form-control form-control-sm" id="cantidad" name="cantidad" value="0" onchange="CalcultarCuota(this.value)">
+    </div>
+    <div class="form-group">
+      <label for="cuota">Cuota del Mes *</label>
+      <input required type="text" class="form-control form-control-sm" id="cuota" name="cuota" value="0">
+    </div>
+  </form>
+  <button  class="btn btn-primary btn-sm btn-block" onclick="formCuotaRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
+</div>
+<script type="text/javascript">
+
+screenAltura("form-cliente",200);
+$(".fechames").mask("99/9999");
+function datosFormGastoRegistrar(){  
+  $.get(baseUrl+"cuota/formeditar",function(data){      
+    let response=JSON.parse(data);       
+    loadSelectNew("bloque_id",response['bloques']);         
+  });     
+}  
+datosFormGastoRegistrar();
+
+function gastosProgramarCuota(periodo){  
+  let data={};
+  data['bloque_id']=document.getElementById("bloque_id").value;  
+  data['periodo']=periodo;
+  tableLoader('tabla_http tbody',2);
+  $.post(baseUrl+"gasto/programar",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);   
+    let total=0;     
+    if (response.status) {      
+      for (x in response['data']) {        
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].PERIODO+'</td>';  
+        fila+='<td>'+response['data'][x].SERVICIO+'</td>';  
+        fila+='<td>'+response['data'][x].MONTO+'</td>';                    
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+        total+=parseFloat(response['data'][x].MONTO);
+      }
+      document.getElementById("total").value=total; 
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+function CalcultarCuota(cantidad){
+  let monto=parseFloat(document.getElementById("total").value);
+  if(monto!=0){
+    let cuota=monto/cantidad;
+    document.getElementById("cuota").value=cuota.toFixed(2);
+  }else{
+    alert("No existen Servicios Pendientes de Pago para este Periodo");
+  }
+  
+}
+
+function formCuotaRegistrar(){
+  let cuota=parseFloat(document.getElementById("cuota").value)
+  if(cuota==0){
+    alert("No existen Servicios Pendientes de Pago para este Periodo");
+  }else{
+    if (formValido("form_cuota_registrar")){
+      let data_json=objForm("form_cuota_registrar");  
+      modalCargando();
+      $.post(baseUrl+"cuota/crear",data_json,function(data){      
+        let response=JSON.parse(data);
+        $('#modal_cargando').modal('toggle');
+        if (response.status){
+          let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle'); 
+          clearInputsForm("form_cuota_registrar input");          
+        }else{
+          let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle');      
+        }
+      }); 
+    } 
+  }
+ 
+  
+}
+</script>

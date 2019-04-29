@@ -41,16 +41,16 @@ switch ($_GET['solicitud']){
 					$usuario->password=$request['usuario'];
 					$usuario->token="";
 					$usuario->tipo_id=$request['tipo_id'];	
-					$usuario->empleado_id=$request['empleado_id'];
+					$usuario->propietario_id=$request['propietario_id'];
 					$usuario->estado_id=1;
 				}else{
 					$usuario->usuario=$_POST['usuario'];
 					$usuario->password=$_POST['usuario'];
 					$usuario->token="";
 					$usuario->tipo_id=$_POST['tipo_id'];
-					$usuario->empleado_id=$_POST['empleado_id'];
+					$usuario->propietario_id=$_POST['propietario_id'];
 					$usuario->estado_id=1;      				 	
-				}			
+				}
 				$data=$usuario->crearUsuario();			
 			}else{			
 	      $data['status']=false;
@@ -101,13 +101,13 @@ switch ($_GET['solicitud']){
 					$usuario->id=$request['id'];				
 					$usuario->usuario=$request['usuario'];				
 					$usuario->tipo_id=$request['tipo_id'];				
-					$usuario->empleado_id=$request['empleado_id'];	
+					$usuario->propietario_id=$request['propietario_id'];	
 					$usuario->estado_id=$request['estado_id'];	
 				}else{
 					$usuario->id=$_POST['id']; 
 					$usuario->usuario=$_POST['usuario'];            
 					$usuario->tipo_id=$_POST['tipo_id'];
-					$usuario->empleado_id=$_POST['empleado_id'];
+					$usuario->propietario_id=$_POST['propietario_id'];
 					$usuario->estado_id=$_POST['estado_id'];  		
 				}			
 				$data=$usuario->editarUsuario();			

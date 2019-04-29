@@ -1,0 +1,320 @@
+<div class="form-cliente">
+  <div class="form-cabecera">
+    <h4>Administrar Cajas</h4>
+  </div> 
+  <hr>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text form-control-sm">Bloque</span>
+          </div>
+          <select class="form-control form-control-sm" id="bloque_id" >            
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="input-group" id="filtro_select">      
+          <input type="text" class="form-control form-control-sm" id="filtro_input" placeholder="Dato Buscar">
+        </div>
+      </div>  
+      <div class="col-sm-3">
+        <div class="input-group">
+          <button class="btn btn-primary btn-sm btn-block" onclick="cajaBuscar()"><i class="fas fa-search"></i> Buscar</button>
+        </div>
+      </div>
+      <div class="col-sm-3" id="div_buscar" style="display: none">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input type="text" class="form-control form-control-sm" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+          <div class="input-group-prepend">        
+              <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="exportarCajasCsv()">Exportar CVS</a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="exportarCajasPdf()">Exportar PDF</a>          
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive" id="tabla_http_scroll">
+      <table class="table table-hover table-sm" id="tabla_http">
+        <thead>
+          <tr>                      
+            <th width="100">Bloque</th>            
+            <th width="150">Caja</th>          
+            <th width="180">Banco</th>          
+            <th width="180">Cuenta</th>
+            <th width="180">Saldo</th>          
+            <th width="80">Estado</th>          
+            <th width="80">Accion</th>          
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+screenAltura("tabla_http_scroll",340);
+
+var estados=[];
+var bloques=[];
+
+function datosFormCajaRegistrar(){  
+  $.get(baseUrl+"caja/formeditar",function(data){      
+    let response=JSON.parse(data);   
+    estados=response['estados'];   
+    bloques=response['bloques'];   
+    loadSelectNew("bloque_id",response['bloques']);     
+  });     
+}  
+datosFormCajaRegistrar();
+
+var cajas=[];
+function cajaBuscar(){
+  document.getElementById("div_buscar").style.display="block";
+  let data={};
+  data['bloque_id']=document.getElementById("bloque_id").value;
+  data['nombre']=document.getElementById("filtro_input").value;  
+  data['status']="1,2";
+  tableLoader('tabla_http tbody',4);
+  $.post(baseUrl+"caja/buscar",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);        
+    if (response.status) {
+      cajas=arrayToObj(response['data'])
+      for (x in response['data']) {        
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].BLOQUE+'</td>';        
+        fila+='<td>'+response['data'][x].NOMBRE+'</td>';        
+        fila+='<td>'+response['data'][x].BANCO+'</td>';        
+        fila+='<td>'+response['data'][x].CUENTA+'</td>';   
+        fila+='<td>'+response['data'][x].SALDO+'</td>';       
+        fila+='<td>'+response['data'][x].ESTADO+'</td>';       
+        fila+='<td style="text-align:center;">';        
+        fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="cajaLeer(`+response['data'][x].ID+`)">Ver</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="cajaEditar(`+response['data'][x].ID+`)">Editar</a>
+                </div>
+              </div>`;
+        fila+='</td>';      
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+function cajaLeer(id){  
+  let modal=modalCajaLeer(cajas[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalCajaLeer(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-save"></i> Datos Caja</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>          
+          <div class="form-group">
+            <label for="nombre">Bloque</label>
+            <input readonly type="text" class="form-control form-control-sm" id="nombre" value="`+data.BLOQUE+`">
+          </div>
+          <div class="form-group">
+            <label>Caja</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label>Banco</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.BANCO+`">
+          </div>
+          <div class="form-group">
+            <label>Cuenta</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.CUENTA+`">
+          </div>
+          <div class="form-group">
+            <label>Saldo</label>
+            <input readonly type="texr" class="form-control form-control-sm" value="`+data.SALDO+`">
+          </div>
+          <div class="form-group">
+            <label>Estado</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.ESTADO+`">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function cajaEditar(id){  
+  let modal=modalCajaEditar(cajas[id]);
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle');     
+}
+
+function modalCajaEditar(data){
+  let bloque=modalLoadSelect(data.BLOQUE_ID,bloques);  
+  let estado=modalLoadSelect(data.ESTADO_ID,estados);
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <p class="modal-title"><i class="fas fa-pencil-alt"></i> Editar Producto</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_caja_editar">
+          <input type="hidden" name="id" value="`+data.ID+`">  
+          <div class="form-group">
+            <label for="bloque_id">Bloque *</label>    
+            <select class="form-control form-control-sm" id="bloque_id" name="bloque_id" nameSelect="bloque">
+              `+bloque+`
+            </select>
+          </div>        
+          <div class="form-group">
+            <label for="nombre">Caja *</label>
+            <input required type="text" class="form-control form-control-sm" id="nombre" name="nombre" value="`+data.NOMBRE+`">
+          </div>
+          <div class="form-group">
+            <label for="banco">Banco *</label>
+            <input required type="text" class="form-control form-control-sm" id="banco" name="banco" value="`+data.BANCO+`">
+          </div>
+          <div class="form-group">
+            <label for="cuenta">Cuenta *</label>
+            <input required type="text" class="form-control form-control-sm" id="cuenta" name="cuenta" value="`+data.CUENTA+`">
+          </div>
+          <div class="form-group">
+            <label for="saldo">Saldo *</label>
+            <input required type="text" class="form-control form-control-sm" id="saldo" name="saldo" value="`+data.SALDO+`">
+          </div>
+          <div class="form-group">
+            <label for="estado_id">Estado *</label>    
+            <select class="form-control form-control-sm" id="estado_id" name="estado_id" nameSelect="estado">
+              `+estado+`
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer justify-content-center"> 
+        <button type="button" class="btn btn-info btn-sm" onclick="cajaEditarGuardar()"><i class="fas fa-pencil-alt"></i> Editar</button>       
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function cajaEditarGuardar(){  
+  if (formValido("form_caja_editar")){
+    let data_json=objForm("form_caja_editar");
+    modalCargando();
+    $.post(baseUrl+"caja/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle'); 
+      if (response.status){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        dataLocalEdit(cajas,data_json); 
+        let aObjetos=[]
+        aObjetos.push(data_json['bloque']);
+        aObjetos.push(data_json['nombre']);
+        aObjetos.push(data_json['banco']);
+        aObjetos.push(data_json['cuenta']);
+        aObjetos.push(data_json['saldo']);
+        aObjetos.push(data_json['estado']);
+        datatableRowEdit(data_json['id'],aObjetos);        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+exportarCajasCsv = function() {
+  var exportCvs="BLOQUE,CAJA,BANCO,CUENTA,SALDO,ESTADO\r\n";
+  for(x in cajas){
+      exportCvs+=cajas[x].BLOQUE+",";
+      exportCvs+=cajas[x].NOMBRE+",";      
+      exportCvs+=cajas[x].BANCO+",";
+      exportCvs+=cajas[x].CUENTA+",";      
+      exportCvs+=cajas[x].SALDO+",";      
+      exportCvs+=cajas[x].ESTADO;
+      exportCvs+= "\r\n";
+  }
+
+  csvString = "data:application/csv," + encodeURIComponent(exportCvs);
+  var x = document.createElement("A");
+  x.setAttribute("href", csvString );
+  x.setAttribute("download","cajas.csv");
+  document.body.appendChild(x);
+  x.click();
+}
+
+exportarCajasPdf=function(){
+  // CREATE A WINDOW OBJECT.
+      let win = window.open('', '', 'height=700,width=900');
+      let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+        <thead>
+          <tr>          
+            <th>Bloque</th>
+            <th>Caja</th>
+            <th>Banco</th>
+            <th>Cuenta</th>            
+            <th>Saldo</th>            
+            <th>Estado</th>              
+          </tr>
+        </thead>
+        <tbody>`;
+      for(x in cajas){
+        tabla+="<tr>";
+        tabla+="<td>"+cajas[x].BLOQUE+"</td>";
+        tabla+="<td>"+cajas[x].NOMBRE+"</td>";
+        tabla+="<td>"+cajas[x].BANCO+"</td>";
+        tabla+="<td>"+cajas[x].CUENTA+"</td>";        
+        tabla+="<td>"+cajas[x].SALDO+"</td>";        
+        tabla+="<td>"+cajas[x].ESTADO+"</td>";
+        tabla+="</tr>";
+      }
+      tabla+="</tbody></table>";
+      let style = "<style>";                        
+      style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+      style = style + "</style>";
+      win.document.write('<html><head>');
+      win.document.write('<title>Items</title>');   // <title> FOR PDF HEADER.
+      win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+      win.document.write('</head>');
+      win.document.write('<body>');
+      win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+      win.document.write('</body></html>');
+      win.document.close();   // CLOSE THE CURRENT WINDOW.
+      win.print();    // PRINT THE CONTENTS.
+}
+</script>  

@@ -12,7 +12,7 @@ class usuario
   var $password;
   var $token;
   var $tipo_id;
-  var $empleado_id;
+  var $propietario_id;
   var $estado_id;  
 
   function loginUsuario(){
@@ -23,11 +23,11 @@ class usuario
     $q->execute(array($this->usuario));
     $data= $q->fetch(PDO::FETCH_ASSOC);
     if(password_verify($this->password,$data['PASSWORD'])){
-      $sql = "SELECT a.ID,a.USUARIO,a.TIPO_ID,a.EMPLEADO_ID,
+      $sql = "SELECT a.ID,a.USUARIO,a.TIPO_ID,a.PROPIETARIO_ID,
         CONCAT(b.NOMBRES,' ',b.APATERNO,' ',b.AMATERNO) COLABORADOR,
         LOWER(c.NOMBRE) REDIRECT
         FROM tausuario a
-        JOIN taempleado b ON b.ID=a.EMPLEADO_ID
+        JOIN tapropietario b ON b.ID=a.PROPIETARIO_ID
         JOIN gnusuariotipo c ON c.ID=a.TIPO_ID
         WHERE a.USUARIO=?";
       $q = $pdo->prepare($sql);
@@ -40,7 +40,7 @@ class usuario
         $q->execute(array($token,$data['ID']));
         $response["status"]=true;
         $response["data"]=$data;
-        $secret=$data['ID'].",".$token.",".$data['EMPLEADO_ID'];
+        $secret=$data['ID'].",".$token.",".$data['PROPIETARIO_ID'];
         $response["token"]=base64_encode($secret);      
         $response["redirect"]=$data['REDIRECT'];  
       }else{
@@ -63,13 +63,11 @@ class usuario
     $q->execute();
     $data['tipos'] = $q->fetchAll(PDO::FETCH_ASSOC); 
     //Colaboradores Sin Usuario      
-    $sql = "SELECT a.ID,CONCAT(a.NOMBRES,' ',a.APATERNO,' ',a.AMATERNO) NOMBRE 
-      FROM taempleado a
-      LEFT JOIN tausuario b on b.EMPLEADO_ID=a.ID 
-      WHERE b.ID is null AND a.ESTADO_ID=1";
+    $sql = "SELECT ID,CONCAT(NOMBRES,' ',APATERNO,' ',AMATERNO) NOMBRE FROM tapropietario WHERE ESTADO_ID=1";
     $q = $pdo->prepare($sql);
     $q->execute();
-    $data['empleados'] = $q->fetchAll(PDO::FETCH_ASSOC);   
+    $data['propietarios'] = $q->fetchAll(PDO::FETCH_ASSOC);
+
     $data['status']=true;
     BaseDatos::desconectar();
     return $data; 
@@ -88,7 +86,7 @@ class usuario
         $password = password_hash($this->password, PASSWORD_DEFAULT);
         $sql = "INSERT INTO tausuario VALUES(default,?,?,?,?,?,?)";
         $q = $pdo->prepare($sql);
-        $q->execute(array($this->usuario,$password,$this->token,$this->tipo_id,$this->empleado_id,$this->estado_id));                  
+        $q->execute(array($this->usuario,$password,$this->token,$this->tipo_id,$this->propietario_id,$this->estado_id));                  
         $mensaje['status']=true;
         $mensaje['mensaje']='USUARIO REGISTRADO CORRECTAMENTE'; 
         $pdo->commit();  
@@ -114,13 +112,10 @@ class usuario
     $q->execute();
     $data['tipos'] = $q->fetchAll(PDO::FETCH_ASSOC); 
     //Colaboradores Sin Usuario      
-    $sql = "SELECT a.ID,CONCAT(a.NOMBRES,' ',a.APATERNO,' ',a.AMATERNO) NOMBRE 
-      FROM taempleado a
-      LEFT JOIN tausuario b on b.EMPLEADO_ID=a.ID 
-      WHERE b.ID is null AND a.ESTADO_ID=1";
+    $sql = "SELECT ID,CONCAT(NOMBRES,' ',APATERNO,' ',AMATERNO) NOMBRE FROM tapropietario WHERE ESTADO_ID=1";
     $q = $pdo->prepare($sql);
     $q->execute();
-    $data['empleados'] = $q->fetchAll(PDO::FETCH_ASSOC);
+    $data['propietarios'] = $q->fetchAll(PDO::FETCH_ASSOC);
 
     $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
     $q = $pdo->prepare($sql);
@@ -140,11 +135,11 @@ class usuario
     }    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT a.ID,a.TIPO_ID,c.NOMBRE PERFIL,a.USUARIO,a.EMPLEADO_ID,
-      CONCAT(b.NOMBRES,' ',b.APATERNO,' ',b.AMATERNO) COLABORADOR,
+    $sql = "SELECT a.ID,a.TIPO_ID,c.NOMBRE PERFIL,a.USUARIO,a.PROPIETARIO_ID,
+      CONCAT(b.NOMBRES,' ',b.APATERNO,' ',b.AMATERNO) PROPIETARIO,
       a.ESTADO_ID,d.NOMBRE ESTADO
       FROM tausuario a
-      JOIN taempleado b on b.ID=a.EMPLEADO_ID
+      JOIN tapropietario b on b.ID=a.PROPIETARIO_ID
       JOIN gnusuariotipo c on c.ID=a.TIPO_ID
       JOIN gnestados d on d.ID=a.ESTADO_ID ".$cadena;    
     $q = $pdo->prepare($sql);
@@ -166,9 +161,9 @@ class usuario
       $q->execute(array($this->usuario,$this->id));
       $data= $q->fetch(PDO::FETCH_ASSOC);       
       if(empty($data)){
-        $sql = "UPDATE tausuario SET TIPO_ID=?,USUARIO=?,EMPLEADO_ID=?,ESTADO_ID=? WHERE ID=?";
+        $sql = "UPDATE tausuario SET TIPO_ID=?,USUARIO=?,PROPIETARIO_ID=?,ESTADO_ID=? WHERE ID=?";
         $q = $pdo->prepare($sql);
-        $q->execute(array($this->tipo_id,$this->usuario,$this->empleado_id,$this->estado_id,$this->id));                   
+        $q->execute(array($this->tipo_id,$this->usuario,$this->propietario_id,$this->estado_id,$this->id));                   
         $mensaje['status']=true;
         $mensaje['mensaje']='USUARIO EDITADO CORRECTAMENTE'; 
         $pdo->commit();  

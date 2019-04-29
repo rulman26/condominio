@@ -4,13 +4,13 @@
   </div> 
   <hr>
   <div class="container-fluid">
-    <datalist id="colaboradores_list">
+    <datalist id="propietarios_list">
     </datalist>
     <div class="row">
       <div class="col-md-3">
         <div class="input-group">
           <div class="input-group-prepend">
-            <span class="input-group-text">Filtro</span>
+            <span class="input-group-text form-control-sm">Filtro</span>
           </div>
           <select class="form-control form-control-sm" id="filtro">
             <option value="a.USUARIO">Usuario</option>
@@ -67,15 +67,16 @@
 
 var perfiles=[];
 var estados=[];
-var colaboradores=[];
+var propietarios=[];
 
 function dataFromEditarUsuario(){
   $.get(baseUrl+"usuario/formeditar",function(data){          
-    let response=JSON.parse(data);  
+    let response=JSON.parse(data); 
+    console.log(response) 
     if(response.status){
       perfiles=response['tipos'];
       estados=response['estados'];
-      colaboradores=response['empleados'];            
+      propietarios=response['propietarios'];            
     }else{
       alert("Ocurrio un Error En la Conexion");
     }
@@ -103,7 +104,7 @@ function usuarioBuscar(){
           let fila='<tr id="f-'+response['data'][x].ID+'">';      
           fila+='<td>'+response['data'][x].PERFIL+'</td>';  
           fila+='<td>'+response['data'][x].USUARIO+'</td>';
-          fila+='<td>'+response['data'][x].COLABORADOR+'</td>';
+          fila+='<td>'+response['data'][x].PROPIETARIO+'</td>';
           fila+='<td>'+response['data'][x].ESTADO+'</td>';        
           fila+='<td style="text-align:center;">';        
           fila+=`<div class="dropdown">
@@ -156,9 +157,8 @@ function modalUsuarioLeer(data){
           </div>
           <div class="form-group">
             <label>Nombres</label>
-            <input readonly type="text" class="form-control form-control-sm" value="`+data.COLABORADOR+`">            
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.PROPIETARIO+`">            
           </div>
-          
           <div class="form-group">
             <label>Estado</label>    
             <input readonly type="text" class="form-control form-control-sm" value="`+data.ESTADO+`">
@@ -179,7 +179,7 @@ function usuarioEditar(id){
 function modalUsuarioEditar(data){
   let perfil=modalLoadSelect(data.TIPO_ID,perfiles); 
   let estado=modalLoadSelect(data.ESTADO_ID,estados);   
-  modalLoadList("colaboradores_list",colaboradores,data.EMPLEADO_ID,data.COLABORADOR);
+  modalLoadList("propietarios_list",propietarios,data.propietario_id,data.PROPIETARIO);
   let modal=`<div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -201,9 +201,9 @@ function modalUsuarioEditar(data){
               name="usuario" value="`+data.USUARIO+`">
           </div>
           <div class="form-group">            
-            <label for="nombres">Colaborador *</label>                          
-            <input required type="hidden" name="empleado_id" id="empleado_id" value="`+data.EMPLEADO_ID+`">  
-            <input required class="form-control form-control-sm" list="colaboradores_list" name="colaborador" id="empleado" onchange="colaborador_list_id(this)" value="`+data.COLABORADOR+`">      
+            <label for="nombres">Propietario *</label>                          
+            <input required type="hidden" name="propietario_id" id="propietario_id" value="`+data.PROPIETARIO_ID+`">  
+            <input required class="form-control form-control-sm" list="propietarios_list" name="propietario" onchange="propietario_list_id(this)" value="`+data.PROPIETARIO+`">      
           </div>
           <div class="form-group">
             <label for="estado_id">Estado *</label>    
@@ -239,7 +239,7 @@ function usuarioEditarGuardar(){
         let aObjetos=[]
         aObjetos.push(data_json['perfil']);
         aObjetos.push(data_json['usuario']);
-        aObjetos.push(data_json['colaborador']);        
+        aObjetos.push(data_json['propietario']);        
         aObjetos.push(data_json['estado']);        
         datatableRowEdit(data_json['id'],aObjetos);
         dataFromEditarUsuario(); 
@@ -252,12 +252,12 @@ function usuarioEditarGuardar(){
   } 
 }
 
-function colaborador_list_id(input) {        	 
-  list = document.getElementById('colaboradores_list').options;
+function propietario_list_id(input) {        	 
+  list = document.getElementById('propietarios_list').options;
 	for(x in list){      		
 		if (list[x].value==input.value) {			
-			let empleado_id=list[x].getAttribute('codigo');	      
-      document.getElementById('empleado_id').value=empleado_id;      
+			let propietario_id=list[x].getAttribute('codigo');	      
+      document.getElementById('propietario_id').value=propietario_id;      
 			break;
 		}      		
 	}
@@ -280,7 +280,7 @@ function modalUsuarioResetearClave(data){
           <input type="hidden" name="id" value="`+data.ID+`">
           <input type="hidden" name="usuario" value="`+data.USUARIO+`">
         </form>
-        <h6>Resetear Clave para `+data.USUARIO+` ..?</h6>
+        <h5>Resetear Clave para `+data.USUARIO+` ..?</h5>
       </div>
       <div class="modal-footer justify-content-center">
         <button type="button" class="btn btn-info btn-sm" onclick="usuarioResetearClaveGuardar()"><i class="fas fa-key"></i> Si</button>       
@@ -315,11 +315,11 @@ function usuarioResetearClaveGuardar(){
 }
 
 exportarUsuariosCsv = function() {
-  let exportCvs="PERFIL,USUARIO,COLABORADOR,ESTADO\r\n";
+  let exportCvs="PERFIL,USUARIO,PROPIETARIO,ESTADO\r\n";
   for(x in usuarios){
     exportCvs+=usuarios[x].PERFIL+",";
     exportCvs+=usuarios[x].USUARIO+",";
-    exportCvs+=usuarios[x].COLABORADOR+",";
+    exportCvs+=usuarios[x].PROPIETARIO+",";
     exportCvs+=usuarios[x].ESTADO+",";    
     exportCvs+= "\r\n";
   }
@@ -339,7 +339,7 @@ exportarUsuariosPdf=function(){
       <tr>          
         <th>Perfil</th>
         <th>Usuario</th>
-        <th>Colaborador</th>              
+        <th>Propietario</th>              
         <th>Estado</th>              
       </tr>
     </thead>
@@ -348,7 +348,7 @@ exportarUsuariosPdf=function(){
     tabla+="<tr>";
     tabla+="<td>"+usuarios[x].PERFIL+"</td>";
     tabla+="<td>"+usuarios[x].USUARIO+"</td>";
-    tabla+="<td>"+usuarios[x].COLABORADOR+"</td>";
+    tabla+="<td>"+usuarios[x].PROPIETARIO+"</td>";
     tabla+="<td>"+usuarios[x].ESTADO+"</td>";          
     tabla+="</tr>";
   }

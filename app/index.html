@@ -2,27 +2,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Full Control</title>
+	<title>Condominio</title>
 	<meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+  <link rel="icon" href="../app/img/icono.ico" type="image/x-icon"/>
 </head>
-<!--Coded with love by Mutiullah Samim-->
 <body>
 	<div class="container h-100">
 		<div class="d-flex justify-content-center h-100">
 			<div class="user_card">
 				<div class="d-flex justify-content-center">
 					<div class="brand_logo_container">
-						<img src="img/icon_redondo.png" class="brand_logo" alt="Logo">
+						<img src="img/logo_redondo.png" class="brand_logo" alt="Logo">
 					</div>
-        </div>        
-				<div class="d-flex justify-content-center form_container">        
-					<form>
+        </div>                
+				<div class="d-flex justify-content-center form_container">                            
+					<form style="text-align: center;color:#795548">
+            
+            <p>Sistema informático Condiminio</p>  
+						              
 						<div class="input-group mb-3">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -55,14 +59,15 @@
     margin: 0;
     padding: 0;
     height: 100%;
-    background: #60a3bc !important;
+    background: #212121 !important;
+    font-family: 'Ubuntu', sans-serif;
   }
   .user_card {
     height: 400px;
     width: 350px;
     margin-top: auto;
     margin-bottom: auto;
-    background: #f39c12;
+    background: #FFC107;
     position: relative;
     display: flex;
     justify-content: center;
@@ -80,15 +85,13 @@
     width: 170px;
     top: -75px;
     border-radius: 50%;
-    background: #60a3bc;
+    background: #212121;
     padding: 10px;
     text-align: center;
   }
   .brand_logo {
     height: 150px;
     width: 150px;
-    border-radius: 50%;
-    border: 2px solid white;
   }
   .form_container {
     margin-top: 100px;
@@ -121,7 +124,7 @@
   }
 </style>
 <script type="text/javascript">
-var url="http://localhost/rulotec/ws/";
+var url="http://localhost/condominio/ws/";
 $(document).ready(function() {
   $('form').on('submit', function(e){
       e.preventDefault();

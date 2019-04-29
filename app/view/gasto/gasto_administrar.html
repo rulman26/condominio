@@ -1,0 +1,333 @@
+<div class="form-cliente">
+  <div class="form-cabecera">
+    <h4>Administrar Gastos</h4>
+  </div> 
+  <hr>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text form-control-sm">Filtro</span>
+          </div>
+          <select class="form-control form-control-sm" id="bloque_id">        
+                 
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="input-group">      
+          <input type="text" class="fechames form-control form-control-sm" id="periodo" placeholder="mm/yyyy">
+        </div>
+      </div>  
+      <div class="col-sm-3">
+        <div class="input-group">
+          <button class="btn btn-primary btn-sm btn-block" onclick="proveedorBuscar()"><i class="fas fa-search"></i> Buscar</button>
+        </div>
+      </div>
+      <div class="col-sm-3" id="div_buscar" style="display: none">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input type="text" class="form-control form-control-sm" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+          <div class="input-group-prepend">        
+            <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarGastosCsv()">Exportar CVS</a>
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarGastosPdf()">Exportar PDF</a>          
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive" id="tabla_http_scroll">
+      <table class="table table-hover table-sm" id="tabla_http">
+        <thead>
+          <tr>
+            <th width="150">Bloque</th>          
+            <th width="200">Periodo</th>                     
+            <th width="150">Servicio</th>
+            <th width="150">Descripcion</th>          
+            <th width="150">Monto</th>          
+            <th width="150">Estado</th>          
+            <th width="100">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>  
+</div>
+
+<script type="text/javascript">
+$(".fechames").mask("99/9999");
+var estados=[];
+var bloques=[];
+var servicios=[];
+function dataFromEditarProveedor(){
+  $.get(baseUrl+"gasto/formeditar",function(data){          
+    let response=JSON.parse(data);  
+    if(response.status){      
+      estados=response['estados'];      
+      bloques=response['bloques'];      
+      servicios=response['servicios']; 
+      loadSelectNew("bloque_id",response['bloques']);         
+    }else{
+      alert("Ocurrio un Error En la Conexion");
+    }
+  });
+}
+dataFromEditarProveedor(); 
+screenAltura("tabla_http_scroll",280);
+var gastos=[];
+function proveedorBuscar(){
+  document.getElementById("div_buscar").style.display="block";
+  let data={};
+  data['bloque_id']=document.getElementById("bloque_id").value;
+  data['periodo']=document.getElementById("periodo").value;  
+  data['status']="1,2";
+  tableLoader('tabla_http tbody',5);
+  $.post(baseUrl+"gasto/buscar",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);        
+    if (response.status) {
+      gastos=arrayToObj(response['data'])
+      for (x in response['data']) {        
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].BLOQUE+'</td>';  
+        fila+='<td>'+response['data'][x].PERIODO+'</td>';
+        fila+='<td>'+response['data'][x].SERVICIO+'</td>';        
+        fila+='<td>'+response['data'][x].DESCRIPCION+'</td>';        
+        fila+='<td>'+response['data'][x].MONTO+'</td>';        
+        fila+='<td>'+response['data'][x].ESTADO+'</td>';        
+        fila+='<td style="text-align:center;">';        
+        fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="gastoLeer(`+response['data'][x].ID+`)">Ver</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="gastoEditar(`+response['data'][x].ID+`)">Editar</a>                  
+                </div>
+              </div>`;
+        fila+='</td>';      
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+function gastoLeer(id){  
+  let modal=modalGastoLeer(gastos[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalGastoLeer(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+          <p class="modal-title"><i class="fas fa-save"></i> Datos Gasto</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label>Bloque</label>
+            <input readonly type="text" class="form-control form-control-sm" id="ruc" value="`+data.BLOQUE+`">
+          </div>
+          <div class="form-group">
+            <label>Periodo</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.PERIODO+`">
+          </div>
+          <div class="form-group">
+            <label>Servicio</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.SERVICIO+`">
+          </div>
+          
+          <div class="form-group">
+            <label>Descripcion</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.DESCRIPCION+`">
+          </div>
+          <div class="form-group">
+            <label>Monto</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.MONTO+`">
+          </div>
+          <div class="form-group">
+            <label>Estado</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.ESTADO+`">
+          </div>
+        </form>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function gastoEditar(id){  
+  let modal=modalGastoEditar(gastos[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function modalGastoEditar(data){  
+  let bloque=modalLoadSelect(data.BLOQUE_ID,bloques);
+  let servicio=modalLoadSelect(data.SERVICIO_ID,servicios);
+  let estado=modalLoadSelect(data.ESTADO_ID,estados);
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Editar Proveedor</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_gasto_editar">
+          <input type="hidden" name="id" value="`+data.ID+`">
+          <div class="form-group">
+            <label for="bloque_id">Bloque *</label>    
+            <select class="form-control form-control-sm" id="bloque_id" 
+              name="bloque_id" nameSelect="bloque">
+              `+bloque+`
+            </select>
+          </div>
+          <div class="form-group">            
+            <label for="periodo">Periodo*</label>
+            <input required type="text" class="form-control form-control-sm" id="periodo" 
+              name="periodo" value="`+data.PERIODO+`">
+          </div>
+          <div class="form-group">
+            <label for="servicio_id">Servicio *</label>    
+            <select class="form-control form-control-sm" id="servicio_id" 
+              name="servicio_id" nameSelect="servicio">
+              `+servicio+`
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="descripcion">Descripcion </label>
+            <input type="text" class="form-control form-control-sm" id="descripcion"
+             name="descripcion" value="`+data.DESCRIPCION+`">
+          </div>
+          <div class="form-group">
+            <label for="monto">Monto * </label>
+            <input required type="number" class="form-control form-control-sm" id="monto" 
+              name="monto" value="`+data.MONTO+`">
+          </div>
+          <div class="form-group">
+            <label for="estado_id">Estado *</label>    
+            <select class="form-control form-control-sm" id="estado_id" 
+              name="estado_id" nameSelect="estado">
+              `+estado+`
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer justify-content-center"> 
+        <button type="button" class="btn btn-info btn-sm" onclick="gastoEditarGuardar()"><i class="fas fa-pencil-alt"></i> Editar</button>       
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function gastoEditarGuardar(){  
+  if (formValido("form_gasto_editar")){
+    let data_json=objForm("form_gasto_editar");    
+    modalCargando();
+    $.post(baseUrl+"gasto/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle'); 
+      if (response.status){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        dataLocalEdit(gastos,data_json); 
+        let aObjetos=[]
+        aObjetos.push(data_json['bloque']);
+        aObjetos.push(data_json['periodo']);
+        aObjetos.push(data_json['servicio']);
+        aObjetos.push(data_json['descripcion']);
+        aObjetos.push(data_json['monto']);
+        aObjetos.push(data_json['estado']);
+        datatableRowEdit(data_json['id'],aObjetos);        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+
+exportarGastosCsv = function() {
+  let exportCvs="BLOQUE,PERIODO,SERVICIO,DESCRIPCION,MONTO,ESTADO\r\n";
+  for(x in gastos){
+    exportCvs+=gastos[x].BLOQUE+",";
+    exportCvs+=gastos[x].PERIODO+",";
+    exportCvs+=gastos[x].SERVICIO+",";
+    exportCvs+=gastos[x].DESCRIPCION+",";
+    exportCvs+=gastos[x].MONTO+",";
+    exportCvs+=gastos[x].ESTADO;
+    exportCvs+= "\r\n";
+  }
+
+  csvString = "data:application/csv," + encodeURIComponent(exportCvs);
+  let data = document.createElement("A");
+  data.setAttribute("href", csvString );
+  data.setAttribute("download","gastos.csv");
+  document.body.appendChild(data);
+  data.click();
+}
+
+exportarGastosPdf=function(){   
+  let win = window.open('', '', 'height=700,width=900');
+  let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+    <thead>
+      <tr>          
+        <th>Bloque</th>
+        <th>Periodo</th>
+        <th>Servicio</th>
+        <th>Descripcion</th>
+        <th>Monto</th>
+        <th>Estado</th>              
+      </tr>
+    </thead>
+    <tbody>`;
+  for(x in gastos){
+    tabla+="<tr>";
+    tabla+="<td>"+gastos[x].BLOQUE+"</td>";
+    tabla+="<td>"+gastos[x].PERIODO+"</td>";
+    tabla+="<td>"+gastos[x].SERVICIO+"</td>";
+    tabla+="<td>"+gastos[x].DESCRIPCION+"</td>";
+    tabla+="<td>"+gastos[x].MONTO+"</td>";
+    tabla+="<td>"+gastos[x].ESTADO+"</td>";
+    tabla+="</tr>";
+  }
+  tabla+="</tbody></table>";
+  let style = "<style>";                        
+  style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+  style = style + "</style>";
+  win.document.write('<html><head>');
+  win.document.write('<title>Gastos </title>');   // <title> FOR PDF HEADER.
+  win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+  win.document.write('</head>');
+  win.document.write('<body>');
+  win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+  win.document.write('</body></html>');
+  win.document.close();   // CLOSE THE CURRENT WINDOW.
+  win.print();    // PRINT THE CONTENTS.
+}
+</script>  

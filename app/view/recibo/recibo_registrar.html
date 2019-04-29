@@ -1,0 +1,86 @@
+<div class="form-cliente" id="form-cliente"> 
+  <div class="form-cabecera">
+    <h4>Nuevo Recibo</h4>
+  </div> 
+  <hr> 
+  <form id="form_recibo_registrar">    
+    <div class="form-group">
+      <label for="bloque_id">Bloque *</label>
+      <select class="form-control form-control-sm" id="bloque_id" name="bloque_id" onchange="bloqueDepartamentos(this.value)">
+        <option>Cargando..!</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="fecha">Fecha *</label>
+      <input type="text" class="fecha form-control form-control-sm" id="fecha" name="fecha"> 
+    </div>
+    <div class="form-group">
+      <label for="descripcion">Descripcion *</label>
+      <input type="text" class="form-control form-control-sm" id="descripcion" name="descripcion" placeholder="Ingresar Descripcion">
+    </div>
+    <div class="form-group">
+      <label for="monto">Monto *</label>
+      <input required type="number" class="form-control form-control-sm" id="monto" name="monto" placeholder="Ingresar Monto">
+    </div>
+    <div class="form-group">
+      <label for="departamento_id">Departamento *</label>
+      <select class="form-control form-control-sm" id="departamento_id" name="departamento_id">
+        <option value="">NO</option>
+      </select>
+    </div>
+  </form>
+  <button  class="btn btn-primary btn-sm btn-block" onclick="formProveedorRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
+</div>
+<script type="text/javascript">
+$(".fecha").mask("99/99/9999");
+document.getElementById("fecha").value=fechaActual();
+function datosFormGastoRegistrar(){  
+  $.get(baseUrl+"recibo/formeditar",function(data){      
+    let response=JSON.parse(data);       
+    loadSelectNew("bloque_id",response['bloques']);         
+    loadSelectNew("departamento_id",response['departamentos']);         
+  });     
+}  
+datosFormGastoRegistrar();
+
+function bloqueDepartamentos(bloque_id){    
+  let data={};
+  data['bloque_id']=bloque_id;      
+  document.getElementById("departamento_id").value="<option>Cargando..!</option>";
+  $.post(baseUrl+"departamento/bloque",data,function(data){    
+    let response=JSON.parse(data);   
+    console.log(response)       
+    if (response.status) {      
+      loadSelectNew("departamento_id",response['data']);         
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+screenAltura("form-cliente",200);
+function formProveedorRegistrar(){
+  if (formValido("form_recibo_registrar")){
+    let data_json=objForm("form_recibo_registrar");  
+    modalCargando();
+    $.post(baseUrl+"recibo/crear",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle');
+      if (response.status){
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle'); 
+        clearInputsForm("form_recibo_registrar input");          
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+  
+}
+
+</script>

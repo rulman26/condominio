@@ -1,0 +1,66 @@
+<div class="form-cliente" id="form-cliente"> 
+  <div class="form-cabecera">
+    <h4>Nuevo Caja</h4>
+  </div> 
+  <hr> 
+  <form id="form_caja_registrar">    
+    <div class="form-group">
+        <label for="bloque_id">Bloque *</label>
+        <select class="form-control form-control-sm" id="bloque_id" name="bloque_id">
+          <option>Cargando..!</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="nombre">Nombre *</label>
+        <input required type="text" class="form-control form-control-sm" id="nombre" name="nombre" placeholder="Ingresar Nombre">
+      </div>     
+    <div class="form-group">
+      <label for="banco">Banco</label>    
+      <input type="text" class="form-control form-control-sm" id="banco" name="banco" placeholder="Ingresar banco">
+    </div>
+    <div class="form-group">
+      <label for="cuenta">Cuenta</label>    
+      <input type="text" class="form-control form-control-sm" id="cuenta" name="cuenta" placeholder="Ingresar banco">
+    </div>
+    <div class="form-group">
+      <label for="saldo">Saldo *</label>    
+      <input required type="number" class="form-control form-control-sm" id="saldo" name="saldo" placeholder="Ingresar banco">
+    </div>
+  </form>
+  <button class="btn btn-primary btn-sm btn-block" onclick="formCajaRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
+</div>
+
+<script type="text/javascript">  
+function datosFormCajaRegistrar(){  
+  $.get(baseUrl+"caja/formeditar",function(data){      
+    let response=JSON.parse(data);   
+    console.log(response)
+    loadSelectNew("bloque_id",response['bloques']);     
+  });     
+}  
+datosFormCajaRegistrar();
+
+screenAltura("form-cliente",200);
+function formCajaRegistrar(){
+  if (formValido("form_caja_registrar")){    
+    let data_json=objForm("form_caja_registrar");  
+    console.log(data_json);  
+    modalCargando();   
+    $.post(baseUrl+"caja/crear",data_json,function(data){      
+      let response=JSON.parse(data);
+      console.log(response); 
+      $('#modal_cargando').modal('toggle');
+      if (response.estado){
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle'); 
+        clearInputsForm("form_caja_registrar input");         
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+</script>

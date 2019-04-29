@@ -1,0 +1,357 @@
+<div class="form-cliente">
+  <div class="form-cabecera">
+    <h4>Administrar Cuotas</h4>
+  </div> 
+  <hr>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text form-control-sm">Filtro</span>
+          </div>
+          <select class="form-control form-control-sm" id="bloque_id">        
+                 
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="input-group">      
+          <input type="text" class="fechames form-control form-control-sm" id="periodo" placeholder="mm/yyyy">
+        </div>
+      </div>  
+      <div class="col-sm-3">
+        <div class="input-group">
+          <button class="btn btn-primary btn-sm btn-block" onclick="proveedorBuscar()"><i class="fas fa-search"></i> Buscar</button>
+        </div>
+      </div>
+      <div class="col-sm-3" id="div_buscar" style="display: none">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input type="text" class="form-control form-control-sm" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+          <div class="input-group-prepend">        
+            <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarCuotasCsv()">Exportar CVS</a>
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarCuotasPdf()">Exportar PDF</a>          
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive" id="tabla_http_scroll">
+      <table class="table table-hover table-sm" id="tabla_http">
+        <thead>
+          <tr>
+            <th width="80">Bloque</th>          
+            <th width="80">Periodo</th>                                 
+            <th width="190">Descripcion</th>          
+            <th width="100">Total</th>          
+            <th width="100">Cantidad</th>
+            <th width="80">Cuota</th>
+            <th width="100">Estado</th>          
+            <th width="100">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>  
+</div>
+
+<script type="text/javascript">
+$(".fechames").mask("99/9999");
+var estados=[];
+var bloques=[];
+function dataFromEditarProveedor(){
+  $.get(baseUrl+"cuota/formeditar",function(data){          
+    let response=JSON.parse(data);  
+    if(response.status){      
+      estados=response['estados'];      
+      bloques=response['bloques'];            
+      loadSelectNew("bloque_id",response['bloques']);         
+    }else{
+      alert("Ocurrio un Error En la Conexion");
+    }
+  });
+}
+dataFromEditarProveedor(); 
+screenAltura("tabla_http_scroll",280);
+var cuotas=[];
+function proveedorBuscar(){
+  document.getElementById("div_buscar").style.display="block";
+  let data={};
+  data['bloque_id']=document.getElementById("bloque_id").value;
+  data['periodo']=document.getElementById("periodo").value;  
+  data['status']="1,2";
+  tableLoader('tabla_http tbody',5);
+  $.post(baseUrl+"cuota/buscar",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);        
+    if (response.status) {
+      cuotas=arrayToObj(response['data'])
+      for (x in response['data']) {        
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].BLOQUE+'</td>';  
+        fila+='<td>'+response['data'][x].PERIODO+'</td>';        
+        fila+='<td>'+response['data'][x].DESCRIPCION+'</td>';        
+        fila+='<td>'+response['data'][x].TOTAL+'</td>';        
+        fila+='<td>'+response['data'][x].CANTIDAD+'</td>';        
+        fila+='<td>'+response['data'][x].CUOTA+'</td>';        
+        fila+='<td>'+response['data'][x].ESTADO+'</td>';        
+        fila+='<td style="text-align:center;">';        
+        fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="cuotaLeer(`+response['data'][x].ID+`)">Ver</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="reciboCuotas(`+response['data'][x].ID+`)">Ver Recibos</a>                  
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="cuotaEliminar(`+response['data'][x].ID+`)">Eliminar</a>  
+                </div>
+              </div>`;
+        fila+='</td>';      
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+function cuotaLeer(id){  
+  let modal=modalCuotaLeer(cuotas[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalCuotaLeer(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+          <p class="modal-title"><i class="fas fa-save"></i> Datos Gasto</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label>Bloque</label>
+            <input readonly type="text" class="form-control form-control-sm" id="ruc" value="`+data.BLOQUE+`">
+          </div>
+          <div class="form-group">
+            <label>Periodo</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.PERIODO+`">
+          </div>
+          <div class="form-group">
+            <label>Descripcion</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.DESCRIPCION+`">
+          </div>
+          <div class="form-group">
+            <label>Total</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.TOTAL+`">
+          </div>
+          <div class="form-group">
+            <label>Cantidad</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.CANTIDAD+`">
+          </div>
+          <div class="form-group">
+            <label>Cuota</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.CUOTA+`">
+          </div>
+          <div class="form-group">
+            <label>Estado</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.ESTADO+`">
+          </div>
+        </form>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function reciboCuotas(id){
+  modalCargando();
+  data_json={};
+  data_json['id']=id;
+  $.post(baseUrl+"cuota/recibos",data_json,function(data){           
+    let response=JSON.parse(data);      
+    console.log(response);
+    $('#modal_cargando').modal('toggle');       
+    if (response.status){
+      console.log(response.recibos)
+      let modal=modalCuotaRecibos(response.recibos);        
+      $('#modal_formulario').html(modal);
+      $('#modal_formulario').modal('toggle');                      
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle');      
+    }
+  });
+}
+
+function modalCuotaRecibos(data){      
+  let datos="";  
+  for(x in data){
+    datos+="<tr>";
+    datos+="<td>"+data[x].FECHA+"</td>";
+    datos+="<td>"+data[x].NUMERO+"</td>";
+    datos+="<td>"+data[x].DEPARTAMENTO+"</td>";    
+    datos+="<td>"+data[x].DESCRIPCION+"</td>";
+    datos+="<td>"+data[x].MONTO+"</td>";
+    datos+="<td>"+data[x].ESTADO+"</td>";
+    datos+="</tr>";    
+  }      
+  let modal=`<div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Recibos</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-sm">
+          <thead>
+            <tr>              
+              <th width="80">Fecha</th>              
+              <th width="80">Numero</th>
+              <th width="80">Departamento</th>
+              <th width="150">Descripcion</th>
+              <th width="80">Monto</th>
+              <th width="80">Estado</th>
+            </tr>
+          </thead>
+          <tbody>`+
+            datos
+          +`</tbody>
+        </table>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function cuotaEliminar(id){  
+  let modal=modalCuotaEliminar(cuotas[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function modalCuotaEliminar(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-trash-alt"></i> Eliminar Cuota</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_cuota_eliminar">
+          <input type="hidden" name="id" value="`+data.ID+`">
+        </form>
+        <h5>Se eliminaran todos los recibos.?"</h5>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-info btn-sm" onclick="cuotaEliminarGuardar()"><i class="fas fa-trash-alt"></i> Si</button>       
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> No</button>  
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+
+function cuotaEliminarGuardar(){
+  if (formValido("form_cuota_eliminar")){
+    let data_json=objForm("form_cuota_eliminar");
+    modalCargando();
+    $.post(baseUrl+"cuota/eliminar",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle'); 
+      if (response.status){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        $("#f-"+data_json['id']).remove();
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+exportarCuotasCsv = function() {
+  let exportCvs="BLOQUE,PERIODO,DESCRIPCION,TOTAL,CANTIDAD,CUOTA,ESTADO\r\n";
+  for(x in cuotas){
+    exportCvs+=cuotas[x].BLOQUE+",";
+    exportCvs+=cuotas[x].PERIODO+",";    
+    exportCvs+=cuotas[x].DESCRIPCION+",";
+    exportCvs+=cuotas[x].TOTAL+",";
+    exportCvs+=cuotas[x].CANTIDAD+",";
+    exportCvs+=cuotas[x].CUOTA+",";
+    exportCvs+=cuotas[x].ESTADO;
+    exportCvs+= "\r\n";
+  }
+
+  csvString = "data:application/csv," + encodeURIComponent(exportCvs);
+  let data = document.createElement("A");
+  data.setAttribute("href", csvString );
+  data.setAttribute("download","cuotas.csv");
+  document.body.appendChild(data);
+  data.click();
+}
+
+exportarCuotasPdf=function(){   
+  let win = window.open('', '', 'height=700,width=900');
+  let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+    <thead>
+      <tr>          
+        <th>Bloque</th>
+        <th>Periodo</th>        
+        <th>Descripcion</th>
+        <th>Total</th>
+        <th>Cantidad</th>
+        <th>Cuota</th>
+        <th>Estado</th>              
+      </tr>
+    </thead>
+    <tbody>`;
+  for(x in cuotas){
+    tabla+="<tr>";
+    tabla+="<td>"+cuotas[x].BLOQUE+"</td>";
+    tabla+="<td>"+cuotas[x].PERIODO+"</td>";    
+    tabla+="<td>"+cuotas[x].DESCRIPCION+"</td>";
+    tabla+="<td>"+cuotas[x].TOTAL+"</td>";
+    tabla+="<td>"+cuotas[x].CANTIDAD+"</td>";
+    tabla+="<td>"+cuotas[x].CUOTA+"</td>";
+    tabla+="<td>"+cuotas[x].ESTADO+"</td>";
+    tabla+="</tr>";
+  }
+  tabla+="</tbody></table>";
+  let style = "<style>";                        
+  style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+  style = style + "</style>";
+  win.document.write('<html><head>');
+  win.document.write('<title>Gastos </title>');   // <title> FOR PDF HEADER.
+  win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+  win.document.write('</head>');
+  win.document.write('<body>');
+  win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+  win.document.write('</body></html>');
+  win.document.close();   // CLOSE THE CURRENT WINDOW.
+  win.print();    // PRINT THE CONTENTS.
+}
+</script>  
+

@@ -1,0 +1,341 @@
+<div class="form-cliente">
+  <div class="form-cabecera">
+    <h4>Administrar Departamentos</h4>
+  </div> 
+  <hr>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text form-control-sm">Filtro</span>
+          </div>
+          <select class="form-control form-control-sm" id="filtro" onchange="filtroDependiente(this)">
+            <option value="a.NUMERO">Departamento</option>
+            <option value="a.BLOQUE_ID">Bloque</option>
+            <option value="a.PROPIETARIO_ID">Propietario</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="input-group" id="filtro_select"> 
+          <input type="text" class="form-control form-control-sm" id="filtro_input" placeholder="Dato Buscar">
+        </div>
+      </div>  
+      <div class="col-sm-3">
+        <div class="input-group">
+          <button class="btn btn-primary btn-sm btn-block" onclick="clienteBuscar()"> <i class="fas fa-search"></i>Buscar</button>
+        </div>
+      </div>
+      <div class="col-sm-3" id="div_buscar" style="display: none">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input type="text" class="form-control form-control-sm" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+          
+          <div class="input-group-prepend">        
+            <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarDepartamentosCsv()">Exportar CVS</a>
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarDepartamentosPdf()">Exportar PDF</a>          
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive" id="tabla_http_scroll">
+      <table class="table table-hover table-sm" id="tabla_http">
+        <thead>
+          <tr>          
+            <th width="100">Bloque</th>            
+            <th width="100">Numero</th>
+            <th width="200">Propietario</th>            
+            <th width="80">Ocupado</th>            
+            <th width="80">Estado</th>            
+            <th width="80">Accion</th>          
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>  
+</div>
+<script type="text/javascript">
+var estados=[];
+var bloques=[];
+var propietarios=[];
+var bloqueOptions="";
+var propietariosOptions=""
+function dataFromEditarCliente(){
+  $.get(baseUrl+"departamento/formeditar",function(data){          
+    let response=JSON.parse(data);  
+    console.log(response)
+    if(response['status']){      
+      estados=response['estados'];
+      bloques=response['bloques'];
+      propietarios=response['propietarios'];
+      bloqueOptions=loadSelectString(response['bloques']);
+      propietariosOptions=loadSelectString(response['propietarios']);
+    }else{
+      alert("Ocurrio un Error En la Conexion");
+    }
+  });
+}
+dataFromEditarCliente(); 
+
+function filtroDependiente(option){
+  let input;    
+  switch(option.value) {    
+    case "a.NUMERO":
+      input='<input type="text" class="form-control form-control-sm" id="filtro_input" placeholder="Nombre Producto">';
+    break;
+    case "a.BLOQUE_ID":
+      input='<select class="form-control form-control-sm" id="filtro_input">'+bloqueOptions+'</select>';
+    break;
+    case "a.PROPIETARIO_ID":
+      input='<select class="form-control form-control-sm" id="filtro_input">'+propietariosOptions+'</select>';
+    break;
+  }
+  document.getElementById("filtro_select").innerHTML=input;
+}
+screenAltura("tabla_http_scroll",280);
+var depatartamentos=[];
+function clienteBuscar(){
+  document.getElementById("div_buscar").style.display="block";
+  let data={};
+  data['filtro']=document.getElementById("filtro").value;
+  data['input_filtro']=document.getElementById("filtro_input").value;    
+  data['status']="1,2";
+  tableLoader('tabla_http tbody',5);
+  $.post(baseUrl+"departamento/buscar",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);  
+    console.log(response);
+    if (response.status) {
+      depatartamentos=arrayToObj(response['data'])
+      for (x in response['data']) {        
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+          fila+='<td>'+response['data'][x].BLOQUE+'</td>';  
+        fila+='<td>'+response['data'][x].NUMERO+'</td>';  
+        fila+='<td>'+response['data'][x].PROPIETARIO+'</td>';        
+        fila+='<td>'+response['data'][x].OCUPADO+'</td>';        
+        fila+='<td>'+response['data'][x].ESTADO+'</td>';      
+        fila+='<td style="text-align:center;">';        
+        fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="departamentoLeer(`+response['data'][x].ID+`)">Ver</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="clienteEditar(`+response['data'][x].ID+`)">Editar</a>                  
+                </div>
+              </div>`;
+        fila+='</td>';      
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+function departamentoLeer(id){  
+  let modal=modalDepartamentoLeer(depatartamentos[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalDepartamentoLeer(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <p class="modal-title"><i class="fas fa-save"></i> Datos Departamento</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label>Bloque</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.BLOQUE+`">
+          </div>
+          <div class="form-group">
+            <label>Numero</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.NUMERO+`">
+          </div>
+          <div class="form-group">
+            <label>Propietario</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.PROPIETARIO+`">
+          </div>
+          <div class="form-group">
+            <label>Ocupado</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.OCUPADO+`">
+          </div>
+          <div class="form-group">
+            <label>Estado</label>    
+            <input readonly type="text" class="form-control form-control-sm" id="estado" value="`+data.ESTADO+`">
+          </div>
+          
+        </form>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+
+function clienteEditar(id){  
+  let modal=modalClienteEditar(depatartamentos[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+}
+
+function modalClienteEditar(data){
+  let bloque=modalLoadSelect(data.ESTADO_ID,bloques);
+  let propietario=modalLoadSelect(data.PROPIETARIO_ID,propietarios);
+  let estado=modalLoadSelect(data.ESTADO_ID,estados);
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <p class="modal-title"><i class="fas fa-pencil-alt"></i> Editar Departamento</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_departamento_editar">
+          <div class="form-group">
+            <input type="hidden" name="id" value="`+data.ID+`">
+            <label for="bloque_id">Bloque *</label>    
+            <select class="form-control form-control-sm" id="bloque_id" 
+              name="bloque_id" nameSelect="bloque">
+              `+bloque+`
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="numero">Numero *</label>
+            <input required type="text" class="form-control form-control-sm" id="numero" 
+              name="numero" value="`+data.NUMERO+`">
+          </div>
+          <div class="form-group">            
+            <label for="propietario_id">Propietario *</label>    
+            <select class="form-control form-control-sm" id="propietario_id" 
+              name="propietario_id" nameSelect="propietario">
+              `+propietario+`
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ocupado">OCUPADO *</label>
+            <input required type="text" class="form-control form-control-sm" id="ocupado" 
+              name="ocupado" value="`+data.OCUPADO+`">
+          </div>
+          <div class="form-group">
+            <label for="estado">Estado:</label>    
+            <select class="form-control form-control-sm" id="estado_id" 
+              name="estado_id" nameSelect="estado">
+              `+estado+`
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer justify-content-center"> 
+        <button type="button" class="btn btn-info btn-sm" onclick="departamentoEditarGuardar()"><i class="fas fa-pencil-alt"></i> Editar</button>       
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+
+function departamentoEditarGuardar(){  
+  if (formValido("form_departamento_editar")){
+    let data_json=objForm("form_departamento_editar");
+    modalCargando();
+    $.post(baseUrl+"departamento/editar",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle'); 
+      if (response.status){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        dataLocalEdit(clientes,data_json);
+        let aObjetos=[]
+        aObjetos.push(data_json['bloque']);
+        aObjetos.push(data_json['numero']);
+        aObjetos.push(data_json['propietario']);
+        aObjetos.push(data_json['ocupado']);
+        aObjetos.push(data_json['estado']);
+        datatableRowEdit(data_json['id'],aObjetos);        
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+} 
+
+exportarDepartamentosCsv = function() {
+  let exportCvs="BLOQUE,NUMERO,PROPIETARIO,OCUPADO,ESTADO\r\n";
+  for(x in depatartamentos){
+    exportCvs+=depatartamentos[x].BLOQUE+",";
+    exportCvs+=depatartamentos[x].NUMERO+",";
+    exportCvs+=depatartamentos[x].PROPIETARIO+",";
+    exportCvs+=depatartamentos[x].OCUPADO+",";    
+    exportCvs+=depatartamentos[x].ESTADO;
+    exportCvs+= "\r\n";
+  }
+
+  csvString = "data:application/csv," + encodeURIComponent(exportCvs);
+  let data = document.createElement("A");
+  data.setAttribute("href", csvString );
+  data.setAttribute("download","depatartamentos.csv");
+  document.body.appendChild(data);
+  data.click();
+}
+
+exportarDepartamentosPdf=function(){   
+  let win = window.open('', '', 'height=700,width=900');
+  let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+    <thead>
+      <tr>          
+        <th>Bloque</th>
+        <th>Numero</th>
+        <th>Propietario</th>        
+        <th>Ocupado</th>
+        <th>Estado</th>              
+      </tr>
+    </thead>
+    <tbody>`;
+  for(x in depatartamentos){
+    tabla+="<tr>";
+    tabla+="<td>"+depatartamentos[x].BLOQUE+"</td>";
+    tabla+="<td>"+depatartamentos[x].NUMERO+"</td>";
+    tabla+="<td>"+depatartamentos[x].PROPIETARIO+"</td>";
+    tabla+="<td>"+depatartamentos[x].OCUPADO+"</td>";    
+    tabla+="<td>"+depatartamentos[x].ESTADO+"</td>";
+    tabla+="</tr>";
+  }
+  tabla+="</tbody></table>";
+  let style = "<style>";                        
+  style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+  style = style + "</style>";
+  win.document.write('<html><head>');
+  win.document.write('<title>Departamentos</title>');   // <title> FOR PDF HEADER.
+  win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+  win.document.write('</head>');
+  win.document.write('<body>');
+  win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+  win.document.write('</body></html>');
+  win.document.close();   // CLOSE THE CURRENT WINDOW.
+  win.print();    // PRINT THE CONTENTS.
+}
+
+</script>  

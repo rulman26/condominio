@@ -1,0 +1,347 @@
+<div class="form-cliente">
+  <div class="form-cabecera">
+    <h4>Administrar Ingresos</h4>
+  </div> 
+  <hr>
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text form-control-sm">I</span>
+            </div>
+            <input type="text" class="fecha form-control form-control-sm" id="inicio" placeholder="dd/mm/yyyy">
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text form-control-sm">F</span>
+            </div>
+            <input type="text" class="fecha form-control form-control-sm" id="final" placeholder="dd/mm/yyyy">
+          </div>
+        </div>
+      <div class="col-md-2">
+        <div class="input-group" >      
+          <input type="text" class="recibonum form-control form-control-sm" id="filtro_input" placeholder="Numero">
+        </div>
+      </div>  
+      <div class="col-sm-2">
+        <div class="input-group">
+          <button class="btn btn-primary btn-sm btn-block" onclick="recibosBuscar()"><i class="fas fa-search"></i> Buscar</button>
+        </div>
+      </div>
+      <div class="col-sm-4" id="div_buscar" style="display: none">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input type="text" class="form-control form-control-sm" id="txt_buscar" onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+          <div class="input-group-prepend">        
+              <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="exportarItemsCsv()">Exportar CVS</a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="exportarItemsPdf()">Exportar PDF</a>          
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive" id="tabla_http_scroll">
+      <table class="table table-hover table-sm" id="tabla_http">
+        <thead>
+          <tr>                      
+            <th width="100">Fecha</th>            
+            <th width="80">Numero</th>          
+            <th width="80">Dpto</th>          
+            <th width="300">Descripcion</th>          
+            <th width="80">Monto</th>          
+            <th width="100">Estado</th>          
+            <th width="100">Accion</th>          
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+screenAltura("tabla_http_scroll",340);
+document.getElementById("inicio").value=fechaActual();   
+document.getElementById("final").value=fechaActual();
+$(".fecha").mask("99/99/9999");
+$(".recibonum").mask("99999999");
+
+var estados=[];
+var cajas=[];
+function dataFromEditarMovimiento(){
+  $.get(baseUrl+"movimiento/formeditar",function(data){          
+    let response=JSON.parse(data);  
+    if(response.status){      
+      estados=response['estados'];
+      cajas=response['cajas'];
+    }else{
+      alert("Ocurrio un Error En la Conexion");
+    }
+  });
+}
+dataFromEditarMovimiento(); 
+
+function selectCajas(id){
+  let select="";
+  for(x in cajas)
+  {
+    if(cajas[x].BLOQUE_ID==id){
+      select+="<option value="+cajas[x].ID+">"+cajas[x].NOMBRE+"</option>"
+    }
+  }
+  return select;
+}
+
+var recibos=[];
+function recibosBuscar(){
+  document.getElementById("div_buscar").style.display="block";
+  let data={};
+  data['inicio']=document.getElementById("inicio").value;
+  data['final']=document.getElementById("final").value;
+  data['numero']=document.getElementById("filtro_input").value;   
+  data['status']="1,2";
+  tableLoader('tabla_http tbody',4);
+  $.post(baseUrl+"recibo/buscar",data,function(data){
+    $("#tabla_http tbody").html("");
+    let response=JSON.parse(data);
+    console.log(response);
+    if (response.status) {
+      recibos=arrayToObj(response['data'])
+      for (x in response['data']) {        
+        let fila='<tr id="f-'+response['data'][x].ID+'">';      
+        fila+='<td>'+response['data'][x].FECHAEMISION+'</td>';                
+        fila+='<td>'+response['data'][x].NUMERO+'</td>';
+        fila+='<td>'+response['data'][x].DEPARTAMENTO+'</td>';        
+        fila+='<td>'+response['data'][x].DESCRIPCION+'</td>';   
+        fila+='<td>'+response['data'][x].MONTO+'</td>';       
+        fila+='<td>'+response['data'][x].ESTADO+'</td>';       
+        fila+='<td style="text-align:center;">';        
+        fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">                  
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="reciboLeer(`+response['data'][x].ID+`)">Ver Recibo</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="reciboCobrar(`+response['data'][x].ID+`)">Cobrar Recibo</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="reciboAnular(`+response['data'][x].ID+`)">Anular Recibo</a>
+                </div>
+              </div>`;
+        fila+='</td>';      
+        fila+='</tr>';
+        $("#tabla_http tbody").append(fila);
+      }
+    }else{
+      let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+      $('#modal_mensaje').html(modal_conten_loader);
+      $('#modal_mensaje').modal('toggle'); 
+    }    
+  });
+}
+
+function reciboLeer(id){  
+  let modal=modalReciboLeer(recibos[id]);  
+  $('#modal_mensaje').html(modal);
+  $('#modal_mensaje').modal('toggle'); 
+}
+
+function modalReciboLeer(data){
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-save"></i> Datos Prodcuto</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label>Fecha</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.FECHAEMISION+`">
+          </div>
+          <div class="form-group">
+            <label>Numero</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.NUMERO+`">
+          </div>          
+          <div class="form-group">
+            <label>Departamento</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.DEPARTAMENTO+`">
+          </div>
+          <div class="form-group">
+            <label>Propietario</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.PROPIETARIO+`">
+          </div>
+          <div class="form-group">
+            <label>Descripcion</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.DESCRIPCION+`">
+          </div>
+          <div class="form-group">
+            <label>Monto</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+data.MONTO+`">
+          </div>
+          <div class="form-group">
+            <label for="estado">Estado</label>    
+            <input readonly type="text" class="form-control form-control-sm" id="estado" value="`+data.ESTADO+`">
+          </div>
+        </form>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function reciboCobrar(id){  
+  let modal=modalReciboCobrar(recibos[id]);  
+  $('#modal_formulario').html(modal);
+  $('#modal_formulario').modal('toggle'); 
+  $(".fecha").mask("99/99/9999");
+  $("#fecha").val(fechaActual());
+}
+
+function modalReciboCobrar(data){
+  let caja=selectCajas(data.BLOQUE_ID);
+  let modal=`<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-money-bill-wave"></i> Registrar Cobranza</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_cobranza_registrar">
+          <input type="hidden" name="recibo_id" value="`+data.ID+`">            
+          <input type="hidden" name="tipo_id" value="1"> 
+          <div class="form-group">
+            <label>Numero de Recibo *</label>    
+            <input required readonly type="text" class="form-control form-control-sm" value="`+data.NUMERO+`">
+          </div> 
+          <div class="form-group">
+            <label for="fecha">Fecha *</label>
+            <input required type="text" class="fecha form-control form-control-sm" id="fecha" name="fecha" placeholder="dd/mm/yyyy">
+          </div>          
+          <div class="form-group">
+            <label for="caja_id">Caja *</label>
+            <select class="form-control form-control-sm" id="caja_id" name="caja_id">
+              `+caja+`
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="descripcion">Descripcion *</label>
+            <input required type="text" class="form-control form-control-sm" id="descripcion" name="descripcion" placeholder="Ingresar Descripcion">
+          </div>
+          <div class="form-group">
+            <label for="operacion">Nro Operacion</label>
+            <input type="text" class="form-control form-control-sm" id="operacion" name="operacion" placeholder="Ingresar Numero Operacion">
+          </div> 
+          <div class="form-group">
+            <label for="monto">Monto *</label>
+            <input required type="number" class="form-control form-control-sm" id="monto" name="monto" value="`+data.MONTO+`">
+          </div> 
+        </form>
+      </div>
+      <div class="modal-footer justify-content-center"> 
+        <button type="button" class="btn btn-info btn-sm" onclick="cobranzaRegistrarGuardar()"><i class="fas fa-money-bill-wave"></i> Registrar</button>       
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+      </div>
+    </div>
+    </div>`;
+  return modal;
+}
+
+function cobranzaRegistrarGuardar(){  
+  if (formValido("form_cobranza_registrar")){
+    let data_json=objForm("form_cobranza_registrar");
+    modalCargando();
+    $.post(baseUrl+"movimiento/crear",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle'); 
+      if (response.status){
+        $('#modal_formulario').html("");
+        $('#modal_formulario').modal('toggle');      
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+        recibosBuscar();              
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+
+exportarItemsCsv = function() {
+  var exportCvs="CODIGO,NOMBRE,UNIDADES,TIPO,CATEGORIA,LABORATORIO,PROVEEDOR,ESTADO\r\n";
+  for(x in items){
+      exportCvs+=items[x].ITEM_CODIGO+",";
+      exportCvs+=items[x].ITEM_NOMBRE+",";      
+      exportCvs+=items[x].ITEM_UNIDADES+",";
+      exportCvs+=items[x].ITEM_TIPO_NOMBRE+",";;
+      exportCvs+=items[x].ITEM_CATEGORIA_NOMBRE+",";;
+      exportCvs+=items[x].LABORATORIO_NOMBRE+",";;
+      exportCvs+=items[x].PROVEEDOR_NOMBRE+",";;
+      exportCvs+=items[x].ITEM_ESTADO;
+      exportCvs+= "\r\n";
+  }
+
+  csvString = "data:application/csv," + encodeURIComponent(exportCvs);
+  var x = document.createElement("A");
+  x.setAttribute("href", csvString );
+  x.setAttribute("download","items.csv");
+  document.body.appendChild(x);
+  x.click();
+}
+
+exportarItemsPdf=function(){
+  // CREATE A WINDOW OBJECT.
+      let win = window.open('', '', 'height=700,width=900');
+      let tabla=`<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+        <thead>
+          <tr>          
+            <th>Codigo</th>
+            <th>Nombre</th>
+            <th>Unidades</th>
+            <th>Tipo</th>
+            <th>Categoria</th>
+            <th>Laboratorio</th>
+            <th>Proveedor</th>
+            <th>Estado</th>              
+          </tr>
+        </thead>
+        <tbody>`;
+      for(x in items){
+        tabla+="<tr>";
+        tabla+="<td>"+items[x].ITEM_CODIGO+"</td>";
+        tabla+="<td>"+items[x].ITEM_NOMBRE+"</td>";
+        tabla+="<td>"+items[x].ITEM_UNIDADES+"</td>";
+        tabla+="<td>"+items[x].ITEM_TIPO_NOMBRE+"</td>";
+        tabla+="<td>"+items[x].ITEM_CATEGORIA_NOMBRE+"</td>";
+        tabla+="<td>"+items[x].LABORATORIO_NOMBRE+"</td>";
+        tabla+="<td>"+items[x].PROVEEDOR_NOMBRE+"</td>";
+        tabla+="<td>"+items[x].ITEM_ESTADO+"</td>";
+        tabla+="</tr>";
+      }
+      tabla+="</tbody></table>";
+      let style = "<style>";                        
+      style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";        
+      style = style + "</style>";
+      win.document.write('<html><head>');
+      win.document.write('<title>Items</title>');   // <title> FOR PDF HEADER.
+      win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+      win.document.write('</head>');
+      win.document.write('<body>');
+      win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+      win.document.write('</body></html>');
+      win.document.close();   // CLOSE THE CURRENT WINDOW.
+      win.print();    // PRINT THE CONTENTS.
+}
+</script>  

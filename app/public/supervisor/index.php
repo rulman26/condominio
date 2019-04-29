@@ -58,106 +58,85 @@ label{
           </ul>
         </li>
         <li >
-          <a href="#menuColaborador" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-child"></i> Colaborador</a>
-          <ul class="collapse list-unstyled" id="menuColaborador">
+          <a href="#menuPropietario" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-child"></i> Propietario</a>
+          <ul class="collapse list-unstyled" id="menuPropietario">
             <li>
-              <a onclick="cargar_vista('../../view/colaborador/colaborador_registrar.html')">Nuevo Colaborador</a>
+              <a onclick="cargar_vista('../../view/propietario/propietario_registrar.html')">Nuevo Propietario</a>
             </li>
             <li>
-              <a onclick="cargar_vista('../../view/colaborador/colaborador_administrar.html')">Adminstrar Colaboradro</a>
+              <a onclick="cargar_vista('../../view/propietario/propietario_administrar.html')">Adminstrar Propietarios</a>
             </li>                        
           </ul>
         </li>             
         <li >
-          <a href="#menuCliente" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-user-check"></i> Cliente</a>
-          <ul class="collapse list-unstyled" id="menuCliente">
+          <a href="#menuDepartamento" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class=" menu_icon fas fa-building"></i> Departamento</a>
+          <ul class="collapse list-unstyled" id="menuDepartamento">
             <li>
-              <a onclick="cargar_vista('../../view/cliente/cliente_registrar.html')">Nuevo Cliente</a>
-            </li>
+              <a onclick="cargar_vista('../../view/departamento/departamento_registrar.html')">Nuevo Departamento</a>
+            </li>            
             <li>
-              <a onclick="cargar_vista('../../view/cliente/cliente_lista.html')">Lista de Cliente</a>
-            </li> 
-            <li>
-              <a onclick="cargar_vista('../../view/cliente/cliente_administrar.html')">Adminstrar Clientes</a>
+              <a onclick="cargar_vista('../../view/departamento/departamento_administrar.html')">Adminstrar Departamentos</a>
             </li>                        
           </ul>
         </li>
         <li>
-          <a href="#menuLaboratorio" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-flask"></i> Laboratorio</a>
-          <ul class="collapse list-unstyled" id="menuLaboratorio">            
+          <a href="#menuGasto" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-bus"></i> Gastos</a>
+          <ul class="collapse list-unstyled" id="menuGasto">
             <li>
-              <a onclick="cargar_vista('../../view/laboratorio/laboratorio_registrar.html')">Nuevo Laboratorio</a>
+              <a onclick="cargar_vista('../../view/gasto/gasto_registrar.html')">Nuevo Gasto</a>
+            </li>            
+            <li>
+              <a onclick="cargar_vista('../../view/gasto/gasto_administrar.html')">Administrar Gastos</a>
             </li>
-            <li>
-              <a onclick="cargar_vista('../../view/laboratorio/laboratorio_lista.html')">Lista de Laboratorio</a>
-            </li>                        
-            <li>
-              <a onclick="cargar_vista('../../view/laboratorio/laboratorio_administrar.html')">Administrar Laboratorio</a>
-            </li>                                   
           </ul>
         </li>
         <li>
-          <a href="#menuProveedor" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-bus"></i> Proveedor</a>
-          <ul class="collapse list-unstyled" id="menuProveedor">
+          <a href="#menuCuota" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-bus"></i> Cuotas</a>
+          <ul class="collapse list-unstyled" id="menuCuota">
             <li>
-              <a onclick="cargar_vista('../../view/proveedor/proveedor_registrar.html')">Nuevo Proveedor</a>
+              <a onclick="cargar_vista('../../view/cuota/cuota_registrar.html')">Calcular Cuota</a>
+            </li>            
+            <li>
+              <a onclick="cargar_vista('../../view/cuota/cuota_administrar.html')">Administrar Cuotas</a>
             </li>
-            <li>
-              <a onclick="cargar_vista('../../view/proveedor/proveedor_lista.html')">Lista de Proveedores</a>
-            </li>                        
-            <li>
-              <a onclick="cargar_vista('../../view/proveedor/proveedor_administrar.html')">Administrar Proveedores</a>
-            </li>
-          </ul>
-        </li>
-        <li >
-          <a href="#homeItem" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-pills"></i> Producto</a>
-          <ul class="collapse list-unstyled" id="homeItem">
-            <li>
-              <a onclick="cargar_vista('../../view/item/item_registrar.html')">Nuevo Producto</a>
-            </li>
-            <li>
-              <a onclick="cargar_vista('../../view/item/item_buscar.html')">Buscar Producto</a>
-            </li> 
-            <li>
-              <a onclick="cargar_vista('../../view/item/item_administrar.html')">Administrar Productos</a>
-            </li>
-            <li>
-              <a onclick="cargar_vista('../../view/item/presentacion_administrar.html')">Administrar Presentaciones</a>
-            </li>
-            <li>
-              <a onclick="cargar_vista('../../view/item/categoria_administrar.html')">Administrar Categorias</a>
-            </li>                         
           </ul>
         </li>
         <li>
-          <a href="#homeIngreso" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-notes-medical"></i> Ingresos</a>
-          <ul class="collapse list-unstyled" id="homeIngreso">
+          <a href="#homeCaja" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-notes-medical"></i> Cajas</a>
+          <ul class="collapse list-unstyled" id="homeCaja">
             <li>
-              <a onclick="cargar_vista('../../view/ingreso/ingreso_registrar.html')">Registrar Ingreso</a>
+              <a onclick="cargar_vista('../../view/caja/caja_registrar.html')">Registrar Caja</a>
             </li>
             <li>
-              <a onclick="cargar_vista('../../view/ingreso/ingreso_buscar.html')">Buscar Ingresos</a>
-            </li> 
-            <li>
-              <a onclick="cargar_vista('../../view/ingreso/ingreso_administrar.html')">Administrar Ingresos</a>
-            </li> 
-            <li>
-              <a onclick="cargar_vista('../../view/ingreso/stock.html')">Stock</a>
-            </li>                     
+              <a onclick="cargar_vista('../../view/caja/caja_administrar.html')">Administrar Cajas</a>
+            </li>                    
           </ul>
         </li>
         <li>
-          <a href="#homeSalida" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-notes-medical"></i> Salidas</a>
-          <ul class="collapse list-unstyled" id="homeSalida">
+          <a href="#homeRecibo" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-notes-medical"></i> Recibo</a>
+          <ul class="collapse list-unstyled" id="homeRecibo">
             <li>
-              <a onclick="cargar_vista('../../view/salida/salida_registrar.html')">Registrar Salida</a>
-            </li> 
-            <li>
-              <a onclick="cargar_vista('../../view/salida/salida_buscar.html')">Buscar Salidas</a>
+              <a onclick="cargar_vista('../../view/recibo/recibo_registrar.html')">Registrar Recibo</a>
             </li>
             <li>
-              <a onclick="cargar_vista('../../view/salida/salida_administrar.html')">Administrar Salidas</a>
+              <a onclick="cargar_vista('../../view/recibo/recibo_administrar.html')">Administrar Recibos</a>
+            </li>                    
+          </ul>
+        </li>
+        <li>
+          <a href="#homeMovimientos" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-notes-medical"></i> Movimientos</a>
+          <ul class="collapse list-unstyled" id="homeMovimientos">
+            <li>
+              <a onclick="cargar_vista('../../view/movimiento/ingreso_registrar.html')">Registrar Ingreso</a>
+            </li> 
+            <li>
+              <a onclick="cargar_vista('../../view/movimiento/ingreso_administrar.html')">Administrar Ingresos</a>
+            </li>
+            <li>
+              <a onclick="cargar_vista('../../view/movimiento/salida_registrar.html')">Registrar Salida</a>
+            </li> 
+            <li>
+              <a onclick="cargar_vista('../../view/movimiento/salida_administrar.html')">Administrar Salidas</a>
             </li>           
           </ul>
         </li>
@@ -266,7 +245,7 @@ label{
 <script type="text/javascript">
 
 function userActive(){
-  if(parseInt(sessionStorage.getItem("perfil"))!=4){
+  if(parseInt(sessionStorage.getItem("perfil"))!=2){
     SalirApp();
   }
 }
@@ -275,7 +254,7 @@ userActive();
 document.getElementById("mjsBienvenida").innerHTML="BIENVENIDO : "+sessionStorage.getItem("colaborador");
 document.getElementById("tk_user").innerHTML=sessionStorage.getItem("usuario");
 //var baseUrl="http://159.65.165.175/stockfar/ws/";
-var baseUrl="http://localhost/rulotec/ws/";
+var baseUrl="http://localhost/condominio/ws/";
 $(document).ready(function () {
   $('#sidebarCollapse').on('click', function () {
     $('#sidebar').toggleClass('active');

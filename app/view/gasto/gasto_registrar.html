@@ -1,0 +1,68 @@
+<div class="form-cliente" id="form-cliente"> 
+  <div class="form-cabecera">
+    <h4>Nuevo Gasto</h4>
+  </div> 
+  <hr> 
+  <form id="form_gasto_registrar">
+    <div class="form-group">
+      <label for="periodo">Periodo *</label>
+      <input required type="text" class="fechames form-control form-control-sm" id="periodo" name="periodo" placeholder="mm/yyyy">
+    </div> 
+    <div class="form-group">
+      <label for="bloque_id">Bloque *</label>
+      <select class="form-control form-control-sm" id="bloque_id" name="bloque_id">
+        <option>Cargando..!</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="servicio_id">Servicio *</label>
+      <select class="form-control form-control-sm" id="servicio_id" name="servicio_id">
+        <option>Cargando..!</option>
+      </select>
+    </div>       
+    <div class="form-group">
+      <label for="monto">Monto *</label>
+      <input required type="number" class="form-control form-control-sm" id="monto" name="monto" placeholder="Ingresar Monto">
+    </div>
+    <div class="form-group">
+      <label for="descripcion">Descripcion </label>
+      <input type="text" class="form-control form-control-sm" id="descripcion" name="descripcion" placeholder="Ingresar Descripcion">
+    </div>
+  </form>
+  <button  class="btn btn-primary btn-sm btn-block" onclick="formProveedorRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
+</div>
+<script type="text/javascript">
+$(".fechames").mask("99/9999");
+function datosFormGastoRegistrar(){  
+  $.get(baseUrl+"gasto/formeditar",function(data){      
+    let response=JSON.parse(data);       
+    loadSelectNew("bloque_id",response['bloques']);     
+    loadSelectNew("servicio_id",response['servicios']);     
+  });     
+}  
+datosFormGastoRegistrar();
+
+screenAltura("form-cliente",200);
+function formProveedorRegistrar(){
+  if (formValido("form_gasto_registrar")){
+    let data_json=objForm("form_gasto_registrar");  
+    modalCargando();
+    $.post(baseUrl+"gasto/crear",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle');
+      if (response.status){
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle'); 
+        clearInputsForm("form_gasto_registrar input");          
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+  
+}
+
+</script>

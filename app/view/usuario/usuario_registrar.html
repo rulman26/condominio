@@ -3,7 +3,7 @@
     <h4>Nuevo Usuario</h4>
   </div> 
   <hr> 
-  <datalist id="colaboradores_list">
+  <datalist id="propietarios_list">
   </datalist>
   <form id="form_usuario_registrar"> 
     <div class="form-group">
@@ -15,7 +15,7 @@
     <div class="form-group">
         <label for="empleado">Colaborador *</label>
         <input required type="hidden" name="empleado_id" id="empleado_id">  
-        <input required class="form-control form-control-sm" list="colaboradores_list" id="empleado" onchange="colaborador_list_id(this)" placeholder="Ingresar Datos del Colaborador">      
+        <input required class="form-control form-control-sm" list="propietarios_list" id="empleado" onchange="colaborador_list_id(this)" placeholder="Ingresar Datos del Colaborador">      
         </select>
     </div>
     <div class="form-group">
@@ -32,7 +32,7 @@ function dataFromNuevoUsuario(){
     let response=JSON.parse(data);    
     if(response.status){
       loadSelectNew("tipo_id",response['tipos']);
-      loadListNew("colaboradores_list",response['empleados']); 
+      loadListNew("propietarios_list",response['propietarios']); 
     }else{
       alert("Ocurrio un Error En la Conexion");
     }
@@ -42,7 +42,7 @@ function dataFromNuevoUsuario(){
 dataFromNuevoUsuario(); 
 
 function colaborador_list_id(input) {        	 
-  list = document.getElementById('colaboradores_list').options;
+  list = document.getElementById('propietarios_list').options;
 	for(x in list){      		
 		if (list[x].value==input.value) {			
 			let empleado_id=list[x].getAttribute('codigo');	      

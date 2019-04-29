@@ -1,0 +1,66 @@
+<div class="form-cliente" id="form-cliente"> 
+  <div class="form-cabecera">
+    <h4>Nuevo Departamento</h4>
+  </div> 
+  <hr>   
+  <form id="form_departamento_registrar">
+    <div class="form-group">
+      <label for="bloque_id">Bloque *</label>
+      <select class="form-control form-control-sm" id="bloque_id" name="bloque_id">
+        <option>Cargando..!</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="numero">Numero *</label>
+      <input required type="number" class="form-control form-control-sm" id="numero" name="numero" placeholder="Ingresar Numero">
+    </div>      
+    <div class="form-group">
+      <label for="propietario_id">Propietario *</label>
+      <select class="form-control form-control-sm" id="propietario_id" name="propietario_id">
+        <option>Cargando..!</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="ocupado">Ocupado</label>
+      <select class="form-control form-control-sm" id="ocupado" name="ocupado">
+        <option value="SI">SI</option>
+        <option value="SI">NO</option>
+      </select>
+    </div>
+  </form>  
+  <button  class="btn btn-primary btn-sm btn-block" onclick="formClienteRegistrar()"><i class="fas fa-save"></i> Guardar Datos</button>
+</div>
+
+<script type="text/javascript">
+function datosFormDepartamentoRegistrar(){  
+  $.get(baseUrl+"departamento/formeditar",function(data){      
+    let response=JSON.parse(data);   
+    console.log(response)
+    loadSelectNew("bloque_id",response['bloques']); 
+    loadSelectNew("propietario_id",response['propietarios']);     
+  });     
+}  
+datosFormDepartamentoRegistrar();
+
+screenAltura("form-cliente",200);
+function formClienteRegistrar(){
+  if (formValido("form_departamento_registrar")){    
+    let data_json=objForm("form_departamento_registrar");        
+    modalCargando();
+    $.post(baseUrl+"departamento/crear",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle');
+      if (response.status){        
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle'); 
+        clearInputsForm("form_departamento_registrar input");       
+      }else{        
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+</script>

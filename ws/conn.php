@@ -21,7 +21,7 @@ class baseDatos
        {      
 	        try 
 	        {
-	  			self::$cont = new PDO("mysql:dbname=botica;host=localhost;port=3306;charset=utf8mb4","root","root");
+	  			self::$cont = new PDO("mysql:dbname=condominio;host=localhost;port=3306;charset=utf8mb4","root","root");
 	        }
 	        catch(PDOException $e) 
 	        {
