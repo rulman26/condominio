@@ -1,0 +1,88 @@
+<div class="form-cliente" id="form-cliente"> 
+  <div class="form-cabecera">
+    <h4>Registrar Salida</h4>
+  </div> 
+  <hr> 
+  <form id="form_salida_registrar">  
+    <input type="hidden" name="tipo_id" value="2">
+    <input type="hidden" name="recibo_id" value="0">
+    <div class="form-group">
+      <label for="bloque_id">Bloque *</label>
+      <select class="form-control form-control-sm" id="bloque_id" name="bloque_id" onchange="bloqueCajas(this.value)">
+        <option>Cargando..!</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="caja_id">Caja *</label>
+      <select required class="form-control form-control-sm" id="caja_id" name="caja_id">
+        <option>Seleccione El bloque Primero</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="operacion">Operacion *</label>
+      <input type="text" class="form-control form-control-sm" id="operacion" name="operacion" placeholder="Operacion de la transaccion">
+    </div>       
+    <div class="form-group">
+      <label for="monto">Monto *</label>
+      <input required type="number" class="form-control form-control-sm" id="monto" name="monto" placeholder="Ingresar Monto">
+    </div>
+    <div class="form-group">
+      <label for="descripcion">Descripcion </label>
+      <input type="text" class="form-control form-control-sm" id="descripcion" name="descripcion" placeholder="Ingresar Descripcion">
+    </div>
+  </form>
+  <button  class="btn btn-primary btn-sm btn-block" onclick="salidaRegistrarGuardar()"><i class="fas fa-save"></i> Guardar Datos</button>
+</div>
+<script type="text/javascript">
+$(".fechahora").mask("99/99/9999 99:99");
+var cajas=[];
+var estados=[];
+
+function datosFormGastoRegistrar(){  
+  $.get(baseUrl+"movimiento/formeditar",function(data){      
+    let response=JSON.parse(data);       
+    console.log(response);    
+    loadSelectNew("bloque_id",response['bloques']);    
+    $("#bloque_id").prepend('<option selected value="">Seleccionar Bloque</option>');       
+    cajas= response['cajas'];
+  });     
+}  
+datosFormGastoRegistrar();
+
+function bloqueCajas(bloque_id){
+  console.log(bloque_id)
+  let optionCaja="";
+  for(x in cajas){
+    console.log(cajas[x])
+    if(parseInt(cajas[x].ID)==parseInt(bloque_id)){
+      optionCaja+='<option value="'+cajas[x].ID+'">'+cajas[x].CAJA+'</option>'
+    }
+  }
+  document.getElementById("caja_id").innerHTML=optionCaja;
+}
+
+screenAltura("form-cliente",200);
+
+$("#fecha").val(fechaHoraActual()); 
+
+function salidaRegistrarGuardar(){  
+  if (formValido("form_salida_registrar")){
+    let data_json=objForm("form_salida_registrar");
+    modalCargando();
+    $.post(baseUrl+"movimiento/crear",data_json,function(data){      
+      let response=JSON.parse(data);
+      $('#modal_cargando').modal('toggle'); 
+      if (response.status){
+        let modal_conten_loader=modalRespuestaOk('Correcto',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle'); 
+        clearInputsForm("form_salida_registrar input");                      
+      }else{
+        let modal_conten_loader=modalRespuestaError('Error',response.mensaje,'');        
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');      
+      }
+    }); 
+  } 
+}
+</script>

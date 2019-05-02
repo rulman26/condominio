@@ -102,9 +102,11 @@ function proveedorBuscar(){
         fila+='<td>'+response['data'][x].TOTAL+'</td>';        
         fila+='<td>'+response['data'][x].CANTIDAD+'</td>';        
         fila+='<td>'+response['data'][x].CUOTA+'</td>';        
-        fila+='<td>'+response['data'][x].ESTADO+'</td>';        
-        fila+='<td style="text-align:center;">';        
-        fila+=`<div class="dropdown">
+        fila+='<td>'+response['data'][x].ESTADO+'</td>';                
+        fila+='<td style="text-align:center;">';
+        switch(parseInt(response['data'][x].ESTADO_ID)){
+          case 1:
+          fila+=`<div class="dropdown">
                 <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
                   <i class="fas fa-cog"></i>
                 </button>
@@ -112,11 +114,30 @@ function proveedorBuscar(){
                   <a class="dropdown-item" href="javascript:void(0)" 
                     onclick="cuotaLeer(`+response['data'][x].ID+`)">Ver</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="reciboCuotas(`+response['data'][x].ID+`)">Ver Recibos</a>                  
+                    onclick="reciboCuotas(`+response['data'][x].ID+`)">Ver Recibos</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="cuotaEliminar(`+response['data'][x].ID+`)">Eliminar</a>  
+                    onclick="cuotaEliminar(`+response['data'][x].ID+`)">Eliminar</a> 
+                </div>
+              </div>`;  
+          break;
+          
+          case 2:
+          fila+=`<div class="dropdown">
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="cuotaLeer(`+response['data'][x].ID+`)">Ver</a>
+                  <a class="dropdown-item" href="javascript:void(0)" 
+                    onclick="reciboCuotas(`+response['data'][x].ID+`)">Ver Recibos</a>                   
                 </div>
               </div>`;
+          break;
+          
+          default:
+          break;
+        }
         fila+='</td>';      
         fila+='</tr>';
         $("#tabla_http tbody").append(fila);

@@ -76,34 +76,10 @@ class cuota
     return $data; 
   }
 
-  function editarLaboratorio(){    
-    $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    try {  
-      $pdo->beginTransaction();
-      $sql = "UPDATE talaboratorio 
-        SET NOMBRE=?,  
-        ESTADO_ID=?
-        WHERE ID=?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($this->nombre,$this->estado_id,$this->id));
-      //Retornamoe el dato actualizado                        
-      $mensaje['status']=true;
-      $mensaje['mensaje']='LABORATORIO EDITADO CON EXITO';       
-      $pdo->commit();  
-    }catch(PDOException $e) { 
-      $mensaje['status']=false;
-      $mensaje['mensaje']=$e->getMessage();
-      $pdo->rollBack();
-    }
-    $pdo = baseDatos::desconectar();
-    return $mensaje;  
-  }
-
   function eliminarCuota(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "SELECT ID from tarecibo where CUOTA_ID=1 AND ESTADO_ID=2";
+    $sql = "SELECT ID from tarecibo where CUOTA_ID=? AND ESTADO_ID=2";
     $q = $pdo->prepare($sql);
     $q->execute(array($this->id));
     $data = $q->fetchAll(PDO::FETCH_ASSOC); 
@@ -113,18 +89,30 @@ class cuota
     }else{
       try {  
         $pdo->beginTransaction();
+        //Cancelamos la Cuota.
         $sql = "UPDATE tacuota 
           SET ESTADO_ID=2
           WHERE ID=?";
         $q = $pdo->prepare($sql);
         $q->execute(array($this->id));
-        //Cancelamos todos los recibos de esa Cuota
+        //Cancelamos todos los recibos de esa Cuota.
         $sql = "UPDATE tarecibo 
           SET ESTADO_ID=3
           WHERE CUOTA_ID=?";
         $q = $pdo->prepare($sql);
         $q->execute(array($this->id));
-        //Retornamoe el dato actualizado                        
+        //Obtener BLOQUE_ID y PERIODO
+        $sql = "SELECT ID,BLOQUE_ID,PERIODO from tacuota where ID=?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($this->id));
+        $data = $q->fetch(PDO::FETCH_ASSOC); 
+        //Cambiamos EL pago a Pendiente de lo que estaba Programado
+        $sql = "UPDATE tagasto 
+          SET ESTADO_ID=1
+          WHERE BLOQUE_ID=? AND PERIODO=?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($data['BLOQUE_ID'],$data['PERIODO']));
+        //Retornamoe el dato actualizado.                        
         $mensaje['status']=true;
         $mensaje['mensaje']='CUOTA ELIMINADA CON EXITO';       
         $pdo->commit();  
@@ -141,7 +129,8 @@ class cuota
   function buscarCuotas($bloque_id,$periodo,$estados){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT a.ID,a.PERIODO,a.TOTAL,a.CANTIDAD,a.CUOTA,a.DESCRIPCION,a.BLOQUE_ID,
+    $sql = "SELECT a.ID,a.PERIODO,ROUND(a.TOTAL,2) TOTAL,a.CANTIDAD,
+      ROUND(a.CUOTA,2) CUOTA,a.DESCRIPCION,a.BLOQUE_ID,
       a.ESTADO_ID,b.NOMBRE BLOQUE,a.ESTADO_ID,c.NOMBRE ESTADO
       FROM tacuota a
       JOIN tabloque b ON b.ID=a.BLOQUE_ID
@@ -159,8 +148,8 @@ class cuota
   function cuotaRecibos(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);   
-    $sql = "SELECT a.ID,DATE_FORMAT(a.FECHA,'%d/%m/%Y') FECHA ,a.NUMERO,a.DESCRIPCION,a.MONTO, 
-      CONCAT(c.NOMBRE,'-',b.NUMERO) DEPARTAMENTO,a.ESTADO_ID,d.NOMBRE ESTADO
+    $sql = "SELECT a.ID,DATE_FORMAT(a.FECHA,'%d/%m/%Y') FECHA ,a.NUMERO,a.DESCRIPCION,
+      ROUND(a.MONTO,2) MONTO,CONCAT(c.NOMBRE,'-',b.NUMERO) DEPARTAMENTO,a.ESTADO_ID,d.NOMBRE ESTADO
       FROM tarecibo a
       JOIN tadepartamento b ON b.ID=a.DEPARTAMENTO_ID
       JOIN tabloque c ON c.ID=b.BLOQUE_ID

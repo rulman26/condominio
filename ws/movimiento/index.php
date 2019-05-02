@@ -17,8 +17,7 @@ switch ($_GET['solicitud']){
         if (empty($_POST)) {
           $request  = json_decode(trim(file_get_contents('php://input')), true);                                    
           $movimiento->monto=$request['monto'];
-          $movimiento->descripcion=$request['descripcion'];
-          $movimiento->fecha=$request['fecha'];
+          $movimiento->descripcion=$request['descripcion'];          
           $movimiento->operacion=$request['operacion'];
           $movimiento->caja_id=$request['caja_id'];
           $movimiento->tipo_id=$request['tipo_id'];
@@ -26,8 +25,7 @@ switch ($_GET['solicitud']){
           $movimiento->estado_id=1;
         }else{                     
           $movimiento->monto=$_POST['monto'];
-          $movimiento->descripcion=$_POST['descripcion'];
-          $movimiento->fecha=$_POST['fecha'];
+          $movimiento->descripcion=$_POST['descripcion'];          
           $movimiento->operacion=$_POST['operacion'];
           $movimiento->caja_id=$_POST['caja_id'];
           $movimiento->tipo_id=$_POST['tipo_id'];
@@ -52,35 +50,19 @@ switch ($_GET['solicitud']){
         $request  = json_decode(trim(file_get_contents('php://input')), true);                
         $movimiento->id=$request['id'];
         $movimiento->monto=$request['monto'];
-        $movimiento->descripcion=$request['descripcion'];
-        $movimiento->fecha=$request['fecha'];
+        $movimiento->descripcion=$request['descripcion'];        
         $movimiento->operacion=$request['operacion'];
+        $movimiento->tipo_id=$request['tipo_id'];
         $movimiento->estado_id=$request['estado_id'];
       }else{
         $movimiento->id=$_POST['id'];
         $movimiento->monto=$_POST['monto'];
-        $movimiento->descripcion=$_POST['descripcion'];
-        $movimiento->fecha=$_POST['fecha'];
+        $movimiento->descripcion=$_POST['descripcion'];        
         $movimiento->operacion=$_POST['operacion'];
+        $movimiento->tipo_id=$_POST['tipo_id'];
         $movimiento->estado_id=$_POST['estado_id'];
       }       
       $data=$movimiento->EditarMovimiento();     
-    }else{      
-      $data['status']=false;
-      $data['mensaje']="NO EXISTEN DATOS POST";                    
-    }             
-    echo json_encode($data,JSON_PRETTY_PRINT);
-  break;
-
-  case 'eliminar':   
-    if ($_SERVER['REQUEST_METHOD']=="POST") {
-      if (empty($_POST)) {
-        $request  = json_decode(trim(file_get_contents('php://input')), true);                
-        $movimiento->id=$request['id'];
-      }else{
-        $movimiento->id=$_POST['id'];
-      }     
-      $data=$movimiento->eliminarIngreso();     
     }else{      
       $data['status']=false;
       $data['mensaje']="NO EXISTEN DATOS POST";                    
@@ -116,39 +98,7 @@ switch ($_GET['solicitud']){
     }
 	  echo json_encode($data,JSON_PRETTY_PRINT);
   break; 
-  /*INGRESOS*/
-  case 'salidas':
-    if (empty($_POST)) {
-      $request  = json_decode(trim(file_get_contents('php://input')), true);                
-      $movimiento->id=$request['id'];   
-    }else{
-      $movimiento->id=$_POST['id'];
-    }               
-    $data=$movimiento->movimientoSalida();
-    echo json_encode($data,JSON_PRETTY_PRINT);
-  break;
-
-  case 'forminventariosalida':              
-    $data=$movimiento->formItemInventarioSalida();
-    echo json_encode($data,JSON_PRETTY_PRINT);
-  break;  
-  case 'stock': 
-    if (empty($_POST)) {
-      $request  = json_decode(trim(file_get_contents('php://input')), true);                
-      $item_id=$request['item_id'];   
-      $proveedor_id=$request['proveedor_id']; 
-      $presentacion_id=$request['presentacion_id']; 
-      $categoria_id=$request['categoria_id']; 
-    }else{
-      $item_id=$_POST['item_id'];
-      $proveedor_id=$_POST['proveedor_id']; 
-      $presentacion_id=$_POST['presentacion_id']; 
-      $categoria_id=$_POST['categoria_id']; 
-    }              
-    $data=$movimiento->inventarioStock($item_id,$proveedor_id,$presentacion_id,$categoria_id);
-    echo json_encode($data,JSON_PRETTY_PRINT);
-  break;
-
+  
   default:
     $msj['status']=false;
     $msj['mensaje']='API NO CONTIENE DATA';

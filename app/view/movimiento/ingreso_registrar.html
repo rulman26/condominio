@@ -73,7 +73,6 @@ document.getElementById("inicio").value=fechaActual();
 document.getElementById("final").value=fechaActual();
 $(".fecha").mask("99/99/9999");
 $(".recibonum").mask("99999999");
-
 var estados=[];
 var cajas=[];
 function dataFromEditarMovimiento(){
@@ -133,8 +132,6 @@ function recibosBuscar(){
                     onclick="reciboLeer(`+response['data'][x].ID+`)">Ver Recibo</a>
                   <a class="dropdown-item" href="javascript:void(0)" 
                     onclick="reciboCobrar(`+response['data'][x].ID+`)">Cobrar Recibo</a>
-                  <a class="dropdown-item" href="javascript:void(0)" 
-                    onclick="reciboAnular(`+response['data'][x].ID+`)">Anular Recibo</a>
                 </div>
               </div>`;
         fila+='</td>';      
@@ -202,9 +199,7 @@ function modalReciboLeer(data){
 function reciboCobrar(id){  
   let modal=modalReciboCobrar(recibos[id]);  
   $('#modal_formulario').html(modal);
-  $('#modal_formulario').modal('toggle'); 
-  $(".fecha").mask("99/99/9999");
-  $("#fecha").val(fechaActual());
+  $('#modal_formulario').modal('toggle');   
 }
 
 function modalReciboCobrar(data){
@@ -222,14 +217,10 @@ function modalReciboCobrar(data){
           <div class="form-group">
             <label>Numero de Recibo *</label>    
             <input required readonly type="text" class="form-control form-control-sm" value="`+data.NUMERO+`">
-          </div> 
-          <div class="form-group">
-            <label for="fecha">Fecha *</label>
-            <input required type="text" class="fecha form-control form-control-sm" id="fecha" name="fecha" placeholder="dd/mm/yyyy">
-          </div>          
+          </div>         
           <div class="form-group">
             <label for="caja_id">Caja *</label>
-            <select class="form-control form-control-sm" id="caja_id" name="caja_id">
+            <select class="form-control form-control-sm" id="caja_id" name="caja_id" nameSelect="caja">
               `+caja+`
             </select>
           </div>

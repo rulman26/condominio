@@ -91,7 +91,8 @@ class caja
     } 
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT a.ID,a.NOMBRE,a.BANCO,a.CUENTA,a.SALDO,a.BLOQUE_ID,b.NOMBRE BLOQUE,a.ESTADO_ID,c.NOMBRE ESTADO
+    $sql = "SELECT a.ID,a.NOMBRE,a.BANCO,a.CUENTA,ROUND(a.SALDO,2)SALDO,
+      a.BLOQUE_ID,b.NOMBRE BLOQUE,a.ESTADO_ID,c.NOMBRE ESTADO
       FROM tacaja a
       JOIN tabloque b ON b.ID=a.BLOQUE_ID
       JOIN gnestados c ON c.ID=a.ESTADO_ID ".$cadena;

@@ -141,14 +141,11 @@ label{
           </ul>
         </li>
         <li>
-            <a href="#homeVentas" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-chart-line"></i> Ventas</a>
-            <ul class="collapse list-unstyled" id="homeVentas">
+            <a href="#homeResumen" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="menu_icon fas fa-chart-line"></i> Resumen</a>
+            <ul class="collapse list-unstyled" id="homeResumen">
               <li>
-                  <a onclick="cargar_vista('../../view/venta/venta_resumen.html')">Resumen de Venta</a>
-              </li> 
-              <li>
-                  <a onclick="cargar_vista('../../view/venta/ganacia_resumen.html')">Resumen de Ganancia</a>
-              </li>                       
+                  <a onclick="cargar_vista('../../view/resumen/resumen_caja.html')">Resumen de Caja</a>
+              </li>                                    
             </ul>
           </li>
       </ul>

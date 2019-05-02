@@ -1,0 +1,331 @@
+<div class="form-cliente">
+  <div class="form-cabecera">
+    <h4>Resumen Caja</h4>
+  </div>
+  <hr>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text form-control-sm">I</span>
+          </div>
+          <input type="text" class="fecha form-control form-control-sm" id="inicio" placeholder="dd/mm/yyyy">
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text form-control-sm">F</span>
+          </div>
+          <input type="text" class="fecha form-control form-control-sm" id="final" placeholder="dd/mm/yyyy">
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="input-group">
+          <select id="caja_id" class="form-control form-control-sm">
+            <option>Cargando..!</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-sm-2">
+        <div class="input-group">
+          <button class="btn btn-primary btn-sm btn-block" onclick="colaboradorBuscar()"><i class="fas fa-search"></i>
+            Buscar</button>
+        </div>
+      </div>
+      <div class="col-sm-4" id="div_buscar" style="display: none">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input type="text" class="form-control form-control-sm" id="txt_buscar"
+            onkeyup="BuscarFilaTabla('tabla_http','txt_buscar')">
+
+          <div class="input-group-prepend">
+            <span class="input-group-text" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></span>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarIngresosCsv()">Exportar CVS</a>
+              <a class="dropdown-item" href="javascript:void(0)" onclick="exportarRecibosPdf()">Exportar PDF</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive" id="tabla_http_scroll">
+      <table class="table table-hover table-sm" id="tabla_http">
+        <thead>
+          <tr>
+            <th width="50">Id</th>
+            <th width="120">Tipo</th>
+            <th width="150">Fecha</th>
+            <th width="250">Descripcion</th>
+            <th width="80">Saldo</th>
+            <th width="80">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  document.getElementById("inicio").value = fechaActual();
+  document.getElementById("final").value = fechaActual();
+  $(".fecha").mask("99/99/9999");
+  $(".recibonum").mask("99999999");
+  var estados = [];
+  var cajas = [];
+  function dataFromEditarMovimiento() {
+    $.get(baseUrl + "movimiento/formeditar", function (data) {
+      let response = JSON.parse(data);
+      if (response.status) {
+        estados = response['estados'];
+        cajas = response['cajas'];
+        let optionCaja = '';
+        for (x in cajas) {
+          optionCaja += '<option value="' + cajas[x].ID + '">' + cajas[x].CAJA + '</option>';
+        }
+        document.getElementById("caja_id").innerHTML = optionCaja;
+      } else {
+        alert("Ocurrio un Error En la Conexion");
+      }
+    });
+  }
+  dataFromEditarMovimiento();
+  screenAltura("tabla_http_scroll", 340);
+  var movimientos = [];
+  function colaboradorBuscar() {
+    document.getElementById("div_buscar").style.display = "block";
+    let data = {};
+    data['inicio'] = document.getElementById("inicio").value;
+    data['final'] = document.getElementById("final").value;
+    data['caja_id'] = document.getElementById("caja_id").value;
+    data['tipo'] = "1,2";
+    data['status'] = "1";
+    tableLoader('tabla_http tbody', 5);
+    $.post(baseUrl + "movimiento/buscar", data, function (data) {
+      $("#tabla_http tbody").html("");
+      let response = JSON.parse(data);
+      if (response.status) {
+        movimientos = arrayToObj(response['data'])
+        for (x in response['data']) {
+          let fila = '<tr id="f-' + response['data'][x].ID + '">';
+          fila += '<td>' + response['data'][x].ID + '</td>';
+          fila += '<td>' + response['data'][x].TIPO + '</td>';
+          fila += '<td>' + response['data'][x].FECHA + '</td>';
+          fila += '<td>' + response['data'][x].DESCRIPCION + '</td>';
+          fila += '<td>' + response['data'][x].SALDO + '</td>';
+          fila += '<td>' + response['data'][x].MONTO + '</td>';
+          fila += '</tr>';
+          $("#tabla_http tbody").append(fila);
+        }
+      } else {
+        let modal_conten_loader = modalRespuestaError('Error', response.mensaje, '');
+        $('#modal_mensaje').html(modal_conten_loader);
+        $('#modal_mensaje').modal('toggle');
+      }
+    });
+  }
+
+
+  function MovimientoLeer(id) {
+    let modal = modalMovimientoLeer(movimientos[id]);
+    $('#modal_mensaje').html(modal);
+    $('#modal_mensaje').modal('toggle');
+  }
+
+  function modalMovimientoLeer(data) {
+    let modal = `<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-save"></i> Datos Movimiento</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label>Caja</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+ data.CAJA + `">
+          </div>
+          <div class="form-group">
+            <label>Fecha</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+ data.FECHA + `">
+          </div>
+          <div class="form-group">
+            <label>Descripcion</label>
+            <input readonly type="text" class="form-control form-control-sm" value="`+ data.DESCRIPCION + `">
+          </div>
+          <div class="form-group">
+            <label>Operacion</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+ data.OPERACION + `">
+          </div>
+          <div class="form-group">
+            <label>Monto</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+ data.MONTO + `">
+          </div>
+          <div class="form-group">
+            <label>Estado</label>    
+            <input readonly type="text" class="form-control form-control-sm" value="`+ data.ESTADO + `">
+          </div>
+        </form>
+      </div>
+    </div>
+    </div>`;
+    return modal;
+  }
+
+  function MovimientoEditar(id) {
+    let modal = modalMovimientoEditar(movimientos[id]);
+    $('#modal_formulario').html(modal);
+    $('#modal_formulario').modal('toggle');
+    $(".fechahora").mask("99/99/9999 99:99");
+  }
+
+  function modalMovimientoEditar(data) {
+    let estado = modalLoadSelect(data.ESTADO_ID, estados);
+    let modal = `<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">        
+        <p class="modal-title"><i class="fas fa-pencil-alt"></i> Editar Cobranza</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form_movimiento_editar">
+          <input type="hidden" name="id" value="`+ data.ID + `">
+          <input type="hidden" name="tipo_id" value="1">
+          <div class="form-group">
+            <label for="caja">Caja (No editable)</label>
+            <input readonly required type="text" class="form-control form-control-sm" id="caja" 
+              name="caja" value="`+ data.CAJA + `">
+          </div>
+          <div class="form-group">
+            <label for="fecha">Fecha *</label>
+            <input required type="text" class="fechahora form-control form-control-sm" id="fecha" 
+              name="fecha" value="`+ data.FECHA + `">
+          </div>
+          <div class="form-group">
+            <label for="descripcion">Descripcion*</label>
+            <input required type="text" class="form-control form-control-sm" id="descripcion" 
+              name="descripcion" value="`+ data.DESCRIPCION + `">
+          </div>
+          <div class="form-group">
+            <label for="operacion">Operacion *</label>
+            <input required type="number" class="form-control form-control-sm" id="operacion" 
+              name="operacion" value="`+ data.OPERACION + `">
+          </div>
+          <div class="form-group">
+            <label for="monto">Monto (No editable)</label>
+            <input readonly required type="number" class="form-control form-control-sm" id="monto" 
+              name="monto" value="`+ data.MONTO + `">
+          </div>
+          <div class="form-group">
+            <label for="estado_id">Estado:</label>    
+            <select class="form-control form-control-sm" id="estado_id" name="estado_id" nameSelect="estado">
+              `+ estado + `
+            </select>
+          </div>
+            
+        </form>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-info btn-sm" onclick="movimientoEditarGuardar()"><i class="fas fa-pencil-alt"></i> Editar</button>       
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>  
+      </div>
+    </div>
+    </div>`;
+    return modal;
+  }
+
+  function movimientoEditarGuardar() {
+    if (formValido("form_movimiento_editar")) {
+      let data_json = objForm("form_movimiento_editar");
+      modalCargando();
+      $.post(baseUrl + "movimiento/editar", data_json, function (data) {
+        let response = JSON.parse(data);
+        $('#modal_cargando').modal('toggle');
+        if (response.status) {
+          $('#modal_formulario').html("");
+          $('#modal_formulario').modal('toggle');
+          let modal_conten_loader = modalRespuestaOk('Correcto', response.mensaje, '');
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle');
+          dataLocalEdit(movimientos, data_json);
+          let aObjetos = []
+          aObjetos.push(data_json['id']);
+          aObjetos.push(data_json['caja']);
+          aObjetos.push(data_json['fecha']);
+          aObjetos.push(data_json['descripcion']);
+          aObjetos.push(data_json['operacion']);
+          aObjetos.push(data_json['monto']);
+          aObjetos.push(data_json['estado']);
+          datatableRowEdit(data_json['id'], aObjetos);
+        } else {
+          let modal_conten_loader = modalRespuestaError('Error', response.mensaje, '');
+          $('#modal_mensaje').html(modal_conten_loader);
+          $('#modal_mensaje').modal('toggle');
+        }
+      });
+    }
+  }
+
+  exportarIngresosCsv = function () {
+    let exportCvs = "ID,TIPO,FECHA,DESCRIPCION,SALDO,MONTO\r\n";
+    for (x in movimientos) {
+      exportCvs += movimientos[x].ID + ",";
+      exportCvs += movimientos[x].TIPO + ",";
+      exportCvs += movimientos[x].FECHA + ",";
+      exportCvs += movimientos[x].DESCRIPCION + ",";            
+      exportCvs += movimientos[x].MONTO;
+      exportCvs += "\r\n";
+    }
+
+    csvString = "data:application/csv," + encodeURIComponent(exportCvs);
+    let data = document.createElement("A");
+    data.setAttribute("href", csvString);
+    data.setAttribute("download", "resumen.csv");
+    document.body.appendChild(data);
+    data.click();
+  }
+
+  exportarRecibosPdf = function () {
+    // CREATE A WINDOW OBJECT.
+    let win = window.open('', '', 'height=700,width=900');
+    let tabla = `<table style="font-size: 12px;width: 100%;font-family: arial, sans-serif;border-collapse: collapse;">
+    <thead>
+      <tr>          
+        <th>Id</th>
+        <th>Tipo</th>
+        <th>Fecha</th>        
+        <th>Descripcion</th>
+        <th>Saldo</th>
+        <th>Monto</th>        
+      </tr>
+    </thead>
+    <tbody>`;
+    for (x in movimientos) {
+      tabla += "<tr>";
+      tabla += "<td>" + movimientos[x].ID + "</td>";
+      tabla += "<td>" + movimientos[x].TIPO + "</td>";
+      tabla += "<td>" + movimientos[x].FECHA + "</td>";
+      tabla += "<td>" + movimientos[x].DESCRIPCION + "</td>";      
+      tabla += "<td>" + movimientos[x].SALDO + "</td>";      
+      tabla += "<td>" + movimientos[x].MONTO + "</td>";      
+      tabla += "</tr>";
+    }
+    tabla += "</tbody></table>";
+    let style = "<style>";
+    style = style + "td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 2px;}";
+    style = style + "</style>";
+    win.document.write('<html><head>');
+    win.document.write('<title>Resumen de Caja</title>');   // <title> FOR PDF HEADER.
+    win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+    win.document.write('</head>');
+    win.document.write('<body>');
+    win.document.write(tabla);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+    win.document.write('</body></html>');
+    win.document.close();   // CLOSE THE CURRENT WINDOW.
+    win.print();    // PRINT THE CONTENTS.
+  }
+</script>

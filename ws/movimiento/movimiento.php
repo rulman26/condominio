@@ -33,27 +33,45 @@ class movimiento
   function crearMovimiento(){    
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    try {  
+    try {
+      //Obtengo el Saldo para insertar en la Tabla.
+      $sql = "SELECT SALDO FROM tacaja WHERE ID=?";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($this->caja_id));
+      $saldo = $q->fetch(PDO::FETCH_ASSOC);   
       $pdo->beginTransaction();
-      $sql = "INSERT INTO tamovimiento VALUES(default,?,?,STR_TO_DATE(?,'%d/%m/%Y'),?,?,?,?,?)";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($this->monto,$this->descripcion,$this->fecha,$this->operacion,$this->caja_id,$this->tipo_id,$this->recibo_id,$this->estado_id));
-      $mensaje['ingreso_id']=$pdo->lastInsertId();
-      //Actualizamos el Saldo 
-      $sql = "UPDATE tacaja SET SALDO=SALDO+? WHERE ID=?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($this->monto,$this->caja_id));
-
-      $sql = "UPDATE tacaja SET SALDO=SALDO+? WHERE ID=?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($this->monto,$this->caja_id));
-
-      $sql = "UPDATE tarecibo SET ESTADO_ID=2 WHERE ID=?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($this->recibo_id));
-
-      $mensaje['status']=true;
-      $mensaje['mensaje']='MOVIMIENTO REGISTRADO CON EXITO'; 
+      if(intval($this->tipo_id==1)){
+        $sql = "INSERT INTO tamovimiento VALUES(default,?,?,?,now(),?,?,?,?,?)";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($saldo['SALDO'],$this->monto,$this->descripcion,$this->operacion,$this->caja_id,$this->tipo_id,$this->recibo_id,$this->estado_id));
+        $mensaje['ingreso_id']=$pdo->lastInsertId();
+        //Actualizamos el Saldo 
+        $sql = "UPDATE tacaja SET SALDO=SALDO+? WHERE ID=?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($this->monto,$this->caja_id));
+        //Actualizamos el Recibo 
+        $sql = "UPDATE tarecibo SET ESTADO_ID=2 WHERE ID=?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($this->recibo_id));
+        $mensaje['status']=true;
+        $mensaje['mensaje']='COBRANZA REGISTRADA CON EXITO'; 
+      }else{
+        if(floatval($saldo['SALDO'])>=floatval($this->monto)){
+          $sql = "INSERT INTO tamovimiento VALUES(default,?,?,?,now(),?,?,?,?,?)";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($saldo['SALDO'],$this->monto,$this->descripcion,$this->operacion,$this->caja_id,$this->tipo_id,$this->recibo_id,$this->estado_id));
+          $mensaje['ingreso_id']=$pdo->lastInsertId();
+          //Actualizamos el Saldo 
+          $sql = "UPDATE tacaja SET SALDO=SALDO-? WHERE ID=?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($this->monto,$this->caja_id));        
+          $mensaje['status']=true;
+          $mensaje['mensaje']='SALIDA REGISTRADA CON EXITO'; 
+        }else{
+          $mensaje['status']=false;
+          $mensaje['mensaje']='NO EXISTE SALDO EN LA CAJA SELECCIONADA'; 
+        }        
+      }
       $pdo->commit(); 
     }catch(PDOException $e) { 
       $mensaje['status']=false;
@@ -69,44 +87,87 @@ class movimiento
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {  
       $pdo->beginTransaction();
-      $sql = "UPDATE tamovimiento 
-        SET DESCRIPCION=?,
-          FECHA=STR_TO_DATE(?,'%d/%m/%Y'),
-          OPERACION=?,
-          ESTADO_ID=?          
-          WHERE ID=?";
-        $q = $pdo->prepare($sql);
-        $q->execute(array($this->descripcion,$this->fecha,$this->operacion,$this->estado_id,$this->id));
-        $mensaje['status']=true;            
-        $mensaje['mensaje']='MOVIMIENTO EDITADO CON EXITO'; 
-            
-     
+      //INGRESOS
+      if(intval($this->tipo_id)==1){
+        //Editar solo campos no necesarios
+        if($this->estado_id==1){
+          $sql = "UPDATE tamovimiento 
+          SET DESCRIPCION=?,            
+            OPERACION=?,
+            ESTADO_ID=?          
+            WHERE ID=?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($this->descripcion,$this->operacion,$this->estado_id,$this->id));
+          $mensaje['status']=true;            
+          $mensaje['mensaje']='MOVIMIENTO EDITADO CON EXITO'; 
+        }else{        
+          //Obtenemos los Datos del Movimiento
+          $sql = "SELECT MONTO,CAJA_ID,RECIBO_ID FROM tamovimiento WHERE ID=?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($this->id));
+          $data = $q->fetch(PDO::FETCH_ASSOC); 
+          //Actualizamos el Saldo y restamos el monto abonado.
+          $sql = "UPDATE tacaja SET SALDO=SALDO-? WHERE ID=?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($data['MONTO'],$data['CAJA_ID']));
+          //Actualizamos el recibo a Pendiente ya que estaba cancelado.
+          $sql = "UPDATE tarecibo SET ESTADO_ID=1 WHERE ID=?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($data['RECIBO_ID']));
+          //Anular el movimiento.
+          $sql = "UPDATE tamovimiento SET ESTADO_ID=2 WHERE ID=?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($this->id));
+          //Actualizamos el Saldo de los Movimientos.
+          $sql = "UPDATE tamovimiento SET SALDO=SALDO-? WHERE ID>?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($data['MONTO'],$this->id));
+          $mensaje['status']=true;
+          $mensaje['mensaje']='MOVIMIENTO ELIMINADO CON EXITO'; 
+        }
+      }
+      //SALIDAS
+      else{
+        //Editar solo campos no necesarios
+        if($this->estado_id==1){
+          $sql = "UPDATE tamovimiento 
+          SET DESCRIPCION=?,            
+            OPERACION=?,
+            ESTADO_ID=?          
+            WHERE ID=?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($this->descripcion,$this->operacion,$this->estado_id,$this->id));
+          $mensaje['status']=true;            
+          $mensaje['mensaje']='MOVIMIENTO EDITADO CON EXITO'; 
+        }else{        
+          //Obtenemos los Datos del Movimiento
+          $sql = "SELECT MONTO,CAJA_ID,RECIBO_ID FROM tamovimiento WHERE ID=?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($this->id));
+          $data = $q->fetch(PDO::FETCH_ASSOC); 
+          //Actualizamos el Saldo y Agregamos el monto abonado.
+          $sql = "UPDATE tacaja SET SALDO=SALDO+? WHERE ID=?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($data['MONTO'],$data['CAJA_ID']));          
+          //Anular el movimiento.
+          $sql = "UPDATE tamovimiento SET ESTADO_ID=2 WHERE ID=?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($this->id));
+
+          //Actualizamos el Saldo de los Movimientos.
+          $sql = "UPDATE tamovimiento SET SALDO=SALDO+? WHERE ID>?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($data['MONTO'],$this->id));
+
+          $mensaje['status']=true;
+          $mensaje['mensaje']='MOVIMIENTO ELIMINADO CON EXITO'; 
+        }
+      }
       $pdo->commit();  
     }catch(PDOException $e) { 
       $mensaje['status']=false;
       $mensaje['mensaje']=$e->getMessage();
       $pdo->rollBack();
-    }
-    $pdo = baseDatos::desconectar();
-    return $mensaje;  
-  }
-
-  function eliminarIngreso(){    
-    $pdo = baseDatos::conectar();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
-    $sql = "SELECT IFNULL(SUM(CANTIDAD),0) SALIO FROM tasalida WHERE ESTADO_ID=1 AND INGRESO_ID=?";
-    $q = $pdo->prepare($sql);
-    $q->execute(array($this->id));
-    $data = $q->fetch(PDO::FETCH_ASSOC);      
-    if(intval($data['SALIO'])>0){
-      $mensaje['status']=false;
-      $mensaje['mensaje']='DICHO INGRESO YA REGISTRO SALIDAS ELIMINAR SALIDAS PRIMERO'; 
-    }else{
-      $sql = "UPDATE taingreso SET ESTADO_ID=2 WHERE ID=?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($this->id));
-      $mensaje['status']=true;
-      $mensaje['mensaje']='INGRESO ELIMINADO CORRECTAMENTE'; 
     }
     $pdo = baseDatos::desconectar();
     return $mensaje;  
@@ -126,6 +187,12 @@ class movimiento
     $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
     $mensaje['cajas']=$data;
 
+    $sql = "SELECT ID,NOMBRE FROM tabloque order by 1";
+    $q = $pdo->prepare($sql);
+    $q->execute(); 
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);                         
+    $mensaje['bloques']=$data;
+
     $sql = "SELECT ID,NOMBRE FROM gnestados  order by 1";
     $q = $pdo->prepare($sql);
     $q->execute(); 
@@ -138,18 +205,20 @@ class movimiento
   }
 
   function buscarMovimientos($inicio,$final,$caja_id,$tipo,$estados){
-    $cadena="WHERE  a.FECHA BETWEEN STR_TO_DATE('".$inicio."', '%d/%m/%Y') AND STR_TO_DATE('".$final."', '%d/%m/%Y')";
+    $cadena="WHERE  a.FECHA BETWEEN STR_TO_DATE('".$inicio." 00:00:00','%d/%m/%Y %H:%i:%s') AND STR_TO_DATE('".$final." 23:59:59', '%d/%m/%Y %H:%i:%s')";
     $cadena.=" AND a.ESTADO_ID IN (".$estados.") AND a.TIPO_ID IN(".$tipo.")"; 
     if(!empty($caja_id)){
       $cadena.=" AND a.CAJA_ID=".$caja_id;
     }
     $pdo = baseDatos::conectar();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT a.ID,b.NOMBRE CAJA,a.FECHA,DATE_FORMAT(a.FECHA,'%d/%m/%Y') FECHAINGRESO,
-      a.OPERACION,a.MONTO,a.RECIBO_ID,a.DESCRIPCION,a.ESTADO_ID,c.NOMBRE ESTADO,a.TIPO_ID
-      from tamovimiento a
-      join tacaja b on b.ID=a.CAJA_ID
-      join gnestados c on c.ID=a.ESTADO_ID ".$cadena ." ORDER BY 3";
+    $sql = "SELECT a.ID,b.NOMBRE CAJA,DATE_FORMAT(a.FECHA,'%d/%m/%Y %H:%i') FECHA,
+      a.OPERACION,a.MONTO,a.RECIBO_ID,a.DESCRIPCION,a.ESTADO_ID,c.NOMBRE ESTADO,a.TIPO_ID,ROUND(a.SALDO,2) SALDO,
+      a.TIPO_ID,d.NOMBRE TIPO
+      FROM tamovimiento a
+      JOIN tacaja b on b.ID=a.CAJA_ID
+      JOIN gnestados c on c.ID=a.ESTADO_ID
+      JOIN gnmovimientotipo d on d.ID=a.TIPO_ID ".$cadena ." ORDER BY 1";
     $q = $pdo->prepare($sql);
     $q->execute();
     $data = $q->fetchAll(PDO::FETCH_ASSOC);          

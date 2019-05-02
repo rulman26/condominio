@@ -43,31 +43,6 @@ switch ($_GET['solicitud']){
     echo json_encode($data,JSON_PRETTY_PRINT);
   break;
 
-  case 'editar':
-    if(tokenValido()){     
-      if ($_SERVER['REQUEST_METHOD']=="POST") {
-        if (empty($_POST)) {
-          $request  = json_decode(trim(file_get_contents('php://input')), true);                
-          $cuota->id=$request['id'];        
-          $cuota->nombre=$request['nombre']; 
-          $cuota->estado_id=$request['estado_id'];  
-        }else{
-          $cuota->id=$_POST['id'];
-          $cuota->nombre=$_POST['nombre'];
-          $cuota->estado_id=$_POST['estado_id'];  
-        }     
-        $data=$cuota->editarLaboratorio();     
-      }else{      
-        $data['status']=false;
-        $data['mensaje']="NO EXISTEN DATOS POST";                    
-      }
-    }else{
-      $data['status']=false;
-      $data['mensaje']="token Seguridad Error";
-    }               
-    echo json_encode($data,JSON_PRETTY_PRINT);
-  break;
-
   case 'eliminar': 
     if(tokenValido()){    
       if ($_SERVER['REQUEST_METHOD']=="POST") {
